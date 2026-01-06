@@ -14,6 +14,23 @@ export function Navbar() {
             <Link href="/dashboard/pcni" className="text-sm font-medium hover:text-primary transition-colors">
               PCNI Dashboard
             </Link>
+            <div className="h-6 w-px bg-border mx-2" />
+            <Link href="/dashboard/reports" className="text-sm font-medium hover:text-primary transition-colors">
+              Reports
+            </Link>
+            <Link href="/dashboard/reports/exports" className="text-sm font-medium hover:text-primary transition-colors">
+              Exports
+            </Link>
+            <div className="h-6 w-px bg-border mx-2" />
+            <Link href="/dashboard/admin/branches" className="text-sm font-medium hover:text-primary transition-colors">
+              Branches
+            </Link>
+            <Link href="/dashboard/admin/areas" className="text-sm font-medium hover:text-primary transition-colors">
+              Areas
+            </Link>
+            <Link href="/dashboard/admin/config" className="text-sm font-medium hover:text-primary transition-colors">
+              Config
+            </Link>
           </nav>
         </div>
         <UserButton afterSignOutUrl="/sign-in" />
