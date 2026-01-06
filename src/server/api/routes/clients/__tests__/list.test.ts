@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { Hono } from 'hono'
 import { clientListRoutes } from '../list'
 import { db } from '@/server/db'
 import { getClients, countClients } from '@/server/db/queries/clients'
 import { getUserBranchFilter } from '@/lib/territories/filter'
 import { hasPermission } from '@/lib/permissions'
+import { createTestApp } from '@/test/utils/test-helpers'
 
 // Mock database and query functions
 vi.mock('@/server/db', () => ({
@@ -38,8 +38,8 @@ describe('Client List Routes', () => {
           fullName: 'Test Client',
           pensionNumber: 'P001',
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
         },
       ]
 
@@ -50,8 +50,8 @@ describe('Client List Routes', () => {
       })
       vi.mocked(getClients).mockResolvedValue(mockClients)
       vi.mocked(countClients).mockResolvedValue(1)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/?page=1&pageSize=25')
@@ -71,8 +71,8 @@ describe('Client List Routes', () => {
 
     it('should return 403 when user lacks permission', async () => {
       vi.mocked(hasPermission).mockResolvedValue(false)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/')
@@ -89,8 +89,8 @@ describe('Client List Routes', () => {
         scope: 'none',
         branchIds: [],
       })
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/')
@@ -110,8 +110,8 @@ describe('Client List Routes', () => {
           fullName: 'Test Client',
           pensionNumber: 'P001',
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
         },
       ]
 
@@ -122,8 +122,8 @@ describe('Client List Routes', () => {
       })
       vi.mocked(getClients).mockResolvedValue(mockClients)
       vi.mocked(countClients).mockResolvedValue(1)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/')
@@ -151,8 +151,8 @@ describe('Client List Routes', () => {
       })
       vi.mocked(getClients).mockResolvedValue(mockClients)
       vi.mocked(countClients).mockResolvedValue(0)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/?pensionTypeId=pt1')
@@ -179,8 +179,8 @@ describe('Client List Routes', () => {
       })
       vi.mocked(getClients).mockResolvedValue(mockClients)
       vi.mocked(countClients).mockResolvedValue(0)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/?isActive=true')
@@ -207,8 +207,8 @@ describe('Client List Routes', () => {
       })
       vi.mocked(getClients).mockResolvedValue(mockClients)
       vi.mocked(countClients).mockResolvedValue(0)
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/?search=test')
@@ -232,8 +232,8 @@ describe('Client List Routes', () => {
         branchIds: [],
       })
       vi.mocked(getClients).mockRejectedValue(new Error('Database error'))
-
-      const app = new Hono()
+ 
+      const app = createTestApp()
       app.route('/', clientListRoutes)
 
       const response = await app.request('/')

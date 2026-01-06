@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import {
   listBranches,
@@ -13,6 +12,7 @@ import {
 import { hasPermission } from '@/lib/permissions'
 import { getUserBranchFilter } from '@/lib/territories/filter'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const branchRoutes = new Hono()
@@ -64,11 +64,11 @@ const optionsQuerySchema = z.object({
 branchRoutes.get(
   '/',
   rateLimitMiddleware('read'),
-  zValidator('query', listQuerySchema),
+  validateRequest('query', listQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { page, pageSize, search, areaId, category, isActive } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { page, pageSize, search, areaId, category, isActive } = (c as any).get('validated_query') as any
 
     try {
       // Check permission
@@ -182,11 +182,11 @@ branchRoutes.get(
 branchRoutes.get(
   '/options',
   rateLimitMiddleware('read'),
-  zValidator('query', optionsQuerySchema),
+  validateRequest('query', optionsQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { areaId, isActive } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { areaId, isActive } = (c as any).get('validated_query') as any
 
     try {
       // Check permission
@@ -267,8 +267,8 @@ branchRoutes.get(
  * Get distinct categories
  */
 branchRoutes.get('/categories', rateLimitMiddleware('read'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
 
   try {
     // Check permission
@@ -329,8 +329,8 @@ branchRoutes.get('/categories', rateLimitMiddleware('read'), async (c) => {
  * Get branch by ID
  */
 branchRoutes.get('/:id', rateLimitMiddleware('read'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {
@@ -440,11 +440,11 @@ branchRoutes.get('/:id', rateLimitMiddleware('read'), async (c) => {
 branchRoutes.post(
   '/',
   rateLimitMiddleware('write'),
-  zValidator('json', createBranchSchema),
+  validateRequest('json', createBranchSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const data = c.req.valid('json')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -514,12 +514,12 @@ branchRoutes.post(
 branchRoutes.patch(
   '/:id',
   rateLimitMiddleware('write'),
-  zValidator('json', updateBranchSchema),
+  validateRequest('json', updateBranchSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
     const id = c.req.param('id')
-    const data = c.req.valid('json')
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -615,8 +615,8 @@ branchRoutes.patch(
  * Delete branch (soft delete)
  */
 branchRoutes.delete('/:id', rateLimitMiddleware('write'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {

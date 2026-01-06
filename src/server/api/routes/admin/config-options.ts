@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { configOptions } from '@/server/db/schema/config'
@@ -12,6 +11,7 @@ import {
 } from '@/server/db/queries/config'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const configOptionRoutes = new Hono()
@@ -55,11 +55,11 @@ const updateOptionSchema = z.object({
 configOptionRoutes.get(
   '/options',
   rateLimitMiddleware('read'),
-  zValidator('query', listQuerySchema),
+  validateRequest('query', listQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { categoryId, companyId, isActive, includeInactive } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { categoryId, companyId, isActive, includeInactive } = (c as any).get('validated_query') as any
 
     try {
       // Check permission
@@ -128,8 +128,8 @@ configOptionRoutes.get(
  * Get option by ID
  */
 configOptionRoutes.get('/options/:id', rateLimitMiddleware('read'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {
@@ -208,11 +208,11 @@ configOptionRoutes.get('/options/:id', rateLimitMiddleware('read'), async (c) =>
 configOptionRoutes.post(
   '/options',
   rateLimitMiddleware('write'),
-  zValidator('json', createOptionSchema),
+  validateRequest('json', createOptionSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const data = c.req.valid('json')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -285,12 +285,12 @@ configOptionRoutes.post(
 configOptionRoutes.patch(
   '/options/:id',
   rateLimitMiddleware('write'),
-  zValidator('json', updateOptionSchema),
+  validateRequest('json', updateOptionSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
     const id = c.req.param('id')
-    const data = c.req.valid('json')
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -410,8 +410,8 @@ configOptionRoutes.patch(
  * Delete option (protects system options)
  */
 configOptionRoutes.delete('/options/:id', rateLimitMiddleware('write'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {

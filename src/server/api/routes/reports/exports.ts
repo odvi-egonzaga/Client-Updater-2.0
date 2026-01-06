@@ -3,12 +3,12 @@
  */
 
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { createExportJob, getExportJob, listExportJobs, getDownloadUrl } from '@/features/exports/services/export.service'
 import { processExportJob } from '@/features/exports/handlers/process-export.handler'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const exportsRoutes = new Hono()
@@ -48,12 +48,12 @@ const listExportsSchema = z.object({
 exportsRoutes.post(
   '/',
   rateLimitMiddleware('write'),
-  zValidator('json', createExportSchema),
+  validateRequest('json', createExportSchema),
   async (c) => {
     const start = performance.now()
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const exportData = c.req.valid('json')
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
+    const exportData = (c as any).get('validated_json')
 
     try {
       // Check permission
@@ -153,12 +153,12 @@ exportsRoutes.post(
 exportsRoutes.get(
   '/',
   rateLimitMiddleware('read'),
-  zValidator('query', listExportsSchema),
+  validateRequest('query', listExportsSchema),
   async (c) => {
     const start = performance.now()
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { page, pageSize, status } = c.req.valid('query')
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
+    const { page, pageSize, status } = (c as any).get('validated_query')
 
     try {
       // Check permission
@@ -245,8 +245,8 @@ exportsRoutes.get(
   rateLimitMiddleware('read'),
   async (c) => {
     const start = performance.now()
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
     const exportId = c.req.param('id')
 
     try {
@@ -354,8 +354,8 @@ exportsRoutes.get(
   rateLimitMiddleware('read'),
   async (c) => {
     const start = performance.now()
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
     const exportId = c.req.param('id')
 
     try {

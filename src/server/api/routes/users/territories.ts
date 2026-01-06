@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import {
@@ -11,6 +10,7 @@ import {
   removeBranchesFromUser,
 } from '@/server/db/queries/territories'
 import { getUserAreas, getUserBranches } from '@/server/db/queries/users'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const userTerritoriesRoutes = new Hono()
@@ -173,10 +173,10 @@ userTerritoriesRoutes.get('/:id/territories', async (c) => {
  * PUT /api/users/:id/territories
  * Set user's territories (replaces all existing territories)
  */
-userTerritoriesRoutes.put('/:id/territories', zValidator('json', setTerritoriesSchema), async (c) => {
+userTerritoriesRoutes.put('/:id/territories', validateRequest('json', setTerritoriesSchema), async (c) => {
   const start = performance.now()
   const userId = c.req.param('id')
-  const { areaIds = [], branchIds = [] } = c.req.valid('json')
+  const { areaIds = [], branchIds = [] } = c.get('validated_json') as any
 
   try {
     // Get current user territories to determine what to remove

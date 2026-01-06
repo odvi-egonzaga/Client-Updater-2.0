@@ -1,9 +1,9 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { listConfigSettings, getConfigSetting, setConfigSetting } from '@/server/db/queries/config'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const configSettingRoutes = new Hono()
@@ -29,11 +29,11 @@ const setSettingSchema = z.object({
 configSettingRoutes.get(
   '/settings',
   rateLimitMiddleware('read'),
-  zValidator('query', listQuerySchema),
+  validateRequest('query', listQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { companyId, isPublic } = c.req.valid('query')
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
+    const { companyId, isPublic } = (c as any).get('validated_query')
 
     try {
       // Check permission
@@ -97,8 +97,8 @@ configSettingRoutes.get(
  * Get setting by key
  */
 configSettingRoutes.get('/settings/:key', rateLimitMiddleware('read'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId')
+  const orgId = (c as any).get('orgId')
   const key = c.req.param('key')
 
   try {
@@ -177,12 +177,12 @@ configSettingRoutes.get('/settings/:key', rateLimitMiddleware('read'), async (c)
 configSettingRoutes.put(
   '/settings/:key',
   rateLimitMiddleware('write'),
-  zValidator('json', setSettingSchema),
+  validateRequest('json', setSettingSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId')
+    const orgId = (c as any).get('orgId')
     const key = c.req.param('key')
-    const data = c.req.valid('json')
+    const data = (c as any).get('validated_json')
 
     try {
       // Check permission

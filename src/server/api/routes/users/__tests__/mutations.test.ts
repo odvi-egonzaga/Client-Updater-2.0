@@ -30,8 +30,8 @@ describe('User Mutation Routes', () => {
         imageUrl: 'https://example.com/avatar.jpg',
         clerkUserId: 'clerk_123',
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
       vi.mocked(createUser).mockResolvedValue(newUser)
@@ -95,8 +95,8 @@ describe('User Mutation Routes', () => {
         firstName: 'Updated',
         lastName: 'User',
         isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
       vi.mocked(updateUser).mockResolvedValue(updatedUser)
@@ -152,8 +152,8 @@ describe('User Mutation Routes', () => {
         firstName: 'Test',
         lastName: 'User',
         isActive: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
       vi.mocked(toggleUserStatus).mockResolvedValue(updatedUser)

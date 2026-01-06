@@ -29,8 +29,8 @@ describe('User Sessions Routes', () => {
           sessionToken: 'token_1',
           ipAddress: '192.168.1.1',
           userAgent: 'Mozilla/5.0',
-          createdAt: new Date(),
-          expiresAt: new Date(),
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date().toISOString(),
         },
       ]
 
@@ -71,9 +71,9 @@ describe('User Sessions Routes', () => {
         sessionToken: 'token_1',
         ipAddress: '192.168.1.1',
         userAgent: 'Mozilla/5.0',
-        createdAt: new Date(),
-        expiresAt: new Date(),
-        revokedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date().toISOString(),
+        revokedAt: new Date().toISOString(),
         revokedReason: 'Session revoked by admin',
       }
 
@@ -119,9 +119,9 @@ describe('User Sessions Routes', () => {
           sessionToken: 'token_1',
           ipAddress: '192.168.1.1',
           userAgent: 'Mozilla/5.0',
-          createdAt: new Date(),
-          expiresAt: new Date(),
-          revokedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date().toISOString(),
+          revokedAt: new Date().toISOString(),
           revokedReason: 'All sessions revoked by admin',
         },
       ]

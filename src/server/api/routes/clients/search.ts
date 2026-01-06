@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { searchClients } from '@/server/db/queries/clients'
 import { getUserBranchFilter } from '@/lib/territories/filter'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const clientSearchRoutes = new Hono()
@@ -23,12 +23,12 @@ const searchQuerySchema = z.object({
 clientSearchRoutes.get(
   '/search',
   rateLimitMiddleware('read'),
-  zValidator('query', searchQuerySchema),
+  validateRequest('query', searchQuerySchema),
   async (c) => {
     const start = performance.now()
     const userId = c.get('userId') as string
     const orgId = c.get('orgId') as string
-    const { q, limit } = c.req.valid('query')
+    const { q, limit } = c.get('validated_query')
 
     try {
       // Check permission

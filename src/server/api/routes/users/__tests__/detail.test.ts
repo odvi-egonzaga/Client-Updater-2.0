@@ -34,8 +34,8 @@ describe('User Detail Routes', () => {
         ],
         areas: [],
         branches: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       }
 
       vi.mocked(getUserWithPermissions).mockResolvedValue(mockUser)
@@ -49,6 +49,9 @@ describe('User Detail Routes', () => {
       expect(response.status).toBe(200)
       expect(json.success).toBe(true)
       expect(json.data).toEqual(mockUser)
+      // Dates are JSON-serialized as ISO strings
+      expect(json.data.createdAt).toBe(mockUser.createdAt)
+      expect(json.data.updatedAt).toBe(mockUser.updatedAt)
       expect(getUserWithPermissions).toHaveBeenCalledWith(db, '1')
     })
 

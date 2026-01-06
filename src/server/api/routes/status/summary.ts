@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { getDashboardSummary } from '@/server/db/queries/status'
@@ -7,6 +6,7 @@ import { getUserBranchFilter } from '@/lib/territories/filter'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
 import { logger } from '@/lib/logger'
+import { validateRequest } from '@/server/api/middleware/validation'
 
 export const statusSummaryRoutes = new Hono()
 
@@ -25,12 +25,12 @@ const summaryQuerySchema = z.object({
 statusSummaryRoutes.get(
   '/',
   rateLimitMiddleware('read'),
-  zValidator('query', summaryQuerySchema),
+  validateRequest('query', summaryQuerySchema),
   async (c) => {
     const start = performance.now()
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { companyId, periodYear, periodMonth, periodQuarter } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { companyId, periodYear, periodMonth, periodQuarter } = (c as any).get('validated_query')
 
     try {
       // Check permission

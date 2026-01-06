@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { getAllUsers } from '@/server/db/queries/users'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const userListRoutes = new Hono()
@@ -19,9 +19,9 @@ const listQuerySchema = z.object({
  * GET /api/users
  * List users with pagination and filtering
  */
-userListRoutes.get('/', zValidator('query', listQuerySchema), async (c) => {
+userListRoutes.get('/', validateRequest('query', listQuerySchema), async (c) => {
   const start = performance.now()
-  const { page, pageSize, isActive, search } = c.req.valid('query')
+  const { page, pageSize, isActive, search } = c.get('validated_query')
 
   try {
     // Get total count for pagination

@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { getUserPermissions, setUserPermissions } from '@/server/db/queries/permissions'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const userPermissionsRoutes = new Hono()
@@ -64,10 +64,10 @@ userPermissionsRoutes.get('/:id/permissions', async (c) => {
  * PUT /api/users/:id/permissions
  * Set user's permissions (replaces all existing permissions)
  */
-userPermissionsRoutes.put('/:id/permissions', zValidator('json', setPermissionsSchema), async (c) => {
+userPermissionsRoutes.put('/:id/permissions', validateRequest('json', setPermissionsSchema), async (c) => {
   const start = performance.now()
   const userId = c.req.param('id')
-  const { permissions } = c.req.valid('json')
+  const { permissions } = c.get('validated_json')
 
   try {
     const result = await setUserPermissions(db, userId, permissions)

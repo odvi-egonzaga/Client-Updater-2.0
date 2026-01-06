@@ -27,8 +27,8 @@ describe('User List Routes', () => {
           firstName: 'Test',
           lastName: 'User',
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       ]
 
@@ -60,8 +60,8 @@ describe('User List Routes', () => {
           firstName: 'Active',
           lastName: 'User',
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       ]
 
@@ -86,8 +86,8 @@ describe('User List Routes', () => {
           firstName: 'Search',
           lastName: 'User',
           isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
       ]
 

@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import {
   listAreas,
@@ -11,6 +10,7 @@ import {
 } from '@/server/db/queries/areas'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const areaRoutes = new Hono()
@@ -49,11 +49,11 @@ const optionsQuerySchema = z.object({
 areaRoutes.get(
   '/',
   rateLimitMiddleware('read'),
-  zValidator('query', listQuerySchema),
+  validateRequest('query', listQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { page, pageSize, search, companyId, isActive } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { page, pageSize, search, companyId, isActive } = (c as any).get('validated_query') as any
 
     try {
       // Check permission
@@ -130,11 +130,11 @@ areaRoutes.get(
 areaRoutes.get(
   '/options',
   rateLimitMiddleware('read'),
-  zValidator('query', optionsQuerySchema),
+  validateRequest('query', optionsQuerySchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const { companyId, isActive } = c.req.valid('query')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const { companyId, isActive } = (c as any).get('validated_query') as any
 
     try {
       // Check permission
@@ -198,8 +198,8 @@ areaRoutes.get(
  * Get area by ID
  */
 areaRoutes.get('/:id', rateLimitMiddleware('read'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {
@@ -278,11 +278,11 @@ areaRoutes.get('/:id', rateLimitMiddleware('read'), async (c) => {
 areaRoutes.post(
   '/',
   rateLimitMiddleware('write'),
-  zValidator('json', createAreaSchema),
+  validateRequest('json', createAreaSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
-    const data = c.req.valid('json')
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -352,12 +352,12 @@ areaRoutes.post(
 areaRoutes.patch(
   '/:id',
   rateLimitMiddleware('write'),
-  zValidator('json', updateAreaSchema),
+  validateRequest('json', updateAreaSchema),
   async (c) => {
-    const userId = c.get('userId') as string
-    const orgId = c.get('orgId') as string
+    const userId = (c as any).get('userId') as string
+    const orgId = (c as any).get('orgId') as string
     const id = c.req.param('id')
-    const data = c.req.valid('json')
+    const data = (c as any).get('validated_json') as any
 
     try {
       // Check permission
@@ -422,8 +422,8 @@ areaRoutes.patch(
  * Delete area (soft delete)
  */
 areaRoutes.delete('/:id', rateLimitMiddleware('write'), async (c) => {
-  const userId = c.get('userId') as string
-  const orgId = c.get('orgId') as string
+  const userId = (c as any).get('userId') as string
+  const orgId = (c as any).get('orgId') as string
   const id = c.req.param('id')
 
   try {
