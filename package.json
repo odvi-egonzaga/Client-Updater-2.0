@@ -48,6 +48,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/server/db/seed/index.ts",
+    "db:enable-rls": "tsx src/server/db/scripts/enable-rls.ts",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
@@ -133,6 +134,6 @@
   },
   "packageManager": "pnpm@10.26.1",
   "dtt": {
-    "version": "0.1.16"
+    "version": "0.1.18"
   }
 }

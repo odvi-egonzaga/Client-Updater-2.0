@@ -26,6 +26,7 @@ export const companies = pgTable('companies', {
 // Pension Types (SSS, GSIS, PVAO, etc.)
 export const pensionTypes = pgTable('pension_types', {
   ...lookupColumns,
+  code: varchar('code', { length: 50 }).notNull(), // Override to remove unique constraint
   companyId: uuid('company_id').references(() => companies.id),
 })
 

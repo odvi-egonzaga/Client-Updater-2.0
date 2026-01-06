@@ -5,8 +5,6 @@ class NextBankClient {
   private username: string
   private password: string
 
-  // this is for testing purposes only
-
   constructor() {
     this.apiUrl = env.NEXTBANK_API ?? ''
     this.username = env.NEXTBANK_API_USERNAME ?? ''
