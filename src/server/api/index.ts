@@ -6,6 +6,7 @@ import { healthRoutes } from './routes/health'
 import { usersRoutes } from './routes/users/index'
 import { clientsRoutes } from './routes/clients/index'
 import { syncRoutes } from './routes/sync/index'
+import { statusRoutes } from './routes/status/index'
 
 const app = new Hono().basePath('/api')
 
@@ -21,6 +22,7 @@ app.route('/health', healthRoutes)
 app.route('/users', usersRoutes)
 app.route('/clients', clientsRoutes)
 app.route('/sync', syncRoutes)
+app.route('/status', statusRoutes)
 
 export { app }
 export type AppType = typeof app
