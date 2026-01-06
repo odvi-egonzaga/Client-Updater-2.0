@@ -8,11 +8,9 @@ import { nextbankHealthRoutes } from './nextbank'
 import { synologyHealthRoutes } from './synology'
 import { frameworkHealthRoutes } from './framework'
 import { awsS3HealthRoutes } from './aws-s3'
-import { systemHealthRoute } from './system'
 
 export const healthRoutes = new Hono()
 
-healthRoutes.route('/system', systemHealthRoute)
 healthRoutes.route('/clerk', clerkHealthRoutes)
 healthRoutes.route('/database', databaseHealthRoutes)
 healthRoutes.route('/storage', storageHealthRoutes)

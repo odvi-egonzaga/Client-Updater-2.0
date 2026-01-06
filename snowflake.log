@@ -1,0 +1,36 @@
+{"level":"INFO","message":"[4:50:44.279 PM]: Creating new connection object"}
+{"level":"INFO","message":"[4:50:44.314 PM]: Creating Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] with host: ef19411.ap-southeast-1.snowflakecomputing.com, account: ef19411, accessUrl: https://ef19411.ap-southeast-1.snowflakecomputing.com, user: APP_USER_WITH_KEY_AUTH, role: ACCOUNTADMIN, database: undefined, schema: undefined, warehouse: COMPUTE_WH, proxy was not configured, password is not provided, region: ap-southeast-1, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26200"}
+{"level":"INFO","message":"[4:50:44.316 PM]: Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.3.3, retry timeout: 300, private key path: undefined, private key pass is provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[4:50:44.317 PM]: Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] - connection object created successfully."}
+{"level":"INFO","message":"[4:50:44.319 PM]: Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[4:50:44.335 PM]: Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[4:50:44.336 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[4:50:44.674 PM]: Creating new connection object"}
+{"level":"INFO","message":"[4:50:44.677 PM]: Creating Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] with host: ef19411.ap-southeast-1.snowflakecomputing.com, account: ef19411, accessUrl: https://ef19411.ap-southeast-1.snowflakecomputing.com, user: APP_USER_WITH_KEY_AUTH, role: ACCOUNTADMIN, database: undefined, schema: undefined, warehouse: COMPUTE_WH, proxy was not configured, password is not provided, region: ap-southeast-1, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26200"}
+{"level":"INFO","message":"[4:50:44.678 PM]: Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.3.3, retry timeout: 300, private key path: undefined, private key pass is provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[4:50:44.678 PM]: Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] - connection object created successfully."}
+{"level":"INFO","message":"[4:50:44.679 PM]: Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[4:50:44.689 PM]: Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[4:50:44.691 PM]: Trying to initialize Easy Logging"}
+{"level":"INFO","message":"[4:50:44.722 PM]: No client config detected."}
+{"level":"INFO","message":"[4:50:44.723 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[4:50:44.724 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[4:50:44.797 PM]: No client config detected."}
+{"level":"INFO","message":"[4:50:44.798 PM]: No config file path found. Client config will not be used."}
+{"level":"INFO","message":"[4:50:44.799 PM]: Easy Logging is disabled as no config has been found"}
+{"level":"INFO","message":"[4:50:47.362 PM]: Connection[id: cbd93a3f-156d-47b9-a1cc-1f4ac198d23d] - connection established successfully after 2682.72 milliseconds"}
+{"level":"INFO","message":"[4:50:47.418 PM]: Connection[id: cdf1d69a-4f2c-481b-9d32-b6bd38cfd358] - connection established successfully after 3099.54 milliseconds"}
+{"level":"INFO","message":"[4:50:51.897 PM]: Creating new connection object"}
+{"level":"INFO","message":"[4:50:51.899 PM]: Creating Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] with host: ef19411.ap-southeast-1.snowflakecomputing.com, account: ef19411, accessUrl: https://ef19411.ap-southeast-1.snowflakecomputing.com, user: APP_USER_WITH_KEY_AUTH, role: ACCOUNTADMIN, database: undefined, schema: undefined, warehouse: COMPUTE_WH, proxy was not configured, password is not provided, region: ap-southeast-1, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26200"}
+{"level":"INFO","message":"[4:50:51.899 PM]: Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.3.3, retry timeout: 300, private key path: undefined, private key pass is provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[4:50:51.900 PM]: Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] - connection object created successfully."}
+{"level":"INFO","message":"[4:50:51.900 PM]: Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[4:50:51.906 PM]: Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[4:50:51.991 PM]: Connection[id: 215c45f0-0d4b-41ff-904e-044ec40f7143] - connection established successfully after 90.72 milliseconds"}
+{"level":"INFO","message":"[4:50:52.131 PM]: Creating new connection object"}
+{"level":"INFO","message":"[4:50:52.132 PM]: Creating Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] with host: ef19411.ap-southeast-1.snowflakecomputing.com, account: ef19411, accessUrl: https://ef19411.ap-southeast-1.snowflakecomputing.com, user: APP_USER_WITH_KEY_AUTH, role: ACCOUNTADMIN, database: undefined, schema: undefined, warehouse: COMPUTE_WH, proxy was not configured, password is not provided, region: ap-southeast-1, authenticator: SNOWFLAKE_JWT, ocsp mode: FAIL_OPEN, os: win32, os version: 10.0.26200"}
+{"level":"INFO","message":"[4:50:52.133 PM]: Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] additional details: passcode in password is provided, passcode is not provided, private key is provided, application: undefined, client name: snowflake-sdk, client version: 2.3.3, retry timeout: 300, private key path: undefined, private key pass is provided, client store temporary credential: false, browser response timeout: 120000"}
+{"level":"INFO","message":"[4:50:52.133 PM]: Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] - connection object created successfully."}
+{"level":"INFO","message":"[4:50:52.133 PM]: Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] - connecting. Associated Snowflake domain: GLOBAL"}
+{"level":"INFO","message":"[4:50:52.139 PM]: Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] - authentication successful using: SNOWFLAKE_JWT"}
+{"level":"INFO","message":"[4:50:52.233 PM]: Connection[id: b4ed40d2-4407-431c-bc24-fde98a4104c7] - connection established successfully after 99.76 milliseconds"}

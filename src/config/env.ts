@@ -40,33 +40,6 @@ const envSchema = z.object({
   SYNOLOGY_HOST: z.string().url().optional(),
   SYNOLOGY_USERNAME: z.string().optional(),
   SYNOLOGY_PASSWORD: z.string().optional(),
-
-  // UploadThing (optional)
-  UPLOADTHING_TOKEN: z.string().optional(),
-
-  // Upstash Redis (Caching & Rate Limiting)
-  UPSTASH_REDIS_URL: z.string().url().optional(),
-  UPSTASH_REDIS_TOKEN: z.string().optional(),
-
-  // Rate Limiting
-  RATE_LIMIT_READ_REQUESTS: z.coerce.number().default(100),
-  RATE_LIMIT_WRITE_REQUESTS: z.coerce.number().default(30),
-  RATE_LIMIT_EXPORT_REQUESTS: z.coerce.number().default(5),
-  RATE_LIMIT_LOGIN_ATTEMPTS: z.coerce.number().default(5),
-
-  // Circuit Breaker
-  CIRCUIT_SNOWFLAKE_THRESHOLD: z.coerce.number().default(5),
-  CIRCUIT_SNOWFLAKE_COOLDOWN_MS: z.coerce.number().default(60000),
-  CIRCUIT_NEXTBANK_THRESHOLD: z.coerce.number().default(3),
-  CIRCUIT_NEXTBANK_COOLDOWN_MS: z.coerce.number().default(30000),
-
-  // Data Retention (days)
-  RETENTION_ACTIVITY_LOGS: z.coerce.number().default(90),
-  RETENTION_COMPLETED_JOBS: z.coerce.number().default(7),
-  RETENTION_EXPORT_FILES: z.coerce.number().default(30),
-
-  // Health Check
-  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().default(5000),
 })
 
 export const env = envSchema.parse(process.env)

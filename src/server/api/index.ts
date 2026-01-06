@@ -1,14 +1,15 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { logger } from 'hono/logger'
 import { authMiddleware } from './middleware/auth'
-import { tracingMiddleware } from './middleware/tracing'
 import { healthRoutes } from './routes/health'
-import { usersRoutes } from './routes/users'
+import { usersRoutes } from './routes/users/index'
+import { clientsRoutes } from './routes/clients/index'
+import { syncRoutes } from './routes/sync/index'
 
 const app = new Hono().basePath('/api')
 
-// Global middleware
-app.use('*', tracingMiddleware)
+app.use('*', logger())
 app.use('*', cors())
 
 // Public routes
@@ -18,6 +19,8 @@ app.get('/ping', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString
 app.use('*', authMiddleware)
 app.route('/health', healthRoutes)
 app.route('/users', usersRoutes)
+app.route('/clients', clientsRoutes)
+app.route('/sync', syncRoutes)
 
 export { app }
 export type AppType = typeof app
