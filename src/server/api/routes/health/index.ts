@@ -8,6 +8,7 @@ import { nextbankHealthRoutes } from './nextbank'
 import { synologyHealthRoutes } from './synology'
 import { frameworkHealthRoutes } from './framework'
 import { awsS3HealthRoutes } from './aws-s3'
+import { checkHealth } from '@/lib/health'
 
 export const healthRoutes = new Hono()
 
@@ -107,4 +108,14 @@ healthRoutes.get('/all', async (c) => {
     services: services,
     checks: allResults,
   })
+})
+
+healthRoutes.get('/unified', async (c) => {
+  const authHeader = c.req.header('authorization')
+  const result = await checkHealth({
+    edgeFunctions: [
+      { functionName: 'health-check', validateAuth: true, authToken: authHeader }
+    ],
+  })
+  return c.json(result)
 })
