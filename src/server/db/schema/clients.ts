@@ -67,7 +67,7 @@ export const clientPeriodStatus = pgTable('client_period_status', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
-  uniquePeriod: unique().on(table.clientId, table.periodType, table.periodMonth, table.periodQuarter, table.periodYear),
+  uniquePeriod: unique('client_period_status_period_unique').on(table.clientId, table.periodType, table.periodMonth, table.periodQuarter, table.periodYear),
 }))
 
 // Status events (audit trail)

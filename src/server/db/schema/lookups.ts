@@ -1,10 +1,10 @@
-import { pgTable, uuid, varchar, boolean, integer, timestamp, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, boolean, integer, timestamp, pgEnum, unique } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // Common columns for lookup tables
 const lookupColumns = {
   id: uuid('id').primaryKey().defaultRandom(),
-  code: varchar('code', { length: 50 }).notNull().unique(),
+  code: varchar('code', { length: 50 }).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   isSystem: boolean('is_system').default(false).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
@@ -21,45 +21,59 @@ export const trackingCycleEnum = pgEnum('tracking_cycle', ['monthly', 'quarterly
 export const companies = pgTable('companies', {
   ...lookupColumns,
   code: varchar('code', { length: 50 }).notNull(), // Override to remove unique constraint
-})
+}, (table) => ({
+  codeUnique: unique('companies_code_unique').on(table.code),
+}))
 
 // Pension Types (SSS, GSIS, PVAO, etc.)
 export const pensionTypes = pgTable('pension_types', {
   ...lookupColumns,
   code: varchar('code', { length: 50 }).notNull(), // Override to remove unique constraint
   companyId: uuid('company_id').references(() => companies.id),
-})
+}, (table) => ({
+  codeUnique: unique('pension_types_code_unique').on(table.code),
+}))
 
 // Pensioner Types (DEPENDENT, DISABILITY, RETIREE, ITF)
 export const pensionerTypes = pgTable('pensioner_types', {
   ...lookupColumns,
   pensionTypeId: uuid('pension_type_id').references(() => pensionTypes.id),
-})
+}, (table) => ({
+  codeUnique: unique('pensioner_types_code_unique').on(table.code),
+}))
 
 // Products
 export const products = pgTable('products', {
   ...lookupColumns,
   companyId: uuid('company_id').references(() => companies.id),
   trackingCycle: trackingCycleEnum('tracking_cycle').default('monthly').notNull(),
-})
+}, (table) => ({
+  codeUnique: unique('products_code_unique').on(table.code),
+}))
 
 // Account Types (PASSBOOK, ATM, BOTH, NONE)
 export const accountTypes = pgTable('account_types', {
   ...lookupColumns,
-})
+}, (table) => ({
+  codeUnique: unique('account_types_code_unique').on(table.code),
+}))
 
 // PAR Statuses (current, 30+, 60+)
 export const parStatuses = pgTable('par_statuses', {
   ...lookupColumns,
   isTrackable: boolean('is_trackable').default(true).notNull(),
-})
+}, (table) => ({
+  codeUnique: unique('par_statuses_code_unique').on(table.code),
+}))
 
 // Status Types (PENDING, TO_FOLLOW, CALLED, VISITED, UPDATED, DONE)
 export const statusTypes = pgTable('status_types', {
   ...lookupColumns,
   sequence: integer('sequence').default(0).notNull(),
   companyId: uuid('company_id').references(() => companies.id),
-})
+}, (table) => ({
+  codeUnique: unique('status_types_code_unique').on(table.code),
+}))
 
 // Status Reasons
 export const statusReasons = pgTable('status_reasons', {
@@ -67,7 +81,9 @@ export const statusReasons = pgTable('status_reasons', {
   statusTypeId: uuid('status_type_id').references(() => statusTypes.id),
   isTerminal: boolean('is_terminal').default(false).notNull(),
   requiresRemarks: boolean('requires_remarks').default(false).notNull(),
-})
+}, (table) => ({
+  codeUnique: unique('status_reasons_code_unique').on(table.code),
+}))
 
 // Relations
 export const companiesRelations = relations(companies, ({ many }) => ({
