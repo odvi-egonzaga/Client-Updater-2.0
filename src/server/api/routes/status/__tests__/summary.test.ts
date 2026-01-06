@@ -5,6 +5,7 @@ import { db } from '@/server/db'
 import { getDashboardSummary } from '@/server/db/queries/status'
 import { getUserBranchFilter } from '@/lib/territories/filter'
 import { hasPermission } from '@/lib/permissions'
+import { createTestApp } from '@/test/utils/test-helpers'
 
 // Mock database and query functions
 vi.mock('@/server/db', () => ({
@@ -51,7 +52,7 @@ describe('Status Summary Routes', () => {
       })
       vi.mocked(getDashboardSummary).mockResolvedValue(mockSummary)
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       const response = await app.request('/summary?companyId=FCASH&periodYear=2024')
@@ -74,7 +75,7 @@ describe('Status Summary Routes', () => {
     it('should return 403 when user lacks permission', async () => {
       vi.mocked(hasPermission).mockResolvedValue(false)
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       const response = await app.request('/summary?companyId=FCASH&periodYear=2024')
@@ -88,7 +89,7 @@ describe('Status Summary Routes', () => {
     it('should validate required query parameters', async () => {
       vi.mocked(hasPermission).mockResolvedValue(true)
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       // Missing companyId
@@ -96,6 +97,7 @@ describe('Status Summary Routes', () => {
       const json1 = await response1.json()
 
       expect(response1.status).toBe(400)
+      // zValidator returns {"success":false,"error":{...}}
       expect(json1.success).toBe(false)
 
       // Missing periodYear
@@ -109,7 +111,7 @@ describe('Status Summary Routes', () => {
     it('should validate periodMonth range', async () => {
       vi.mocked(hasPermission).mockResolvedValue(true)
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       // Invalid periodMonth (0)
@@ -117,6 +119,7 @@ describe('Status Summary Routes', () => {
       const json1 = await response1.json()
 
       expect(response1.status).toBe(400)
+      // zValidator returns {"success":false,"error":{...}}
       expect(json1.success).toBe(false)
 
       // Invalid periodMonth (13)
@@ -130,7 +133,7 @@ describe('Status Summary Routes', () => {
     it('should validate periodQuarter range', async () => {
       vi.mocked(hasPermission).mockResolvedValue(true)
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       // Invalid periodQuarter (0)
@@ -138,6 +141,7 @@ describe('Status Summary Routes', () => {
       const json1 = await response1.json()
 
       expect(response1.status).toBe(400)
+      // zValidator returns {"success":false,"error":{...}}
       expect(json1.success).toBe(false)
 
       // Invalid periodQuarter (5)
@@ -156,13 +160,15 @@ describe('Status Summary Routes', () => {
       })
       vi.mocked(getDashboardSummary).mockRejectedValue(new Error('Database error'))
 
-      const app = new Hono()
+      const app = createTestApp()
       app.route('/', statusSummaryRoutes)
 
       const response = await app.request('/summary?companyId=FCASH&periodYear=2024')
       const json = await response.json()
 
       expect(response.status).toBe(500)
+      expect(json.success).toBe(false)
+      // zValidator returns {"success":false,"error":{...}}
       expect(json.success).toBe(false)
       expect(json.error.code).toBe('INTERNAL_ERROR')
     })

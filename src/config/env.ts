@@ -40,6 +40,29 @@ const envSchema = z.object({
   SYNOLOGY_HOST: z.string().url().optional(),
   SYNOLOGY_USERNAME: z.string().optional(),
   SYNOLOGY_PASSWORD: z.string().optional(),
+
+  // Redis (Upstash) - optional
+  REDIS_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_URL: z.string().url().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+
+  // Rate Limiting
+  RATE_LIMIT_WINDOW_MS: z.coerce.number().default(60000),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
+
+  // Circuit Breaker
+  CIRCUIT_BREAKER_THRESHOLD: z.coerce.number().default(5),
+  CIRCUIT_BREAKER_TIMEOUT_MS: z.coerce.number().default(30000),
+  CIRCUIT_BREAKER_RESET_TIMEOUT_MS: z.coerce.number().default(60000),
+
+  // Data Retention
+  ACTIVITY_LOG_RETENTION_DAYS: z.coerce.number().default(90),
+  EXPORT_JOB_RETENTION_DAYS: z.coerce.number().default(30),
+  HEALTH_CHECK_RETENTION_DAYS: z.coerce.number().default(7),
+
+  // Health Check
+  HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().default(10000),
+  HEALTH_CHECK_INTERVAL_MS: z.coerce.number().default(300000),
 })
 
 export const env = envSchema.parse(process.env)

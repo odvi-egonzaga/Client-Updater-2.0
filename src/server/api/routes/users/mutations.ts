@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { createUser, updateUser, toggleUserStatus } from '@/server/db/queries/users'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const userMutationRoutes = new Hono()
@@ -36,9 +36,9 @@ const toggleStatusSchema = z.object({
  * POST /api/users
  * Create a new user
  */
-userMutationRoutes.post('/', zValidator('json', createUserSchema), async (c) => {
+userMutationRoutes.post('/', validateRequest('json', createUserSchema), async (c) => {
   const start = performance.now()
-  const userData = c.req.valid('json')
+  const userData = c.get('validated_json') as any
 
   try {
     const user = await createUser(db, {
@@ -79,10 +79,10 @@ userMutationRoutes.post('/', zValidator('json', createUserSchema), async (c) => 
  * PATCH /api/users/:id
  * Update user fields
  */
-userMutationRoutes.patch('/:id', zValidator('json', updateUserSchema), async (c) => {
+userMutationRoutes.patch('/:id', validateRequest('json', updateUserSchema), async (c) => {
   const start = performance.now()
   const userId = c.req.param('id')
-  const updates = c.req.valid('json')
+  const updates = c.get('validated_json') as any
 
   try {
     const user = await updateUser(db, userId, updates)
@@ -135,10 +135,10 @@ userMutationRoutes.patch('/:id', zValidator('json', updateUserSchema), async (c)
  * PATCH /api/users/:id/status
  * Toggle user active status
  */
-userMutationRoutes.patch('/:id/status', zValidator('json', toggleStatusSchema), async (c) => {
+userMutationRoutes.patch('/:id/status', validateRequest('json', toggleStatusSchema), async (c) => {
   const start = performance.now()
   const userId = c.req.param('id')
-  const { isActive } = c.req.valid('json')
+  const { isActive } = c.get('validated_json') as any
 
   try {
     const user = await toggleUserStatus(db, userId, isActive)

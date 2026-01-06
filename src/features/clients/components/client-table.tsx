@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Client } from '../types'
 import { Button } from '@/components/ui/button'
@@ -22,6 +21,29 @@ export function ClientTable({ clients, isLoading, error }: ClientTableProps) {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
       setPagination({ page: newPage })
     }
+  }
+
+  // Helper function to get status badge styling
+  const getStatusBadge = (isActive: boolean) => {
+    if (isActive) {
+      return (
+        <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100">
+          Called
+        </Badge>
+      )
+    }
+    return (
+      <Badge className="bg-yellow-100 text-yellow-700 hover:bg-yellow-100">
+        Pending
+      </Badge>
+    )
+  }
+
+  // Helper function to truncate text
+  const truncateText = (text: string | null, maxLength: number = 50) => {
+    if (!text) return 'N/A'
+    if (text.length <= maxLength) return text
+    return `${text.substring(0, maxLength)}...`
   }
 
   if (isLoading) {
@@ -62,12 +84,14 @@ export function ClientTable({ clients, isLoading, error }: ClientTableProps) {
           <table className="w-full">
             <thead>
               <tr className="border-b bg-muted/50">
+                <th className="w-12 px-4 py-3 text-center">
+                  <input type="checkbox" className="rounded border-gray-300" />
+                </th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Client Code</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Pension #</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">Contact</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Pension Type</th>
                 <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
-                <th className="px-4 py-3 text-right text-sm font-medium">Actions</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Last Remarks</th>
               </tr>
             </thead>
             <tbody>
@@ -76,6 +100,9 @@ export function ClientTable({ clients, isLoading, error }: ClientTableProps) {
                   key={client.id}
                   className="border-b transition-colors hover:bg-muted/50 cursor-pointer"
                 >
+                  <td className="px-4 py-3 text-center">
+                    <input type="checkbox" className="rounded border-gray-300" />
+                  </td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{client.clientCode}</div>
                   </td>
@@ -85,20 +112,13 @@ export function ClientTable({ clients, isLoading, error }: ClientTableProps) {
                   <td className="px-4 py-3 text-sm">
                     {client.pensionNumber || 'N/A'}
                   </td>
-                  <td className="px-4 py-3 text-sm">
-                    {client.contactNumber || 'N/A'}
-                  </td>
                   <td className="px-4 py-3">
-                    <Badge variant={client.isActive ? 'default' : 'secondary'}>
-                      {client.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
+                    {getStatusBadge(client.isActive)}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href={`/clients/${client.id}`}>
-                      <Button variant="ghost" size="sm">
-                        View
-                      </Button>
-                    </Link>
+                  <td className="px-4 py-3 text-sm max-w-xs">
+                    <div className="truncate" title={client.contactNumber || 'N/A'}>
+                      {truncateText(client.contactNumber)}
+                    </div>
                   </td>
                 </tr>
               ))}

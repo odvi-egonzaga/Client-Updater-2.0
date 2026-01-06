@@ -5,7 +5,6 @@ import { users } from './users'
 // Enums
 export const jobStatusEnum = pgEnum('job_status', ['pending', 'processing', 'completed', 'failed', 'dead'])
 export const syncJobTypeEnum = pgEnum('sync_job_type', ['snowflake', 'nextbank'])
-export const exportFormatEnum = pgEnum('export_format', ['csv', 'xlsx'])
 
 // Sync jobs
 export const syncJobs = pgTable('sync_jobs', {
@@ -19,23 +18,6 @@ export const syncJobs = pgTable('sync_jobs', {
   startedAt: timestamp('started_at'),
   completedAt: timestamp('completed_at'),
   error: text('error'),
-  createdBy: uuid('created_by').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-})
-
-// Export jobs
-export const exportJobs = pgTable('export_jobs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  type: varchar('type', { length: 50 }).notNull(), // clients, status, report
-  format: exportFormatEnum('format').notNull(),
-  status: jobStatusEnum('status').default('pending').notNull(),
-  parameters: jsonb('parameters'), // filters, columns, etc.
-  filePath: varchar('file_path', { length: 500 }),
-  fileSize: integer('file_size'),
-  startedAt: timestamp('started_at'),
-  completedAt: timestamp('completed_at'),
-  error: text('error'),
-  expiresAt: timestamp('expires_at'),
   createdBy: uuid('created_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
@@ -78,21 +60,13 @@ export const syncJobsRelations = relations(syncJobs, ({ one }) => ({
   }),
 }))
 
-export const exportJobsRelations = relations(exportJobs, ({ one }) => ({
-  createdByUser: one(users, {
-    fields: [exportJobs.createdBy],
-    references: [users.id],
-  }),
-}))
-
 // Type exports
 export type SyncJob = typeof syncJobs.$inferSelect
 export type NewSyncJob = typeof syncJobs.$inferInsert
-export type ExportJob = typeof exportJobs.$inferSelect
-export type NewExportJob = typeof exportJobs.$inferInsert
 export type JobQueueItem = typeof jobQueue.$inferSelect
 export type NewJobQueueItem = typeof jobQueue.$inferInsert
 export type ScheduledJob = typeof scheduledJobs.$inferSelect
+
 
 
 

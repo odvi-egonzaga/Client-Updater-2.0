@@ -39,11 +39,16 @@ const PERMISSIONS = [
 export async function seedPermissions() {
   console.log('Seeding permissions...')
 
+  // Insert permissions with onConflictDoNothing for idempotency
   await db.insert(permissions).values(PERMISSIONS).onConflictDoNothing()
 
-  console.log(`  - ${PERMISSIONS.length} permissions seeded`)
+  // Verify permissions were seeded
+  const existingPermissions = await db.select().from(permissions)
+  console.log(`  - ${existingPermissions.length} permissions in database`)
+
   console.log('Permissions seeded successfully!')
 }
+
 
 
 

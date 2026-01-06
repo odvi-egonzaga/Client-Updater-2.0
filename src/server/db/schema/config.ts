@@ -1,64 +1,63 @@
-import { pgTable, uuid, varchar, boolean, timestamp, text, integer, jsonb, pgEnum } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, varchar, boolean, timestamp, text, integer, jsonb } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { companies } from './lookups'
 import { users } from './users'
 
-// Enums
-export const valueTypeEnum = pgEnum('value_type', ['string', 'number', 'boolean', 'json'])
-
 // Config categories
 export const configCategories = pgTable('config_categories', {
   id: uuid('id').primaryKey().defaultRandom(),
-  code: varchar('code', { length: 100 }).notNull().unique(),
-  name: varchar('name', { length: 255 }).notNull(),
+  code: varchar('code', { length: 50 }).notNull().unique(),
+  name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
-  isActive: boolean('is_active').default(true).notNull(),
-  sortOrder: integer('sort_order').default(0).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  sortOrder: integer('sort_order').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // Config options (dropdown options, etc.)
 export const configOptions = pgTable('config_options', {
   id: uuid('id').primaryKey().defaultRandom(),
-  categoryId: uuid('category_id').notNull().references(() => configCategories.id),
-  code: varchar('code', { length: 100 }).notNull(),
-  label: varchar('label', { length: 255 }).notNull(),
+  categoryId: uuid('category_id').notNull().references(() => configCategories.id, { onDelete: 'cascade' }),
+  code: varchar('code', { length: 50 }).notNull(),
+  label: varchar('label', { length: 100 }).notNull(),
   value: text('value'),
   metadata: jsonb('metadata'),
-  isActive: boolean('is_active').default(true).notNull(),
-  isDefault: boolean('is_default').default(false).notNull(),
-  sortOrder: integer('sort_order').default(0).notNull(),
+  isActive: boolean('is_active').notNull().default(true),
+  isDefault: boolean('is_default').notNull().default(false),
+  isSystem: boolean('is_system').notNull().default(false),
+  sortOrder: integer('sort_order').notNull().default(0),
   parentOptionId: uuid('parent_option_id'),
-  companyId: uuid('company_id').references(() => companies.id),
+  companyId: varchar('company_id', { length: 20 }),
   createdBy: uuid('created_by').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // Config settings (key-value system settings)
 export const configSettings = pgTable('config_settings', {
   id: uuid('id').primaryKey().defaultRandom(),
   key: varchar('key', { length: 100 }).notNull().unique(),
-  value: text('value'),
-  valueType: valueTypeEnum('value_type').default('string').notNull(),
+  value: text('value').notNull(),
+  valueType: varchar('value_type', { length: 20 }).notNull().default('string'), // string, number, boolean, json
   description: text('description'),
-  isPublic: boolean('is_public').default(false).notNull(),
-  companyId: uuid('company_id').references(() => companies.id),
+  isPublic: boolean('is_public').notNull().default(false),
+  companyId: varchar('company_id', { length: 20 }),
   updatedBy: uuid('updated_by').references(() => users.id),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // Config audit log
 export const configAuditLog = pgTable('config_audit_log', {
   id: uuid('id').primaryKey().defaultRandom(),
-  tableName: varchar('table_name', { length: 100 }).notNull(),
+  tableName: varchar('table_name', { length: 50 }).notNull(),
   recordId: uuid('record_id').notNull(),
   action: varchar('action', { length: 20 }).notNull(), // create, update, delete
   oldValues: jsonb('old_values'),
   newValues: jsonb('new_values'),
-  changedBy: uuid('changed_by').references(() => users.id),
-  changedAt: timestamp('changed_at').defaultNow().notNull(),
-  ipAddress: varchar('ip_address', { length: 45 }),
+  changedBy: uuid('changed_by').notNull().references(() => users.id),
+  ipAddress: varchar('ip_address', { length: 50 }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // Activity logs
@@ -120,6 +119,7 @@ export type NewConfigSetting = typeof configSettings.$inferInsert
 export type ConfigAuditLogEntry = typeof configAuditLog.$inferSelect
 export type ActivityLog = typeof activityLogs.$inferSelect
 export type NewActivityLog = typeof activityLogs.$inferInsert
+
 
 
 

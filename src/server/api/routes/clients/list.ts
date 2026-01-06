@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
-import { zValidator } from '@hono/zod-validator'
 import { z } from 'zod'
 import { db } from '@/server/db'
 import { getClients, countClients } from '@/server/db/queries/clients'
 import { getUserBranchFilter } from '@/lib/territories/filter'
 import { hasPermission } from '@/lib/permissions'
 import { rateLimitMiddleware } from '@/server/api/middleware/rate-limit'
+import { validateRequest } from '@/server/api/middleware/validation'
 import { logger } from '@/lib/logger'
 
 export const clientListRoutes = new Hono()
@@ -32,7 +32,7 @@ const listQuerySchema = z.object({
 clientListRoutes.get(
   '/',
   rateLimitMiddleware('read'),
-  zValidator('query', listQuerySchema),
+  validateRequest('query', listQuerySchema),
   async (c) => {
     const start = performance.now()
     const userId = c.get('userId') as string
@@ -49,7 +49,7 @@ clientListRoutes.get(
       accountTypeId,
       isActive,
       search,
-    } = c.req.valid('query')
+    } = c.get('validated_query')
 
     try {
       // Check permission
