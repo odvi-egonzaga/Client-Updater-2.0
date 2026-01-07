@@ -1,26 +1,20 @@
-import { seedLookups } from './lookups'
-import { seedPermissions } from './permissions'
+import { seedLookups } from "./lookups";
+import { seedPermissions } from "./permissions";
 
 async function main() {
-  console.log('Starting database seed...\n')
+  console.log("Starting database seed...\n");
 
   try {
-    await seedLookups()
-    console.log('')
-    await seedPermissions()
+    await seedLookups();
+    console.log("");
+    await seedPermissions();
 
-    console.log('\n✅ Database seeded successfully!')
-    process.exit(0)
+    console.log("\n✅ Database seeded successfully!");
+    process.exit(0);
   } catch (error) {
-    console.error('\n❌ Seed failed:', error)
-    process.exit(1)
+    console.error("\n❌ Seed failed:", error);
+    process.exit(1);
   }
 }
 
-main()
-
-
-
-
-
-
+main();

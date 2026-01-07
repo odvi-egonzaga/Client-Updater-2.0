@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export async function GET() {
   const root = process.cwd();
@@ -18,11 +18,11 @@ export async function GET() {
   }
 
   try {
-    const docsPath = path.join(root, 'docs');
+    const docsPath = path.join(root, "docs");
     files.docsPath = docsPath;
     files.docsExists = fs.existsSync(docsPath);
     if (files.docsExists) {
-        files.docsFiles = await fs.promises.readdir(docsPath);
+      files.docsFiles = await fs.promises.readdir(docsPath);
     }
   } catch (e: any) {
     files.docsError = e.message;
@@ -30,4 +30,3 @@ export async function GET() {
 
   return NextResponse.json(files);
 }
-

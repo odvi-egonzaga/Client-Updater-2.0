@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock Clerk
 export const mockClerkClient = {
@@ -12,7 +12,7 @@ export const mockClerkClient = {
   },
 };
 
-vi.mock('@clerk/nextjs', () => ({
+vi.mock("@clerk/nextjs", () => ({
   auth: vi.fn(),
   currentUser: vi.fn(),
   ClerkProvider: ({ children }: { children: React.ReactNode }) => children,

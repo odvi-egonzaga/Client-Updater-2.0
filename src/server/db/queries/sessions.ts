@@ -1,7 +1,7 @@
-import { db } from '../index'
-import { userSessions } from '../schema/users'
-import { eq, and, lt, isNull, desc } from 'drizzle-orm'
-import { logger } from '@/lib/logger'
+import { db } from "../index";
+import { userSessions } from "../schema/users";
+import { eq, and, lt, isNull, desc } from "drizzle-orm";
+import { logger } from "@/lib/logger";
 
 /**
  * Create a new session
@@ -12,7 +12,7 @@ export async function createSession(
   sessionToken: string,
   ipAddress: string,
   userAgent: string,
-  expiresAt: Date
+  expiresAt: Date,
 ) {
   try {
     const result = await db
@@ -24,23 +24,23 @@ export async function createSession(
         userAgent,
         expiresAt,
       })
-      .returning()
+      .returning();
 
-    logger.info('Created session', {
-      action: 'create_session',
+    logger.info("Created session", {
+      action: "create_session",
       userId,
       sessionId: result[0].id,
       ipAddress,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to create session', error as Error, {
-      action: 'create_session',
+    logger.error("Failed to create session", error as Error, {
+      action: "create_session",
       userId,
       ipAddress,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -55,24 +55,24 @@ export async function getSessionByToken(db: any, sessionToken: string) {
       .where(
         and(
           eq(userSessions.sessionToken, sessionToken),
-          isNull(userSessions.revokedAt)
-        )
+          isNull(userSessions.revokedAt),
+        ),
       )
-      .limit(1)
+      .limit(1);
 
-    logger.debug('Retrieved session by token', {
-      action: 'get_session_by_token',
+    logger.debug("Retrieved session by token", {
+      action: "get_session_by_token",
       sessionToken,
       found: result.length > 0,
-    })
+    });
 
-    return result[0] ?? null
+    return result[0] ?? null;
   } catch (error) {
-    logger.error('Failed to get session by token', error as Error, {
-      action: 'get_session_by_token',
+    logger.error("Failed to get session by token", error as Error, {
+      action: "get_session_by_token",
       sessionToken,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -85,93 +85,98 @@ export async function getUserSessions(db: any, userId: string) {
       .select()
       .from(userSessions)
       .where(eq(userSessions.userId, userId))
-      .orderBy(desc(userSessions.createdAt))
+      .orderBy(desc(userSessions.createdAt));
 
-    logger.info('Retrieved user sessions', {
-      action: 'get_user_sessions',
+    logger.info("Retrieved user sessions", {
+      action: "get_user_sessions",
       userId,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get user sessions', error as Error, {
-      action: 'get_user_sessions',
+    logger.error("Failed to get user sessions", error as Error, {
+      action: "get_user_sessions",
       userId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
 /**
  * Revoke a single session
  */
-export async function revokeSession(db: any, sessionId: string, reason?: string) {
+export async function revokeSession(
+  db: any,
+  sessionId: string,
+  reason?: string,
+) {
   try {
     const result = await db
       .update(userSessions)
       .set({
         revokedAt: new Date(),
-        revokedReason: reason || 'Session revoked',
+        revokedReason: reason || "Session revoked",
       })
       .where(eq(userSessions.id, sessionId))
-      .returning()
+      .returning();
 
     if (!result[0]) {
-      return null
+      return null;
     }
 
-    logger.info('Revoked session', {
-      action: 'revoke_session',
+    logger.info("Revoked session", {
+      action: "revoke_session",
       sessionId,
       reason,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to revoke session', error as Error, {
-      action: 'revoke_session',
+    logger.error("Failed to revoke session", error as Error, {
+      action: "revoke_session",
       sessionId,
       reason,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
 /**
  * Revoke all user sessions
  */
-export async function revokeAllUserSessions(db: any, userId: string, reason?: string) {
+export async function revokeAllUserSessions(
+  db: any,
+  userId: string,
+  reason?: string,
+) {
   try {
     const result = await db
       .update(userSessions)
       .set({
         revokedAt: new Date(),
-        revokedReason: reason || 'All sessions revoked',
+        revokedReason: reason || "All sessions revoked",
       })
       .where(
-        and(
-          eq(userSessions.userId, userId),
-          isNull(userSessions.revokedAt)
-        )
+        and(eq(userSessions.userId, userId), isNull(userSessions.revokedAt)),
       )
-      .returning()
+      .returning();
 
-    logger.info('Revoked all user sessions', {
-      action: 'revoke_all_user_sessions',
+    logger.info("Revoked all user sessions", {
+      action: "revoke_all_user_sessions",
       userId,
       count: result.length,
       reason,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to revoke all user sessions', error as Error, {
-      action: 'revoke_all_user_sessions',
+    logger.error("Failed to revoke all user sessions", error as Error, {
+      action: "revoke_all_user_sessions",
       userId,
       reason,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -180,26 +185,22 @@ export async function revokeAllUserSessions(db: any, userId: string, reason?: st
  */
 export async function cleanupExpiredSessions(db: any) {
   try {
-    const now = new Date()
+    const now = new Date();
     const result = await db
       .delete(userSessions)
-      .where(
-        and(
-          lt(userSessions.expiresAt, now)
-        )
-      )
-      .returning()
+      .where(and(lt(userSessions.expiresAt, now)))
+      .returning();
 
-    logger.info('Cleaned up expired sessions', {
-      action: 'cleanup_expired_sessions',
+    logger.info("Cleaned up expired sessions", {
+      action: "cleanup_expired_sessions",
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to cleanup expired sessions', error as Error, {
-      action: 'cleanup_expired_sessions',
-    })
-    throw error
+    logger.error("Failed to cleanup expired sessions", error as Error, {
+      action: "cleanup_expired_sessions",
+    });
+    throw error;
   }
 }

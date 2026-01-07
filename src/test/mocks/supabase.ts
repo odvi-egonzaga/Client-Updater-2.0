@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock Supabase client
 export const mockSupabaseClient = {
@@ -30,7 +30,7 @@ export const mockSupabaseClient = {
   },
 };
 
-vi.mock('@supabase/supabase-js', () => ({
+vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(() => mockSupabaseClient),
 }));
 

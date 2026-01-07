@@ -1,53 +1,85 @@
-'use client'
+"use client";
 
-import { RefreshCw, Database, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react'
-import type { SyncJob } from '../types'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { useSyncJobs, useTriggerSync } from '../hooks/use-clients'
+import {
+  RefreshCw,
+  Database,
+  Clock,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
+import type { SyncJob } from "../types";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useSyncJobs, useTriggerSync } from "../hooks/use-clients";
 
 export function SyncStatus() {
-  const { data: jobsData, isLoading, error } = useSyncJobs()
-  const triggerSync = useTriggerSync()
+  const { data: jobsData, isLoading, error } = useSyncJobs();
+  const triggerSync = useTriggerSync();
 
-  const handleStartSync = async (type: 'snowflake' | 'nextbank') => {
+  const handleStartSync = async (type: "snowflake" | "nextbank") => {
     try {
-      await triggerSync.mutateAsync({ type })
+      await triggerSync.mutateAsync({ type });
     } catch (error) {
-      console.error('Failed to trigger sync:', error)
+      console.error("Failed to trigger sync:", error);
     }
-  }
+  };
 
-  const getSyncJobStatusBadge = (status: SyncJob['status']) => {
+  const getSyncJobStatusBadge = (status: SyncJob["status"]) => {
     switch (status) {
-      case 'completed':
-        return <Badge variant="default" className="gap-1"><CheckCircle className="size-3" />Completed</Badge>
-      case 'processing':
-        return <Badge variant="secondary" className="gap-1"><RefreshCw className="size-3 animate-spin" />Processing</Badge>
-      case 'pending':
-        return <Badge variant="outline" className="gap-1"><Clock className="size-3" />Pending</Badge>
-      case 'failed':
-        return <Badge variant="destructive" className="gap-1"><XCircle className="size-3" />Failed</Badge>
-      case 'dead':
-        return <Badge variant="destructive" className="gap-1"><AlertCircle className="size-3" />Dead</Badge>
+      case "completed":
+        return (
+          <Badge variant="default" className="gap-1">
+            <CheckCircle className="size-3" />
+            Completed
+          </Badge>
+        );
+      case "processing":
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <RefreshCw className="size-3 animate-spin" />
+            Processing
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge variant="outline" className="gap-1">
+            <Clock className="size-3" />
+            Pending
+          </Badge>
+        );
+      case "failed":
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <XCircle className="size-3" />
+            Failed
+          </Badge>
+        );
+      case "dead":
+        return (
+          <Badge variant="destructive" className="gap-1">
+            <AlertCircle className="size-3" />
+            Dead
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant="outline">{status}</Badge>;
     }
-  }
+  };
 
   const formatDate = (date: Date | null) => {
-    if (!date) return 'N/A'
-    return new Date(date).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
+    if (!date) return "N/A";
+    return new Date(date).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -56,20 +88,22 @@ export function SyncStatus() {
           <LoadingSpinner className="size-8" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">Failed to load sync jobs</p>
+          <p className="text-destructive text-center">
+            Failed to load sync jobs
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const jobs = jobsData?.data || []
+  const jobs = jobsData?.data || [];
 
   return (
     <div className="space-y-6">
@@ -84,18 +118,22 @@ export function SyncStatus() {
         <CardContent>
           <div className="flex flex-wrap gap-3">
             <Button
-              onClick={() => handleStartSync('snowflake')}
+              onClick={() => handleStartSync("snowflake")}
               disabled={triggerSync.isPending}
             >
-              <RefreshCw className={`mr-2 size-4 ${triggerSync.isPending ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`mr-2 size-4 ${triggerSync.isPending ? "animate-spin" : ""}`}
+              />
               Start Snowflake Sync
             </Button>
             <Button
-              onClick={() => handleStartSync('nextbank')}
+              onClick={() => handleStartSync("nextbank")}
               disabled={triggerSync.isPending}
               variant="outline"
             >
-              <RefreshCw className={`mr-2 size-4 ${triggerSync.isPending ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`mr-2 size-4 ${triggerSync.isPending ? "animate-spin" : ""}`}
+              />
               Start Nextbank Sync
             </Button>
           </div>
@@ -109,7 +147,9 @@ export function SyncStatus() {
         </CardHeader>
         <CardContent>
           {jobs.length === 0 ? (
-            <p className="py-8 text-center text-muted-foreground">No sync jobs found</p>
+            <p className="text-muted-foreground py-8 text-center">
+              No sync jobs found
+            </p>
           ) : (
             <ScrollArea className="h-[500px]">
               <div className="space-y-4 pr-4">
@@ -127,7 +167,7 @@ export function SyncStatus() {
 
                           <div className="grid gap-2 text-sm">
                             <div>
-                              <span className="font-medium">Created:</span>{' '}
+                              <span className="font-medium">Created:</span>{" "}
                               <span className="text-muted-foreground">
                                 {formatDate(job.createdAt)}
                               </span>
@@ -135,7 +175,7 @@ export function SyncStatus() {
 
                             {job.startedAt && (
                               <div>
-                                <span className="font-medium">Started:</span>{' '}
+                                <span className="font-medium">Started:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {formatDate(job.startedAt)}
                                 </span>
@@ -144,7 +184,7 @@ export function SyncStatus() {
 
                             {job.completedAt && (
                               <div>
-                                <span className="font-medium">Completed:</span>{' '}
+                                <span className="font-medium">Completed:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {formatDate(job.completedAt)}
                                 </span>
@@ -153,19 +193,19 @@ export function SyncStatus() {
 
                             <div className="grid grid-cols-3 gap-2">
                               <div>
-                                <span className="font-medium">Processed:</span>{' '}
+                                <span className="font-medium">Processed:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {job.recordsProcessed}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium">Created:</span>{' '}
+                                <span className="font-medium">Created:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {job.recordsCreated}
                                 </span>
                               </div>
                               <div>
-                                <span className="font-medium">Updated:</span>{' '}
+                                <span className="font-medium">Updated:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {job.recordsUpdated}
                                 </span>
@@ -173,15 +213,19 @@ export function SyncStatus() {
                             </div>
 
                             {job.error && (
-                              <div className="rounded-md bg-destructive/10 p-3">
-                                <p className="text-sm font-medium text-destructive">Error:</p>
-                                <p className="text-sm text-destructive">{job.error}</p>
+                              <div className="bg-destructive/10 rounded-md p-3">
+                                <p className="text-destructive text-sm font-medium">
+                                  Error:
+                                </p>
+                                <p className="text-destructive text-sm">
+                                  {job.error}
+                                </p>
                               </div>
                             )}
 
                             {job.createdBy && (
                               <div>
-                                <span className="font-medium">Created By:</span>{' '}
+                                <span className="font-medium">Created By:</span>{" "}
                                 <span className="text-muted-foreground">
                                   {job.createdBy}
                                 </span>
@@ -199,5 +243,5 @@ export function SyncStatus() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

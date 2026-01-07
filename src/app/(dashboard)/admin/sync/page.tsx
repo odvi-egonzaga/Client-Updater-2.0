@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { SyncStatus } from '@/features/clients/components/sync-status'
+import { SyncStatus } from "@/features/clients/components/sync-status";
 
 export default function SyncPage() {
   return (
@@ -14,5 +14,5 @@ export default function SyncPage() {
 
       <SyncStatus />
     </div>
-  )
+  );
 }

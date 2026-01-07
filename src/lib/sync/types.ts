@@ -2,21 +2,21 @@
  * Sync service types for Phase 3 Client Management
  */
 
-import type { NewClient } from '@/server/db/schema/clients'
-import type { NewSyncJob } from '@/server/db/schema/jobs'
+import type { NewClient } from "@/server/db/schema/clients";
+import type { NewSyncJob } from "@/server/db/schema/jobs";
 
 /**
  * Sync options for client synchronization
  */
 export interface SyncOptions {
   /** Branch codes to filter (optional - syncs all if not provided) */
-  branchCodes?: string[]
+  branchCodes?: string[];
   /** Batch size for processing (default: 500) */
-  batchSize?: number
+  batchSize?: number;
   /** Whether to record sync changes (default: true) */
-  recordChanges?: boolean
+  recordChanges?: boolean;
   /** Sync job ID for tracking (optional) */
-  syncJobId?: string
+  syncJobId?: string;
 }
 
 /**
@@ -24,21 +24,21 @@ export interface SyncOptions {
  */
 export interface SyncResult {
   /** Total records processed */
-  totalProcessed: number
+  totalProcessed: number;
   /** Number of new records created */
-  created: number
+  created: number;
   /** Number of existing records updated */
-  updated: number
+  updated: number;
   /** Number of records skipped (no changes) */
-  skipped: number
+  skipped: number;
   /** Number of records that failed */
-  failed: number
+  failed: number;
   /** Sync job ID */
-  syncJobId?: string
+  syncJobId?: string;
   /** Error message if sync failed */
-  error?: string
+  error?: string;
   /** Processing time in milliseconds */
-  processingTimeMs: number
+  processingTimeMs: number;
 }
 
 /**
@@ -46,11 +46,11 @@ export interface SyncResult {
  */
 export interface SyncJobOptions {
   /** Sync job type (snowflake, nextbank) */
-  type: 'snowflake' | 'nextbank'
+  type: "snowflake" | "nextbank";
   /** Optional parameters for the job */
-  parameters?: Record<string, unknown>
+  parameters?: Record<string, unknown>;
   /** User ID who initiated the job */
-  createdBy?: string
+  createdBy?: string;
 }
 
 /**
@@ -58,17 +58,17 @@ export interface SyncJobOptions {
  */
 export interface LookupCache {
   /** Map of pension type codes to IDs */
-  pensionTypes: Map<string, string>
+  pensionTypes: Map<string, string>;
   /** Map of pensioner type codes to IDs */
-  pensionerTypes: Map<string, string>
+  pensionerTypes: Map<string, string>;
   /** Map of product codes to IDs */
-  products: Map<string, string>
+  products: Map<string, string>;
   /** Map of branch codes to IDs */
-  branches: Map<string, string>
+  branches: Map<string, string>;
   /** Map of PAR status codes to IDs */
-  parStatuses: Map<string, string>
+  parStatuses: Map<string, string>;
   /** Map of account type codes to IDs */
-  accountTypes: Map<string, string>
+  accountTypes: Map<string, string>;
 }
 
 /**
@@ -77,33 +77,33 @@ export interface LookupCache {
  */
 export interface SnowflakeClientRecord {
   /** Client code (unique identifier) */
-  CLIENT_CODE: string
+  CLIENT_CODE: string;
   /** Full name */
-  FULL_NAME: string
+  FULL_NAME: string;
   /** Pension number */
-  PENSION_NUMBER: string
+  PENSION_NUMBER: string;
   /** Birth date */
-  BIRTH_DATE: string | Date
+  BIRTH_DATE: string | Date;
   /** Contact number */
-  CONTACT_NUMBER: string
+  CONTACT_NUMBER: string;
   /** Alternate contact number */
-  CONTACT_NUMBER_ALT: string
+  CONTACT_NUMBER_ALT: string;
   /** Pension type code */
-  PENSION_TYPE_CODE: string
+  PENSION_TYPE_CODE: string;
   /** Pensioner type code */
-  PENSIONER_TYPE_CODE: string
+  PENSIONER_TYPE_CODE: string;
   /** Product code */
-  PRODUCT_CODE: string
+  PRODUCT_CODE: string;
   /** Branch code */
-  BRANCH_CODE: string
+  BRANCH_CODE: string;
   /** PAR status code */
-  PAR_STATUS_CODE: string
+  PAR_STATUS_CODE: string;
   /** Account type code */
-  ACCOUNT_TYPE_CODE: string
+  ACCOUNT_TYPE_CODE: string;
   /** Past due amount */
-  PAST_DUE_AMOUNT: number
+  PAST_DUE_AMOUNT: number;
   /** Loan status */
-  LOAN_STATUS: string
+  LOAN_STATUS: string;
 }
 
 /**
@@ -111,21 +111,21 @@ export interface SnowflakeClientRecord {
  */
 export interface ClientFilters {
   /** Filter by branch IDs */
-  branchIds?: string[]
+  branchIds?: string[];
   /** Filter by pension type ID */
-  pensionTypeId?: string
+  pensionTypeId?: string;
   /** Filter by pensioner type ID */
-  pensionerTypeId?: string
+  pensionerTypeId?: string;
   /** Filter by product ID */
-  productId?: string
+  productId?: string;
   /** Filter by PAR status ID */
-  parStatusId?: string
+  parStatusId?: string;
   /** Filter by account type ID */
-  accountTypeId?: string
+  accountTypeId?: string;
   /** Filter by active status */
-  isActive?: boolean
+  isActive?: boolean;
   /** Search term (matches clientCode, fullName, pensionNumber) */
-  search?: string
+  search?: string;
 }
 
 /**
@@ -134,49 +134,49 @@ export interface ClientFilters {
 export interface ClientWithDetails extends NewClient {
   /** Pension type details */
   pensionType?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** Pensioner type details */
   pensionerType?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** Product details */
   product?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** Branch details */
   branch?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** PAR status details */
   parStatus?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** Account type details */
   accountType?: {
-    id: string
-    code: string
-    name: string
-  }
+    id: string;
+    code: string;
+    name: string;
+  };
   /** Current period status (latest) */
   currentStatus?: {
-    id: string
-    statusTypeId: string
-    reasonId: string | null
-    remarks: string | null
-    hasPayment: boolean
-    updatedAt: Date
-  }
+    id: string;
+    statusTypeId: string;
+    reasonId: string | null;
+    remarks: string | null;
+    hasPayment: boolean;
+    updatedAt: Date;
+  };
 }
 
 /**
@@ -184,17 +184,17 @@ export interface ClientWithDetails extends NewClient {
  */
 export interface SyncChangeRecord {
   /** Client ID */
-  clientId: string
+  clientId: string;
   /** Field that was changed */
-  fieldName: string
+  fieldName: string;
   /** Old value */
-  oldValue: string | null
+  oldValue: string | null;
   /** New value */
-  newValue: string | null
+  newValue: string | null;
   /** Sync job ID */
-  syncJobId?: string
+  syncJobId?: string;
   /** When the change was recorded */
-  changedAt: Date
+  changedAt: Date;
 }
 
 /**
@@ -202,24 +202,24 @@ export interface SyncChangeRecord {
  */
 export interface StatusCount {
   /** Status type ID */
-  statusTypeId: string
+  statusTypeId: string;
   /** Status type name */
-  statusTypeName: string
+  statusTypeName: string;
   /** Count of clients */
-  count: number
+  count: number;
 }
 
 /**
  * Branch access scope for territory filtering
  */
-export type BranchScope = 'all' | 'territory' | 'none'
+export type BranchScope = "all" | "territory" | "none";
 
 /**
  * User branch filter result
  */
 export interface UserBranchFilter {
   /** Access scope */
-  scope: BranchScope
+  scope: BranchScope;
   /** Branch IDs the user can access */
-  branchIds: string[]
+  branchIds: string[];
 }

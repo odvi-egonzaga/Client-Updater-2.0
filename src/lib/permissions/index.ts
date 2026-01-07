@@ -1,31 +1,31 @@
-import { db } from '@/server/db/index'
-import { cache, cacheKeys, CACHE_TTL } from '@/lib/cache/redis'
-import { getUserPermissions } from '@/server/db/queries/permissions'
-import { logger } from '@/lib/logger'
+import { db } from "@/server/db/index";
+import { cache, cacheKeys, CACHE_TTL } from "@/lib/cache/redis";
+import { getUserPermissions } from "@/server/db/queries/permissions";
+import { logger } from "@/lib/logger";
 
 /**
  * Type definition for cached permission with scope
  */
 export interface CachedPermission {
   permission: {
-    id: string
-    code: string
-    resource: string
-    action: string
-    description: string | null
-    createdAt: Date
-  }
-  scope: 'self' | 'branch' | 'area' | 'all'
-  companyId: string | null
+    id: string;
+    code: string;
+    resource: string;
+    action: string;
+    description: string | null;
+    createdAt: Date;
+  };
+  scope: "self" | "branch" | "area" | "all";
+  companyId: string | null;
 }
 
 /**
  * Type definition for permission check context
  */
 export interface PermissionCheckContext {
-  resourceOwnerId?: string
-  branchIds?: string[]
-  areaIds?: string[]
+  resourceOwnerId?: string;
+  branchIds?: string[];
+  areaIds?: string[];
 }
 
 /**
@@ -36,70 +36,74 @@ export interface PermissionCheckContext {
  */
 export async function getCachedPermissions(
   userId: string,
-  companyId?: string
+  companyId?: string,
 ): Promise<CachedPermission[]> {
-  const cacheKey = cacheKeys.userPermissions(userId)
+  const cacheKey = cacheKeys.userPermissions(userId);
 
   try {
     // Try to get from cache
-    const cached = await cache.get<CachedPermission[]>(cacheKey)
+    const cached = await cache.get<CachedPermission[]>(cacheKey);
 
     if (cached) {
-      logger.info('Cache hit for user permissions', {
-        action: 'get_cached_permissions',
+      logger.info("Cache hit for user permissions", {
+        action: "get_cached_permissions",
         userId,
         companyId,
         cacheHit: true,
-      })
+      });
 
       // Filter by company if provided
       if (companyId) {
-        return cached.filter((p) => p.companyId === companyId)
+        return cached.filter((p) => p.companyId === companyId);
       }
 
-      return cached
+      return cached;
     }
 
     // Cache miss - fetch from database
-    logger.info('Cache miss for user permissions', {
-      action: 'get_cached_permissions',
+    logger.info("Cache miss for user permissions", {
+      action: "get_cached_permissions",
       userId,
       companyId,
       cacheHit: false,
-    })
+    });
 
-    const permissions = await getUserPermissions(db, userId, companyId)
+    const permissions = await getUserPermissions(db, userId, companyId);
 
     // Cache the result
-    await cache.set(cacheKey, permissions, CACHE_TTL.USER_PERMISSIONS)
+    await cache.set(cacheKey, permissions, CACHE_TTL.USER_PERMISSIONS);
 
-    logger.info('Cached user permissions', {
-      action: 'get_cached_permissions',
+    logger.info("Cached user permissions", {
+      action: "get_cached_permissions",
       userId,
       companyId,
       count: permissions.length,
       ttl: CACHE_TTL.USER_PERMISSIONS,
-    })
+    });
 
-    return permissions
+    return permissions;
   } catch (error) {
-    logger.error('Failed to get cached permissions', error as Error, {
-      action: 'get_cached_permissions',
+    logger.error("Failed to get cached permissions", error as Error, {
+      action: "get_cached_permissions",
       userId,
       companyId,
-    })
+    });
 
     // Graceful fallback - fetch from database directly
     try {
-      const permissions = await getUserPermissions(db, userId, companyId)
-      return permissions
+      const permissions = await getUserPermissions(db, userId, companyId);
+      return permissions;
     } catch (dbError) {
-      logger.error('Database fallback failed for permissions', dbError as Error, {
-        action: 'get_cached_permissions',
-        userId,
-        companyId,
-      })
-      throw dbError
+      logger.error(
+        "Database fallback failed for permissions",
+        dbError as Error,
+        {
+          action: "get_cached_permissions",
+          userId,
+          companyId,
+        },
+      );
+      throw dbError;
     }
   }
 }
@@ -113,7 +117,7 @@ const SCOPE_HIERARCHY: Record<string, number> = {
   branch: 2,
   area: 3,
   all: 4,
-}
+};
 
 /**
  * Check if user has a specific permission
@@ -129,149 +133,157 @@ export async function hasPermission(
   companyId: string,
   resource: string,
   action: string,
-  context?: PermissionCheckContext
+  context?: PermissionCheckContext,
 ): Promise<boolean> {
   try {
-    const permissions = await getCachedPermissions(userId, companyId)
+    const permissions = await getCachedPermissions(userId, companyId);
 
     // Find matching permissions
     const matchingPermissions = permissions.filter(
       (p) =>
         p.permission.resource === resource &&
         p.permission.action === action &&
-        p.companyId === companyId
-    )
+        p.companyId === companyId,
+    );
 
     // No matching permissions found
     if (matchingPermissions.length === 0) {
-      logger.debug('User does not have permission', {
-        action: 'has_permission',
+      logger.debug("User does not have permission", {
+        action: "has_permission",
         userId,
         companyId,
         resource,
         permissionAction: action,
         hasPermission: false,
-      })
+      });
 
-      return false
+      return false;
     }
 
     // Get the highest scope permission
     const highestScope = matchingPermissions.reduce((highest, current) => {
       return SCOPE_HIERARCHY[current.scope] > SCOPE_HIERARCHY[highest.scope]
         ? current
-        : highest
-    })
+        : highest;
+    });
 
     // If user has 'all' scope, grant permission
-    if (highestScope.scope === 'all') {
-      logger.debug('User has permission (all scope)', {
-        action: 'has_permission',
+    if (highestScope.scope === "all") {
+      logger.debug("User has permission (all scope)", {
+        action: "has_permission",
         userId,
         companyId,
         resource,
         permissionAction: action,
-        scope: 'all',
+        scope: "all",
         hasPermission: true,
-      })
+      });
 
-      return true
+      return true;
     }
 
     // For other scopes, check context if provided
     if (context) {
       // 'area' scope - check if resource is in user's areas
-      if (highestScope.scope === 'area' && context.areaIds && context.areaIds.length > 0) {
+      if (
+        highestScope.scope === "area" &&
+        context.areaIds &&
+        context.areaIds.length > 0
+      ) {
         // This would require additional logic to determine if resource belongs to an area
         // For now, we'll grant permission if user has area scope
-        logger.debug('User has permission (area scope)', {
-          action: 'has_permission',
+        logger.debug("User has permission (area scope)", {
+          action: "has_permission",
           userId,
           companyId,
           resource,
           permissionAction: action,
-          scope: 'area',
+          scope: "area",
           hasPermission: true,
-        })
+        });
 
-        return true
+        return true;
       }
 
       // 'branch' scope - check if resource is in user's branches
-      if (highestScope.scope === 'branch' && context.branchIds && context.branchIds.length > 0) {
+      if (
+        highestScope.scope === "branch" &&
+        context.branchIds &&
+        context.branchIds.length > 0
+      ) {
         // This would require additional logic to determine if resource belongs to a branch
         // For now, we'll grant permission if user has branch scope
-        logger.debug('User has permission (branch scope)', {
-          action: 'has_permission',
+        logger.debug("User has permission (branch scope)", {
+          action: "has_permission",
           userId,
           companyId,
           resource,
           permissionAction: action,
-          scope: 'branch',
+          scope: "branch",
           hasPermission: true,
-        })
+        });
 
-        return true
+        return true;
       }
 
       // 'self' scope - check if resource belongs to user
-      if (highestScope.scope === 'self' && context.resourceOwnerId) {
-        const isOwner = context.resourceOwnerId === userId
+      if (highestScope.scope === "self" && context.resourceOwnerId) {
+        const isOwner = context.resourceOwnerId === userId;
 
-        logger.debug('User has permission check (self scope)', {
-          action: 'has_permission',
+        logger.debug("User has permission check (self scope)", {
+          action: "has_permission",
           userId,
           companyId,
           resource,
           permissionAction: action,
-          scope: 'self',
+          scope: "self",
           isOwner,
           hasPermission: isOwner,
-        })
+        });
 
-        return isOwner
+        return isOwner;
       }
     }
 
     // Default: grant permission for non-self scopes without context
     // This is a safe default that can be enhanced later
-    if (highestScope.scope !== 'self') {
-      logger.debug('User has permission (default)', {
-        action: 'has_permission',
+    if (highestScope.scope !== "self") {
+      logger.debug("User has permission (default)", {
+        action: "has_permission",
         userId,
         companyId,
         resource,
         permissionAction: action,
         scope: highestScope.scope,
         hasPermission: true,
-      })
+      });
 
-      return true
+      return true;
     }
 
     // Self scope without context - deny by default
-    logger.debug('User does not have permission (self scope without context)', {
-      action: 'has_permission',
+    logger.debug("User does not have permission (self scope without context)", {
+      action: "has_permission",
       userId,
       companyId,
       resource,
       permissionAction: action,
-      scope: 'self',
+      scope: "self",
       hasPermission: false,
-    })
+    });
 
-    return false
+    return false;
   } catch (error) {
-    logger.error('Failed to check permission', error as Error, {
-      action: 'has_permission',
+    logger.error("Failed to check permission", error as Error, {
+      action: "has_permission",
       userId,
       companyId,
       resource,
       permissionAction: action,
-    })
+    });
 
     // Graceful fallback - deny permission on error
-    return false
+    return false;
   }
 }
 
@@ -281,20 +293,24 @@ export async function hasPermission(
  * @param userId - User ID
  */
 export async function invalidateUserPermissions(userId: string): Promise<void> {
-  const cacheKey = cacheKeys.userPermissions(userId)
+  const cacheKey = cacheKeys.userPermissions(userId);
 
   try {
-    await cache.del(cacheKey)
+    await cache.del(cacheKey);
 
-    logger.info('Invalidated user permissions cache', {
-      action: 'invalidate_user_permissions',
+    logger.info("Invalidated user permissions cache", {
+      action: "invalidate_user_permissions",
       userId,
-    })
+    });
   } catch (error) {
-    logger.error('Failed to invalidate user permissions cache', error as Error, {
-      action: 'invalidate_user_permissions',
-      userId,
-    })
+    logger.error(
+      "Failed to invalidate user permissions cache",
+      error as Error,
+      {
+        action: "invalidate_user_permissions",
+        userId,
+      },
+    );
 
     // Non-critical error - continue execution
   }
@@ -306,15 +322,19 @@ export async function invalidateUserPermissions(userId: string): Promise<void> {
  */
 export async function invalidateAllUserPermissions(): Promise<void> {
   try {
-    await cache.delPattern('user:*:permissions')
+    await cache.delPattern("user:*:permissions");
 
-    logger.info('Invalidated all user permissions cache', {
-      action: 'invalidate_all_user_permissions',
-    })
+    logger.info("Invalidated all user permissions cache", {
+      action: "invalidate_all_user_permissions",
+    });
   } catch (error) {
-    logger.error('Failed to invalidate all user permissions cache', error as Error, {
-      action: 'invalidate_all_user_permissions',
-    })
+    logger.error(
+      "Failed to invalidate all user permissions cache",
+      error as Error,
+      {
+        action: "invalidate_all_user_permissions",
+      },
+    );
 
     // Non-critical error - continue execution
   }
@@ -325,8 +345,10 @@ export async function invalidateAllUserPermissions(): Promise<void> {
  * @param userId - User ID
  * @returns Array of permissions with scopes
  */
-export async function getAllUserPermissions(userId: string): Promise<CachedPermission[]> {
-  return getCachedPermissions(userId)
+export async function getAllUserPermissions(
+  userId: string,
+): Promise<CachedPermission[]> {
+  return getCachedPermissions(userId);
 }
 
 /**
@@ -339,32 +361,32 @@ export async function getAllUserPermissions(userId: string): Promise<CachedPermi
 export async function hasAnyPermissionForResource(
   userId: string,
   companyId: string,
-  resource: string
+  resource: string,
 ): Promise<boolean> {
   try {
-    const permissions = await getCachedPermissions(userId, companyId)
+    const permissions = await getCachedPermissions(userId, companyId);
 
     const hasPermission = permissions.some(
-      (p) => p.permission.resource === resource && p.companyId === companyId
-    )
+      (p) => p.permission.resource === resource && p.companyId === companyId,
+    );
 
-    logger.debug('Checked if user has any permission for resource', {
-      action: 'has_any_permission_for_resource',
+    logger.debug("Checked if user has any permission for resource", {
+      action: "has_any_permission_for_resource",
       userId,
       companyId,
       resource,
       hasPermission,
-    })
+    });
 
-    return hasPermission
+    return hasPermission;
   } catch (error) {
-    logger.error('Failed to check permissions for resource', error as Error, {
-      action: 'has_any_permission_for_resource',
+    logger.error("Failed to check permissions for resource", error as Error, {
+      action: "has_any_permission_for_resource",
       userId,
       companyId,
       resource,
-    })
+    });
 
-    return false
+    return false;
   }
 }

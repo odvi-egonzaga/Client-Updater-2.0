@@ -1,52 +1,57 @@
-'use client'
+"use client";
 
-import type { ClientPeriodStatus, PeriodType } from '../types'
-import { StatusUpdateForm } from './status-update-form'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { useState } from "react";
+import type { ClientPeriodStatus, PeriodType } from "../types";
+import { StatusUpdateForm } from "./status-update-form";
+import { ClientActionSheet } from "./client-action-sheet";
+import { useClients } from "@/features/clients/hooks/use-clients";
 
 interface StatusUpdateDialogProps {
-  open: boolean
-  onClose: () => void
-  clientId: string
-  currentStatus?: ClientPeriodStatus
-  companyId: string
-  periodType: PeriodType
+  open: boolean;
+  onClose: () => void;
+  clientId: string;
+  clientName?: string;
+  currentStatus?: ClientPeriodStatus;
+  companyId: string;
+  periodType: PeriodType;
 }
 
 export function StatusUpdateDialog({
   open,
   onClose,
   clientId,
+  clientName: propClientName,
   currentStatus,
   companyId,
   periodType,
 }: StatusUpdateDialogProps) {
+  const [activeTab, setActiveTab] = useState("update-status");
+
+  // Fetch client name if not provided
+  const { data: clientsData } = useClients(1, 100, {});
+  const client = clientsData?.data?.find((c) => c.id === clientId);
+  const clientName = propClientName || client?.fullName || "Unknown Client";
+
   const handleSuccess = () => {
-    onClose()
-  }
+    onClose();
+  };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Update Client Status</SheetTitle>
-        </SheetHeader>
-        <div className="mt-6">
-          <StatusUpdateForm
-            clientId={clientId}
-            currentStatus={currentStatus}
-            companyId={companyId}
-            periodType={periodType}
-            onSuccess={handleSuccess}
-            onCancel={onClose}
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
-  )
+    <ClientActionSheet
+      open={open}
+      onClose={onClose}
+      clientName={clientName}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
+      <StatusUpdateForm
+        clientId={clientId}
+        currentStatus={currentStatus}
+        companyId={companyId}
+        periodType={periodType}
+        onSuccess={handleSuccess}
+        onCancel={onClose}
+      />
+    </ClientActionSheet>
+  );
 }

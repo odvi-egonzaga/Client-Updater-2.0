@@ -1,30 +1,34 @@
-'use client'
+"use client";
 
-import { Clock, User, CheckCircle2, XCircle } from 'lucide-react'
-import type { StatusEvent } from '../types'
-import { useClientStatusHistory } from '../hooks/use-status'
-import { StatusBadge } from './status-badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { Clock, User, CheckCircle2, XCircle } from "lucide-react";
+import type { StatusEvent } from "../types";
+import { useClientStatusHistory } from "../hooks/use-status";
+import { StatusBadge } from "./status-badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
 interface StatusHistoryProps {
-  clientId: string
-  limit?: number
+  clientId: string;
+  limit?: number;
 }
 
 export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
-  const { data: history, isLoading, error } = useClientStatusHistory(clientId, limit)
+  const {
+    data: history,
+    isLoading,
+    error,
+  } = useClientStatusHistory(clientId, limit);
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
+    return new Date(date).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
   if (isLoading) {
     return (
@@ -38,7 +42,7 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -53,7 +57,7 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!history || history.length === 0) {
@@ -64,12 +68,14 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center">
-            <Clock className="mx-auto size-12 text-muted-foreground/50" />
-            <p className="mt-2 text-sm text-muted-foreground">No status history available</p>
+            <Clock className="text-muted-foreground/50 mx-auto size-12" />
+            <p className="text-muted-foreground mt-2 text-sm">
+              No status history available
+            </p>
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -79,15 +85,15 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[400px] pr-4">
-          <div className="relative space-y-6 before:absolute before:left-[19px] before:top-2 before:h-[calc(100%-16px)] before:w-0.5 before:bg-border">
+          <div className="before:bg-border relative space-y-6 before:absolute before:top-2 before:left-[19px] before:h-[calc(100%-16px)] before:w-0.5">
             {history.map((event, index) => (
               <div key={event.id} className="relative flex gap-4">
                 {/* Timeline dot */}
-                <div className="relative flex size-10 shrink-0 items-center justify-center rounded-full bg-background border-2 border-primary">
+                <div className="bg-background border-primary relative flex size-10 shrink-0 items-center justify-center rounded-full border-2">
                   {event.hasPayment ? (
                     <CheckCircle2 className="size-5 text-emerald-500" />
                   ) : (
-                    <XCircle className="size-5 text-muted-foreground" />
+                    <XCircle className="text-muted-foreground size-5" />
                   )}
                 </div>
 
@@ -98,25 +104,27 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
                       <div className="flex items-center gap-2">
                         <StatusBadge status={event.status.code} size="sm" />
                         {event.reason && (
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-muted-foreground text-sm">
                             - {event.reason.name}
                           </span>
                         )}
                       </div>
                       {event.remarks && (
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {event.remarks}
                         </p>
                       )}
                     </div>
-                    <div className="flex flex-col items-end gap-1 text-right text-sm text-muted-foreground">
+                    <div className="text-muted-foreground flex flex-col items-end gap-1 text-right text-sm">
                       <div className="flex items-center gap-1">
                         <User className="size-3" />
                         <span className="text-xs">{event.createdBy.name}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="size-3" />
-                        <span className="text-xs">{formatDate(event.createdAt)}</span>
+                        <span className="text-xs">
+                          {formatDate(event.createdAt)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -129,7 +137,7 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
                         Payment Received
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <span className="text-muted-foreground flex items-center gap-1 text-xs">
                         <XCircle className="size-3" />
                         No Payment
                       </span>
@@ -142,5 +150,5 @@ export function StatusHistory({ clientId, limit = 50 }: StatusHistoryProps) {
         </ScrollArea>
       </CardContent>
     </Card>
-  )
+  );
 }

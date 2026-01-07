@@ -1,5 +1,5 @@
 // Health check dashboard page placeholder
-import { HealthDashboard } from '@/features/health-check'
+import { HealthDashboard } from "@/features/health-check";
 
 export default function HealthPage() {
   return (
@@ -12,5 +12,5 @@ export default function HealthPage() {
       </div>
       <HealthDashboard />
     </div>
-  )
+  );
 }

@@ -1,6 +1,8 @@
 // Loading spinner component placeholder
-export function LoadingSpinner({ className = '' }: { className?: string }) {
+export function LoadingSpinner({ className = "" }: { className?: string }) {
   return (
-    <div className={`animate-spin rounded-full border-2 border-current border-t-transparent ${className}`} />
-  )
+    <div
+      className={`animate-spin rounded-full border-2 border-current border-t-transparent ${className}`}
+    />
+  );
 }

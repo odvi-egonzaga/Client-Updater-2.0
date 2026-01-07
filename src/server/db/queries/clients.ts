@@ -2,7 +2,7 @@
  * Client queries for Phase 3 Client Management
  */
 
-import { db } from '../index'
+import { db } from "../index";
 import {
   clients,
   clientSyncHistory,
@@ -14,10 +14,14 @@ import {
   branches,
   parStatuses,
   accountTypes,
-} from '../schema'
-import { eq, and, isNull, desc, sql, or, like, inArray } from 'drizzle-orm'
-import { logger } from '@/lib/logger'
-import type { ClientFilters, ClientWithDetails, StatusCount } from '@/lib/sync/types'
+} from "../schema";
+import { eq, and, isNull, desc, sql, or, like, inArray } from "drizzle-orm";
+import { logger } from "@/lib/logger";
+import type {
+  ClientFilters,
+  ClientWithDetails,
+  StatusCount,
+} from "@/lib/sync/types";
 
 /**
  * Get paginated clients with filters
@@ -31,98 +35,98 @@ export async function getClients(
   db: any,
   page: number = 1,
   pageSize: number = 25,
-  filters?: ClientFilters
+  filters?: ClientFilters,
 ) {
-  const offset = (page - 1) * pageSize
-  const limit = Math.min(pageSize, 100) // Max 100 per page
+  const offset = (page - 1) * pageSize;
+  const limit = Math.min(pageSize, 100); // Max 100 per page
 
   try {
-    let query = db.select().from(clients)
+    let query = db.select().from(clients);
 
     // Apply filters
     if (filters) {
-      const conditions = []
+      const conditions = [];
 
       // Filter out deleted clients
-      conditions.push(isNull(clients.deletedAt))
+      conditions.push(isNull(clients.deletedAt));
 
       // Filter by branch IDs
       if (filters.branchIds && filters.branchIds.length > 0) {
-        conditions.push(inArray(clients.branchId, filters.branchIds))
+        conditions.push(inArray(clients.branchId, filters.branchIds));
       }
 
       // Filter by pension type
       if (filters.pensionTypeId) {
-        conditions.push(eq(clients.pensionTypeId, filters.pensionTypeId))
+        conditions.push(eq(clients.pensionTypeId, filters.pensionTypeId));
       }
 
       // Filter by pensioner type
       if (filters.pensionerTypeId) {
-        conditions.push(eq(clients.pensionerTypeId, filters.pensionerTypeId))
+        conditions.push(eq(clients.pensionerTypeId, filters.pensionerTypeId));
       }
 
       // Filter by product
       if (filters.productId) {
-        conditions.push(eq(clients.productId, filters.productId))
+        conditions.push(eq(clients.productId, filters.productId));
       }
 
       // Filter by PAR status
       if (filters.parStatusId) {
-        conditions.push(eq(clients.parStatusId, filters.parStatusId))
+        conditions.push(eq(clients.parStatusId, filters.parStatusId));
       }
 
       // Filter by account type
       if (filters.accountTypeId) {
-        conditions.push(eq(clients.accountTypeId, filters.accountTypeId))
+        conditions.push(eq(clients.accountTypeId, filters.accountTypeId));
       }
 
       // Filter by active status
       if (filters.isActive !== undefined) {
-        conditions.push(eq(clients.isActive, filters.isActive))
+        conditions.push(eq(clients.isActive, filters.isActive));
       }
 
       // Search by client code, full name, or pension number
       if (filters.search) {
-        const searchTerm = `%${filters.search}%`
+        const searchTerm = `%${filters.search}%`;
         conditions.push(
           or(
             like(clients.clientCode, searchTerm),
             like(clients.fullName, searchTerm),
-            like(clients.pensionNumber, searchTerm)
-          )
-        )
+            like(clients.pensionNumber, searchTerm),
+          ),
+        );
       }
 
       if (conditions.length > 0) {
-        query = query.where(and(...conditions))
+        query = query.where(and(...conditions));
       }
     } else {
       // Always filter out deleted clients
-      query = query.where(isNull(clients.deletedAt))
+      query = query.where(isNull(clients.deletedAt));
     }
 
     const result = await query
       .orderBy(desc(clients.createdAt))
       .limit(limit)
-      .offset(offset)
+      .offset(offset);
 
-    logger.info('Retrieved clients', {
-      action: 'get_clients',
+    logger.info("Retrieved clients", {
+      action: "get_clients",
       count: result.length,
       page,
       pageSize,
       filters,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to retrieve clients', error as Error, {
-      action: 'get_clients',
+    logger.error("Failed to retrieve clients", error as Error, {
+      action: "get_clients",
       page,
       pageSize,
       filters,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -138,14 +142,14 @@ export async function getClientById(db: any, clientId: string) {
       .select()
       .from(clients)
       .where(and(eq(clients.id, clientId), isNull(clients.deletedAt)))
-      .limit(1)
-    return result[0] ?? null
+      .limit(1);
+    return result[0] ?? null;
   } catch (error) {
-    logger.error('Failed to get client by ID', error as Error, {
-      action: 'get_client_by_id',
+    logger.error("Failed to get client by ID", error as Error, {
+      action: "get_client_by_id",
       clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -161,14 +165,14 @@ export async function getClientByCode(db: any, clientCode: string) {
       .select()
       .from(clients)
       .where(and(eq(clients.clientCode, clientCode), isNull(clients.deletedAt)))
-      .limit(1)
-    return result[0] ?? null
+      .limit(1);
+    return result[0] ?? null;
   } catch (error) {
-    logger.error('Failed to get client by code', error as Error, {
-      action: 'get_client_by_code',
+    logger.error("Failed to get client by code", error as Error, {
+      action: "get_client_by_code",
       clientCode,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -178,7 +182,10 @@ export async function getClientByCode(db: any, clientCode: string) {
  * @param clientId - Client ID
  * @returns Client with details or null if not found
  */
-export async function getClientWithDetails(db: any, clientId: string): Promise<ClientWithDetails | null> {
+export async function getClientWithDetails(
+  db: any,
+  clientId: string,
+): Promise<ClientWithDetails | null> {
   try {
     // Get client with all lookups
     const client = await db
@@ -223,10 +230,10 @@ export async function getClientWithDetails(db: any, clientId: string): Promise<C
       .leftJoin(parStatuses, eq(clients.parStatusId, parStatuses.id))
       .leftJoin(accountTypes, eq(clients.accountTypeId, accountTypes.id))
       .where(and(eq(clients.id, clientId), isNull(clients.deletedAt)))
-      .limit(1)
+      .limit(1);
 
     if (!client[0]) {
-      return null
+      return null;
     }
 
     // Get latest period status
@@ -242,7 +249,7 @@ export async function getClientWithDetails(db: any, clientId: string): Promise<C
       .from(clientPeriodStatus)
       .where(eq(clientPeriodStatus.clientId, clientId))
       .orderBy(desc(clientPeriodStatus.updatedAt))
-      .limit(1)
+      .limit(1);
 
     const result: ClientWithDetails = {
       ...client[0].client,
@@ -253,20 +260,20 @@ export async function getClientWithDetails(db: any, clientId: string): Promise<C
       parStatus: client[0].parStatus as any,
       accountType: client[0].accountType as any,
       currentStatus: latestStatus[0] as any,
-    }
+    };
 
-    logger.info('Retrieved client with details', {
-      action: 'get_client_with_details',
+    logger.info("Retrieved client with details", {
+      action: "get_client_with_details",
       clientId,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get client with details', error as Error, {
-      action: 'get_client_with_details',
+    logger.error("Failed to get client with details", error as Error, {
+      action: "get_client_with_details",
       clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -280,10 +287,10 @@ export async function getClientWithDetails(db: any, clientId: string): Promise<C
 export async function searchClients(
   db: any,
   query: string,
-  limit: number = 10
+  limit: number = 10,
 ) {
   try {
-    const searchTerm = `%${query}%`
+    const searchTerm = `%${query}%`;
 
     const result = await db
       .select({
@@ -299,28 +306,28 @@ export async function searchClients(
           or(
             like(clients.clientCode, searchTerm),
             like(clients.fullName, searchTerm),
-            like(clients.pensionNumber, searchTerm)
-          )
-        )
+            like(clients.pensionNumber, searchTerm),
+          ),
+        ),
       )
       .orderBy(clients.fullName)
-      .limit(limit)
+      .limit(limit);
 
-    logger.info('Searched clients', {
-      action: 'search_clients',
+    logger.info("Searched clients", {
+      action: "search_clients",
       query,
       count: result.length,
       limit,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to search clients', error as Error, {
-      action: 'search_clients',
+    logger.error("Failed to search clients", error as Error, {
+      action: "search_clients",
       query,
       limit,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -330,15 +337,12 @@ export async function searchClients(
  * @param clientData - Client data to upsert
  * @returns Upserted client
  */
-export async function upsertClient(
-  db: any,
-  clientData: any
-) {
+export async function upsertClient(db: any, clientData: any) {
   try {
     // Check if client exists by client code
-    const existing = await getClientByCode(db, clientData.clientCode)
+    const existing = await getClientByCode(db, clientData.clientCode);
 
-    let result
+    let result;
     if (existing) {
       // Update existing client
       result = await db
@@ -348,25 +352,25 @@ export async function upsertClient(
           updatedAt: new Date(),
         })
         .where(eq(clients.id, existing.id))
-        .returning()
+        .returning();
     } else {
       // Insert new client
-      result = await db.insert(clients).values(clientData).returning()
+      result = await db.insert(clients).values(clientData).returning();
     }
 
-    logger.info('Upserted client', {
-      action: 'upsert_client',
+    logger.info("Upserted client", {
+      action: "upsert_client",
       clientCode: clientData.clientCode,
-      operation: existing ? 'update' : 'insert',
-    })
+      operation: existing ? "update" : "insert",
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to upsert client', error as Error, {
-      action: 'upsert_client',
+    logger.error("Failed to upsert client", error as Error, {
+      action: "upsert_client",
       clientCode: clientData.clientCode,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -376,18 +380,15 @@ export async function upsertClient(
  * @param clientDataArray - Array of client data to upsert
  * @returns Object with created and updated counts
  */
-export async function bulkUpsertClients(
-  db: any,
-  clientDataArray: any[]
-) {
-  let created = 0
-  let updated = 0
-  const errors: Array<{ clientCode: string; error: string }> = []
+export async function bulkUpsertClients(db: any, clientDataArray: any[]) {
+  let created = 0;
+  let updated = 0;
+  const errors: Array<{ clientCode: string; error: string }> = [];
 
   try {
     for (const clientData of clientDataArray) {
       try {
-        const existing = await getClientByCode(db, clientData.clientCode)
+        const existing = await getClientByCode(db, clientData.clientCode);
 
         if (existing) {
           // Update existing client
@@ -397,45 +398,45 @@ export async function bulkUpsertClients(
               ...clientData,
               updatedAt: new Date(),
             })
-            .where(eq(clients.id, existing.id))
-          updated++
+            .where(eq(clients.id, existing.id));
+          updated++;
         } else {
           // Insert new client
-          await db.insert(clients).values(clientData)
-          created++
+          await db.insert(clients).values(clientData);
+          created++;
         }
       } catch (error) {
         errors.push({
           clientCode: clientData.clientCode,
           error: (error as Error).message,
-        })
-        logger.error('Failed to upsert client in bulk', error as Error, {
-          action: 'bulk_upsert_clients',
+        });
+        logger.error("Failed to upsert client in bulk", error as Error, {
+          action: "bulk_upsert_clients",
           clientCode: clientData.clientCode,
-        })
+        });
       }
     }
 
-    logger.info('Bulk upserted clients', {
-      action: 'bulk_upsert_clients',
+    logger.info("Bulk upserted clients", {
+      action: "bulk_upsert_clients",
       total: clientDataArray.length,
       created,
       updated,
       errors: errors.length,
-    })
+    });
 
     return {
       created,
       updated,
       failed: errors.length,
       errors,
-    }
+    };
   } catch (error) {
-    logger.error('Failed to bulk upsert clients', error as Error, {
-      action: 'bulk_upsert_clients',
+    logger.error("Failed to bulk upsert clients", error as Error, {
+      action: "bulk_upsert_clients",
       total: clientDataArray.length,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -455,7 +456,7 @@ export async function recordClientSyncChange(
   fieldName: string,
   oldValue: string | null,
   newValue: string | null,
-  syncJobId?: string
+  syncJobId?: string,
 ) {
   try {
     const result = await db
@@ -468,23 +469,23 @@ export async function recordClientSyncChange(
         syncJobId,
         changedAt: new Date(),
       })
-      .returning()
+      .returning();
 
-    logger.debug('Recorded client sync change', {
-      action: 'record_client_sync_change',
+    logger.debug("Recorded client sync change", {
+      action: "record_client_sync_change",
       clientId,
       fieldName,
       syncJobId,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to record client sync change', error as Error, {
-      action: 'record_client_sync_change',
+    logger.error("Failed to record client sync change", error as Error, {
+      action: "record_client_sync_change",
       clientId,
       fieldName,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -500,21 +501,21 @@ export async function getClientSyncHistory(db: any, clientId: string) {
       .select()
       .from(clientSyncHistory)
       .where(eq(clientSyncHistory.clientId, clientId))
-      .orderBy(desc(clientSyncHistory.changedAt))
+      .orderBy(desc(clientSyncHistory.changedAt));
 
-    logger.info('Retrieved client sync history', {
-      action: 'get_client_sync_history',
+    logger.info("Retrieved client sync history", {
+      action: "get_client_sync_history",
       clientId,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get client sync history', error as Error, {
-      action: 'get_client_sync_history',
+    logger.error("Failed to get client sync history", error as Error, {
+      action: "get_client_sync_history",
       clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -526,45 +527,48 @@ export async function getClientSyncHistory(db: any, clientId: string) {
  */
 export async function countClientsByStatus(
   db: any,
-  branchIds?: string[]
+  branchIds?: string[],
 ): Promise<StatusCount[]> {
   try {
     let query = db
       .select({
         statusTypeId: clientPeriodStatus.statusTypeId,
         statusTypeName: statusTypes.name,
-        count: sql<number>`count(${clientPeriodStatus.id})`.as('count'),
+        count: sql<number>`count(${clientPeriodStatus.id})`.as("count"),
       })
       .from(clientPeriodStatus)
-      .innerJoin(statusTypes, eq(clientPeriodStatus.statusTypeId, statusTypes.id))
+      .innerJoin(
+        statusTypes,
+        eq(clientPeriodStatus.statusTypeId, statusTypes.id),
+      )
       .innerJoin(clients, eq(clientPeriodStatus.clientId, clients.id))
-      .where(isNull(clients.deletedAt))
+      .where(isNull(clients.deletedAt));
 
     // Filter by branch IDs if provided
     if (branchIds && branchIds.length > 0) {
       query = query.where(
-        and(
-          isNull(clients.deletedAt),
-          inArray(clients.branchId, branchIds)
-        )
-      )
+        and(isNull(clients.deletedAt), inArray(clients.branchId, branchIds)),
+      );
     }
 
-    const result = await query.groupBy(clientPeriodStatus.statusTypeId, statusTypes.name)
+    const result = await query.groupBy(
+      clientPeriodStatus.statusTypeId,
+      statusTypes.name,
+    );
 
-    logger.info('Retrieved client counts by status', {
-      action: 'count_clients_by_status',
+    logger.info("Retrieved client counts by status", {
+      action: "count_clients_by_status",
       branchIds,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to count clients by status', error as Error, {
-      action: 'count_clients_by_status',
+    logger.error("Failed to count clients by status", error as Error, {
+      action: "count_clients_by_status",
       branchIds,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -583,24 +587,24 @@ export async function deleteClient(db: any, clientId: string) {
         updatedAt: new Date(),
       })
       .where(eq(clients.id, clientId))
-      .returning()
+      .returning();
 
     if (!result[0]) {
-      return null
+      return null;
     }
 
-    logger.info('Deleted client', {
-      action: 'delete_client',
+    logger.info("Deleted client", {
+      action: "delete_client",
       clientId,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to delete client', error as Error, {
-      action: 'delete_client',
+    logger.error("Failed to delete client", error as Error, {
+      action: "delete_client",
       clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -619,24 +623,24 @@ export async function restoreClient(db: any, clientId: string) {
         updatedAt: new Date(),
       })
       .where(eq(clients.id, clientId))
-      .returning()
+      .returning();
 
     if (!result[0]) {
-      return null
+      return null;
     }
 
-    logger.info('Restored client', {
-      action: 'restore_client',
+    logger.info("Restored client", {
+      action: "restore_client",
       clientId,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to restore client', error as Error, {
-      action: 'restore_client',
+    logger.error("Failed to restore client", error as Error, {
+      action: "restore_client",
       clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -646,81 +650,84 @@ export async function restoreClient(db: any, clientId: string) {
  * @param filters - Optional filters
  * @returns Total count of clients
  */
-export async function countClients(db: any, filters?: ClientFilters): Promise<number> {
+export async function countClients(
+  db: any,
+  filters?: ClientFilters,
+): Promise<number> {
   try {
     let query = db
-      .select({ count: sql<number>`count(${clients.id})`.as('count') })
-      .from(clients)
+      .select({ count: sql<number>`count(${clients.id})`.as("count") })
+      .from(clients);
 
     // Apply filters
     if (filters) {
-      const conditions = []
+      const conditions = [];
 
       // Filter out deleted clients
-      conditions.push(isNull(clients.deletedAt))
+      conditions.push(isNull(clients.deletedAt));
 
       // Filter by branch IDs
       if (filters.branchIds && filters.branchIds.length > 0) {
-        conditions.push(inArray(clients.branchId, filters.branchIds))
+        conditions.push(inArray(clients.branchId, filters.branchIds));
       }
 
       // Filter by pension type
       if (filters.pensionTypeId) {
-        conditions.push(eq(clients.pensionTypeId, filters.pensionTypeId))
+        conditions.push(eq(clients.pensionTypeId, filters.pensionTypeId));
       }
 
       // Filter by pensioner type
       if (filters.pensionerTypeId) {
-        conditions.push(eq(clients.pensionerTypeId, filters.pensionerTypeId))
+        conditions.push(eq(clients.pensionerTypeId, filters.pensionerTypeId));
       }
 
       // Filter by product
       if (filters.productId) {
-        conditions.push(eq(clients.productId, filters.productId))
+        conditions.push(eq(clients.productId, filters.productId));
       }
 
       // Filter by PAR status
       if (filters.parStatusId) {
-        conditions.push(eq(clients.parStatusId, filters.parStatusId))
+        conditions.push(eq(clients.parStatusId, filters.parStatusId));
       }
 
       // Filter by account type
       if (filters.accountTypeId) {
-        conditions.push(eq(clients.accountTypeId, filters.accountTypeId))
+        conditions.push(eq(clients.accountTypeId, filters.accountTypeId));
       }
 
       // Filter by active status
       if (filters.isActive !== undefined) {
-        conditions.push(eq(clients.isActive, filters.isActive))
+        conditions.push(eq(clients.isActive, filters.isActive));
       }
 
       // Search by client code, full name, or pension number
       if (filters.search) {
-        const searchTerm = `%${filters.search}%`
+        const searchTerm = `%${filters.search}%`;
         conditions.push(
           or(
             like(clients.clientCode, searchTerm),
             like(clients.fullName, searchTerm),
-            like(clients.pensionNumber, searchTerm)
-          )
-        )
+            like(clients.pensionNumber, searchTerm),
+          ),
+        );
       }
 
       if (conditions.length > 0) {
-        query = query.where(and(...conditions))
+        query = query.where(and(...conditions));
       }
     } else {
       // Always filter out deleted clients
-      query = query.where(isNull(clients.deletedAt))
+      query = query.where(isNull(clients.deletedAt));
     }
 
-    const result = await query
-    return result[0]?.count || 0
+    const result = await query;
+    return result[0]?.count || 0;
   } catch (error) {
-    logger.error('Failed to count clients', error as Error, {
-      action: 'count_clients',
+    logger.error("Failed to count clients", error as Error, {
+      action: "count_clients",
       filters,
-    })
-    throw error
+    });
+    throw error;
   }
 }

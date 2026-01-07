@@ -1,14 +1,14 @@
-import { UTApi } from 'uploadthing/server'
-import { env } from '@/config/env'
+import { UTApi } from "uploadthing/server";
+import { env } from "@/config/env";
 
 export class UploadThingClient {
-  private api: UTApi | null = null
+  private api: UTApi | null = null;
 
   constructor() {
     // UTApi automatically reads UPLOADTHING_TOKEN from environment
     // Only initialize if token is configured
     if (env.UPLOADTHING_TOKEN) {
-      this.api = new UTApi()
+      this.api = new UTApi();
     }
   }
 
@@ -16,7 +16,7 @@ export class UploadThingClient {
    * Check if the client is configured
    */
   isConfigured(): boolean {
-    return this.api !== null
+    return this.api !== null;
   }
 
   /**
@@ -24,66 +24,68 @@ export class UploadThingClient {
    */
   getApi(): UTApi {
     if (!this.api) {
-      throw new Error('UploadThing is not configured. Set UPLOADTHING_TOKEN environment variable.')
+      throw new Error(
+        "UploadThing is not configured. Set UPLOADTHING_TOKEN environment variable.",
+      );
     }
-    return this.api
+    return this.api;
   }
 
   /**
    * List files from UploadThing
    */
   async listFiles(options?: { limit?: number; offset?: number }) {
-    const api = this.getApi()
-    return api.listFiles(options)
+    const api = this.getApi();
+    return api.listFiles(options);
   }
 
   /**
    * Delete a file by its key
    */
   async deleteFile(fileKey: string) {
-    const api = this.getApi()
-    return api.deleteFiles(fileKey)
+    const api = this.getApi();
+    return api.deleteFiles(fileKey);
   }
 
   /**
    * Delete multiple files by their keys
    */
   async deleteFiles(fileKeys: string[]) {
-    const api = this.getApi()
-    return api.deleteFiles(fileKeys)
+    const api = this.getApi();
+    return api.deleteFiles(fileKeys);
   }
 
   /**
    * Get file URLs by their keys
    */
   async getFileUrls(fileKeys: string[]) {
-    const api = this.getApi()
-    return api.getFileUrls(fileKeys)
+    const api = this.getApi();
+    return api.getFileUrls(fileKeys);
   }
 
   /**
    * Rename a file
    */
   async renameFile(fileKey: string, newName: string) {
-    const api = this.getApi()
-    return api.renameFiles({ [fileKey]: newName })
+    const api = this.getApi();
+    return api.renameFiles({ [fileKey]: newName });
   }
 
   /**
    * Rename multiple files
    */
   async renameFiles(updates: Record<string, string>) {
-    const api = this.getApi()
-    return api.renameFiles(updates)
+    const api = this.getApi();
+    return api.renameFiles(updates);
   }
 
   /**
    * Get usage info for the app
    */
   async getUsageInfo() {
-    const api = this.getApi()
-    return api.getUsageInfo()
+    const api = this.getApi();
+    return api.getUsageInfo();
   }
 }
 
-export const uploadThingClient = new UploadThingClient()
+export const uploadThingClient = new UploadThingClient();

@@ -1,14 +1,14 @@
 // UI store placeholder
-'use client'
+"use client";
 
-import { create } from 'zustand'
+import { create } from "zustand";
 
 interface UIState {
-  sidebarOpen: boolean
-  toggleSidebar: () => void
+  sidebarOpen: boolean;
+  toggleSidebar: () => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
   sidebarOpen: false,
   toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-}))
+}));

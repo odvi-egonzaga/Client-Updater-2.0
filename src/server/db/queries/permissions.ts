@@ -1,26 +1,29 @@
-import { db } from '../index'
-import { permissions, userPermissions } from '../schema/users'
-import { eq, and, inArray } from 'drizzle-orm'
-import { logger } from '@/lib/logger'
+import { db } from "../index";
+import { permissions, userPermissions } from "../schema/users";
+import { eq, and, inArray } from "drizzle-orm";
+import { logger } from "@/lib/logger";
 
 /**
  * Get all permissions
  */
 export async function getAllPermissions(db: any) {
   try {
-    const result = await db.select().from(permissions).orderBy(permissions.resource, permissions.action)
+    const result = await db
+      .select()
+      .from(permissions)
+      .orderBy(permissions.resource, permissions.action);
 
-    logger.info('Retrieved all permissions', {
-      action: 'get_all_permissions',
+    logger.info("Retrieved all permissions", {
+      action: "get_all_permissions",
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to retrieve permissions', error as Error, {
-      action: 'get_all_permissions',
-    })
-    throw error
+    logger.error("Failed to retrieve permissions", error as Error, {
+      action: "get_all_permissions",
+    });
+    throw error;
   }
 }
 
@@ -33,28 +36,32 @@ export async function getPermissionsByResource(db: any, resource: string) {
       .select()
       .from(permissions)
       .where(eq(permissions.resource, resource))
-      .orderBy(permissions.action)
+      .orderBy(permissions.action);
 
-    logger.info('Retrieved permissions by resource', {
-      action: 'get_permissions_by_resource',
+    logger.info("Retrieved permissions by resource", {
+      action: "get_permissions_by_resource",
       resource,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to retrieve permissions by resource', error as Error, {
-      action: 'get_permissions_by_resource',
+    logger.error("Failed to retrieve permissions by resource", error as Error, {
+      action: "get_permissions_by_resource",
       resource,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
 /**
  * Get user's permissions with scopes
  */
-export async function getUserPermissions(db: any, userId: string, companyId?: string) {
+export async function getUserPermissions(
+  db: any,
+  userId: string,
+  companyId?: string,
+) {
   try {
     let query = db
       .select({
@@ -64,30 +71,35 @@ export async function getUserPermissions(db: any, userId: string, companyId?: st
       })
       .from(userPermissions)
       .innerJoin(permissions, eq(userPermissions.permissionId, permissions.id))
-      .where(eq(userPermissions.userId, userId))
+      .where(eq(userPermissions.userId, userId));
 
     // Filter by company if provided
     if (companyId) {
-      query = query.where(and(eq(userPermissions.userId, userId), eq(userPermissions.companyId, companyId)))
+      query = query.where(
+        and(
+          eq(userPermissions.userId, userId),
+          eq(userPermissions.companyId, companyId),
+        ),
+      );
     }
 
-    const result = await query
+    const result = await query;
 
-    logger.info('Retrieved user permissions', {
-      action: 'get_user_permissions',
+    logger.info("Retrieved user permissions", {
+      action: "get_user_permissions",
       userId,
       companyId,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to retrieve user permissions', error as Error, {
-      action: 'get_user_permissions',
+    logger.error("Failed to retrieve user permissions", error as Error, {
+      action: "get_user_permissions",
       userId,
       companyId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -99,7 +111,7 @@ export async function assignPermissionToUser(
   userId: string,
   permissionId: string,
   companyId: string,
-  scope: string = 'self'
+  scope: string = "self",
 ) {
   try {
     const result = await db
@@ -110,26 +122,26 @@ export async function assignPermissionToUser(
         companyId,
         scope: scope as any,
       })
-      .returning()
+      .returning();
 
-    logger.info('Assigned permission to user', {
-      action: 'assign_permission_to_user',
+    logger.info("Assigned permission to user", {
+      action: "assign_permission_to_user",
       userId,
       permissionId,
       companyId,
       scope,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to assign permission to user', error as Error, {
-      action: 'assign_permission_to_user',
+    logger.error("Failed to assign permission to user", error as Error, {
+      action: "assign_permission_to_user",
       userId,
       permissionId,
       companyId,
       scope,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -140,44 +152,46 @@ export async function removePermissionFromUser(
   db: any,
   userId: string,
   permissionId: string,
-  companyId?: string
+  companyId?: string,
 ) {
   try {
-    let query = db.delete(userPermissions).where(
-      and(
-        eq(userPermissions.userId, userId),
-        eq(userPermissions.permissionId, permissionId)
-      )
-    )
+    let query = db
+      .delete(userPermissions)
+      .where(
+        and(
+          eq(userPermissions.userId, userId),
+          eq(userPermissions.permissionId, permissionId),
+        ),
+      );
 
     if (companyId) {
       query = query.where(
         and(
           eq(userPermissions.userId, userId),
           eq(userPermissions.permissionId, permissionId),
-          eq(userPermissions.companyId, companyId)
-        )
-      )
+          eq(userPermissions.companyId, companyId),
+        ),
+      );
     }
 
-    const result = await query.returning()
+    const result = await query.returning();
 
-    logger.info('Removed permission from user', {
-      action: 'remove_permission_from_user',
+    logger.info("Removed permission from user", {
+      action: "remove_permission_from_user",
       userId,
       permissionId,
       companyId,
-    })
+    });
 
-    return result[0] || null
+    return result[0] || null;
   } catch (error) {
-    logger.error('Failed to remove permission from user', error as Error, {
-      action: 'remove_permission_from_user',
+    logger.error("Failed to remove permission from user", error as Error, {
+      action: "remove_permission_from_user",
       userId,
       permissionId,
       companyId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -188,14 +202,14 @@ export async function setUserPermissions(
   db: any,
   userId: string,
   permissionsData: Array<{
-    permissionId: string
-    companyId: string
-    scope: string
-  }>
+    permissionId: string;
+    companyId: string;
+    scope: string;
+  }>,
 ) {
   try {
     // Delete all existing permissions for the user
-    await db.delete(userPermissions).where(eq(userPermissions.userId, userId))
+    await db.delete(userPermissions).where(eq(userPermissions.userId, userId));
 
     // Insert new permissions
     if (permissionsData.length > 0) {
@@ -207,32 +221,32 @@ export async function setUserPermissions(
             permissionId: p.permissionId,
             companyId: p.companyId,
             scope: p.scope as any,
-          }))
+          })),
         )
-        .returning()
+        .returning();
 
-      logger.info('Set user permissions', {
-        action: 'set_user_permissions',
+      logger.info("Set user permissions", {
+        action: "set_user_permissions",
         userId,
         count: result.length,
-      })
+      });
 
-      return result
+      return result;
     }
 
-    logger.info('Cleared all user permissions', {
-      action: 'set_user_permissions',
+    logger.info("Cleared all user permissions", {
+      action: "set_user_permissions",
       userId,
       count: 0,
-    })
+    });
 
-    return []
+    return [];
   } catch (error) {
-    logger.error('Failed to set user permissions', error as Error, {
-      action: 'set_user_permissions',
+    logger.error("Failed to set user permissions", error as Error, {
+      action: "set_user_permissions",
       userId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -244,7 +258,7 @@ export async function userHasPermission(
   userId: string,
   resource: string,
   action: string,
-  companyId?: string
+  companyId?: string,
 ): Promise<boolean> {
   try {
     let query = db
@@ -255,9 +269,9 @@ export async function userHasPermission(
         and(
           eq(userPermissions.userId, userId),
           eq(permissions.resource, resource),
-          eq(permissions.action, action)
-        )
-      )
+          eq(permissions.action, action),
+        ),
+      );
 
     if (companyId) {
       query = query.where(
@@ -265,31 +279,31 @@ export async function userHasPermission(
           eq(userPermissions.userId, userId),
           eq(permissions.resource, resource),
           eq(permissions.action, action),
-          eq(userPermissions.companyId, companyId)
-        )
-      )
+          eq(userPermissions.companyId, companyId),
+        ),
+      );
     }
 
-    const result = await query.limit(1)
+    const result = await query.limit(1);
 
-    logger.debug('Checked user permission', {
-      action: 'user_has_permission',
+    logger.debug("Checked user permission", {
+      action: "user_has_permission",
       userId,
       resource,
       permissionAction: action,
       companyId,
       hasPermission: result.length > 0,
-    })
+    });
 
-    return result.length > 0
+    return result.length > 0;
   } catch (error) {
-    logger.error('Failed to check user permission', error as Error, {
-      action: 'user_has_permission',
+    logger.error("Failed to check user permission", error as Error, {
+      action: "user_has_permission",
       userId,
       resource,
       permissionAction: action,
       companyId,
-    })
-    throw error
+    });
+    throw error;
   }
 }

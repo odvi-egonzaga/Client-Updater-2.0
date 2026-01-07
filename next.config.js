@@ -11,11 +11,20 @@ const config = {
     ignoreDuringBuilds: true,
   },
   outputFileTracingIncludes: {
-    "/": ["./docs/**/*", "./README.md", "./DESIGN.md", "./cli/template/README.md"],
-    "/*": ["./docs/**/*", "./README.md", "./DESIGN.md", "./cli/template/README.md"],
+    "/": [
+      "./docs/**/*",
+      "./README.md",
+      "./DESIGN.md",
+      "./cli/template/README.md",
+    ],
+    "/*": [
+      "./docs/**/*",
+      "./README.md",
+      "./DESIGN.md",
+      "./cli/template/README.md",
+    ],
   },
-  experimental: {
-  },
+  experimental: {},
 };
 
 export default config;

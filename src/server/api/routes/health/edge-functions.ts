@@ -1,20 +1,20 @@
-import { Hono } from 'hono'
-import { pingEdgeFunction } from '@/lib/health'
+import { Hono } from "hono";
+import { pingEdgeFunction } from "@/lib/health";
 
-export const edgeFunctionsHealthRoutes = new Hono()
+export const edgeFunctionsHealthRoutes = new Hono();
 
-edgeFunctionsHealthRoutes.get('/ping', async (c) => {
-  const result = await pingEdgeFunction({ functionName: 'health-check' })
-  return c.json(result)
-})
+edgeFunctionsHealthRoutes.get("/ping", async (c) => {
+  const result = await pingEdgeFunction({ functionName: "health-check" });
+  return c.json(result);
+});
 
-import { validateEdgeFunctionAuth } from '@/lib/health'
+import { validateEdgeFunctionAuth } from "@/lib/health";
 
-edgeFunctionsHealthRoutes.get('/auth', async (c) => {
-  const authHeader = c.req.header('authorization')
+edgeFunctionsHealthRoutes.get("/auth", async (c) => {
+  const authHeader = c.req.header("authorization");
   const result = await validateEdgeFunctionAuth({
-    functionName: 'health-check',
+    functionName: "health-check",
     authToken: authHeader,
-  })
-  return c.json(result)
-})
+  });
+  return c.json(result);
+});

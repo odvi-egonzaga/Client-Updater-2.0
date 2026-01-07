@@ -2,7 +2,7 @@
  * Status queries for Phase 4 Status Tracking
  */
 
-import { db } from '../index'
+import { db } from "../index";
 import {
   clientPeriodStatus,
   statusEvents,
@@ -11,66 +11,66 @@ import {
   clients,
   companies,
   products,
-} from '../schema'
-import { eq, and, desc, sql, inArray, isNull } from 'drizzle-orm'
-import { logger } from '@/lib/logger'
+} from "../schema";
+import { eq, and, desc, sql, inArray, isNull } from "drizzle-orm";
+import { logger } from "@/lib/logger";
 
 // Type definitions
 export interface StatusFilters {
-  companyId?: string
-  statusTypeId?: string
-  reasonId?: string
-  periodType?: 'monthly' | 'quarterly'
-  periodYear?: number
-  periodMonth?: number
-  periodQuarter?: number
-  hasPayment?: boolean
-  isTerminal?: boolean
-  branchIds?: string[]
+  companyId?: string;
+  statusTypeId?: string;
+  reasonId?: string;
+  periodType?: "monthly" | "quarterly";
+  periodYear?: number;
+  periodMonth?: number;
+  periodQuarter?: number;
+  hasPayment?: boolean;
+  isTerminal?: boolean;
+  branchIds?: string[];
 }
 
 export interface CreateClientPeriodStatusInput {
-  clientId: string
-  periodType: 'monthly' | 'quarterly'
-  periodYear: number
-  periodMonth?: number
-  periodQuarter?: number
-  statusTypeId?: string
-  reasonId?: string
-  remarks?: string
-  hasPayment?: boolean
-  isTerminal?: boolean
-  updatedBy?: string
+  clientId: string;
+  periodType: "monthly" | "quarterly";
+  periodYear: number;
+  periodMonth?: number;
+  periodQuarter?: number;
+  statusTypeId?: string;
+  reasonId?: string;
+  remarks?: string;
+  hasPayment?: boolean;
+  isTerminal?: boolean;
+  updatedBy?: string;
 }
 
 export interface UpdateClientPeriodStatusInput {
-  statusTypeId?: string
-  reasonId?: string
-  remarks?: string
-  hasPayment?: boolean
-  updateCount?: number
-  isTerminal?: boolean
-  updatedBy?: string
+  statusTypeId?: string;
+  reasonId?: string;
+  remarks?: string;
+  hasPayment?: boolean;
+  updateCount?: number;
+  isTerminal?: boolean;
+  updatedBy?: string;
 }
 
 export interface CreateStatusEventInput {
-  clientPeriodStatusId: string
-  statusTypeId?: string
-  reasonId?: string
-  remarks?: string
-  hasPayment?: boolean
-  createdBy: string
+  clientPeriodStatusId: string;
+  statusTypeId?: string;
+  reasonId?: string;
+  remarks?: string;
+  hasPayment?: boolean;
+  createdBy: string;
 }
 
 export interface DashboardSummary {
-  totalClients: number
+  totalClients: number;
   statusCounts: Array<{
-    statusTypeId: string
-    statusTypeName: string
-    count: number
-  }>
-  paymentCount: number
-  terminalCount: number
+    statusTypeId: string;
+    statusTypeName: string;
+    count: number;
+  }>;
+  paymentCount: number;
+  terminalCount: number;
 }
 
 /**
@@ -86,24 +86,24 @@ export interface DashboardSummary {
 export async function getClientCurrentStatus(
   db: any,
   clientId: string,
-  periodType: 'monthly' | 'quarterly',
+  periodType: "monthly" | "quarterly",
   periodYear: number,
   periodMonth?: number,
-  periodQuarter?: number
+  periodQuarter?: number,
 ) {
   try {
     const conditions = [
       eq(clientPeriodStatus.clientId, clientId),
       eq(clientPeriodStatus.periodType, periodType),
       eq(clientPeriodStatus.periodYear, periodYear),
-    ]
+    ];
 
-    if (periodType === 'monthly' && periodMonth !== undefined) {
-      conditions.push(eq(clientPeriodStatus.periodMonth, periodMonth))
+    if (periodType === "monthly" && periodMonth !== undefined) {
+      conditions.push(eq(clientPeriodStatus.periodMonth, periodMonth));
     }
 
-    if (periodType === 'quarterly' && periodQuarter !== undefined) {
-      conditions.push(eq(clientPeriodStatus.periodQuarter, periodQuarter))
+    if (periodType === "quarterly" && periodQuarter !== undefined) {
+      conditions.push(eq(clientPeriodStatus.periodQuarter, periodQuarter));
     }
 
     const result = await db
@@ -127,31 +127,37 @@ export async function getClientCurrentStatus(
         createdAt: clientPeriodStatus.createdAt,
       })
       .from(clientPeriodStatus)
-      .leftJoin(statusTypes, eq(clientPeriodStatus.statusTypeId, statusTypes.id))
-      .leftJoin(statusReasons, eq(clientPeriodStatus.reasonId, statusReasons.id))
+      .leftJoin(
+        statusTypes,
+        eq(clientPeriodStatus.statusTypeId, statusTypes.id),
+      )
+      .leftJoin(
+        statusReasons,
+        eq(clientPeriodStatus.reasonId, statusReasons.id),
+      )
       .where(and(...conditions))
-      .limit(1)
+      .limit(1);
 
-    logger.info('Retrieved client current status', {
-      action: 'get_client_current_status',
+    logger.info("Retrieved client current status", {
+      action: "get_client_current_status",
       clientId,
       periodType,
       periodYear,
       periodMonth,
       periodQuarter,
-    })
+    });
 
-    return result[0] ?? null
+    return result[0] ?? null;
   } catch (error) {
-    logger.error('Failed to get client current status', error as Error, {
-      action: 'get_client_current_status',
+    logger.error("Failed to get client current status", error as Error, {
+      action: "get_client_current_status",
       clientId,
       periodType,
       periodYear,
       periodMonth,
       periodQuarter,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -165,7 +171,7 @@ export async function getClientCurrentStatus(
 export async function getClientStatusHistory(
   db: any,
   clientId: string,
-  limit: number = 50
+  limit: number = 50,
 ) {
   try {
     const result = await db
@@ -183,28 +189,31 @@ export async function getClientStatusHistory(
         createdAt: statusEvents.createdAt,
       })
       .from(statusEvents)
-      .innerJoin(clientPeriodStatus, eq(statusEvents.clientPeriodStatusId, clientPeriodStatus.id))
+      .innerJoin(
+        clientPeriodStatus,
+        eq(statusEvents.clientPeriodStatusId, clientPeriodStatus.id),
+      )
       .leftJoin(statusTypes, eq(statusEvents.statusTypeId, statusTypes.id))
       .leftJoin(statusReasons, eq(statusEvents.reasonId, statusReasons.id))
       .where(eq(clientPeriodStatus.clientId, clientId))
       .orderBy(desc(statusEvents.createdAt))
-      .limit(limit)
+      .limit(limit);
 
-    logger.info('Retrieved client status history', {
-      action: 'get_client_status_history',
+    logger.info("Retrieved client status history", {
+      action: "get_client_status_history",
       clientId,
       count: result.length,
       limit,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get client status history', error as Error, {
-      action: 'get_client_status_history',
+    logger.error("Failed to get client status history", error as Error, {
+      action: "get_client_status_history",
       clientId,
       limit,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -214,52 +223,53 @@ export async function getClientStatusHistory(
  * @param filters - Status filters
  * @returns Array of client period statuses with client details
  */
-export async function getClientsByStatus(
-  db: any,
-  filters: StatusFilters
-) {
+export async function getClientsByStatus(db: any, filters: StatusFilters) {
   try {
-    const conditions = []
+    const conditions = [];
 
     // Build conditions based on filters
     if (filters.companyId) {
-      conditions.push(eq(companies.id, filters.companyId))
+      conditions.push(eq(companies.id, filters.companyId));
     }
 
     if (filters.statusTypeId) {
-      conditions.push(eq(clientPeriodStatus.statusTypeId, filters.statusTypeId))
+      conditions.push(
+        eq(clientPeriodStatus.statusTypeId, filters.statusTypeId),
+      );
     }
 
     if (filters.reasonId) {
-      conditions.push(eq(clientPeriodStatus.reasonId, filters.reasonId))
+      conditions.push(eq(clientPeriodStatus.reasonId, filters.reasonId));
     }
 
     if (filters.periodType) {
-      conditions.push(eq(clientPeriodStatus.periodType, filters.periodType))
+      conditions.push(eq(clientPeriodStatus.periodType, filters.periodType));
     }
 
     if (filters.periodYear) {
-      conditions.push(eq(clientPeriodStatus.periodYear, filters.periodYear))
+      conditions.push(eq(clientPeriodStatus.periodYear, filters.periodYear));
     }
 
     if (filters.periodMonth) {
-      conditions.push(eq(clientPeriodStatus.periodMonth, filters.periodMonth))
+      conditions.push(eq(clientPeriodStatus.periodMonth, filters.periodMonth));
     }
 
     if (filters.periodQuarter) {
-      conditions.push(eq(clientPeriodStatus.periodQuarter, filters.periodQuarter))
+      conditions.push(
+        eq(clientPeriodStatus.periodQuarter, filters.periodQuarter),
+      );
     }
 
     if (filters.hasPayment !== undefined) {
-      conditions.push(eq(clientPeriodStatus.hasPayment, filters.hasPayment))
+      conditions.push(eq(clientPeriodStatus.hasPayment, filters.hasPayment));
     }
 
     if (filters.isTerminal !== undefined) {
-      conditions.push(eq(clientPeriodStatus.isTerminal, filters.isTerminal))
+      conditions.push(eq(clientPeriodStatus.isTerminal, filters.isTerminal));
     }
 
     // Always filter out deleted clients
-    conditions.push(isNull(clients.deletedAt))
+    conditions.push(isNull(clients.deletedAt));
 
     let query = db
       .select({
@@ -285,34 +295,40 @@ export async function getClientsByStatus(
       })
       .from(clientPeriodStatus)
       .innerJoin(clients, eq(clientPeriodStatus.clientId, clients.id))
-      .leftJoin(statusTypes, eq(clientPeriodStatus.statusTypeId, statusTypes.id))
-      .leftJoin(statusReasons, eq(clientPeriodStatus.reasonId, statusReasons.id))
+      .leftJoin(
+        statusTypes,
+        eq(clientPeriodStatus.statusTypeId, statusTypes.id),
+      )
+      .leftJoin(
+        statusReasons,
+        eq(clientPeriodStatus.reasonId, statusReasons.id),
+      )
       .leftJoin(products, eq(clients.productId, products.id))
-      .leftJoin(companies, eq(products.companyId, companies.id))
+      .leftJoin(companies, eq(products.companyId, companies.id));
 
     if (filters.branchIds && filters.branchIds.length > 0) {
-      conditions.push(inArray(clients.branchId, filters.branchIds))
+      conditions.push(inArray(clients.branchId, filters.branchIds));
     }
 
     if (conditions.length > 0) {
-      query = query.where(and(...conditions))
+      query = query.where(and(...conditions));
     }
 
-    const result = await query.orderBy(desc(clientPeriodStatus.updatedAt))
+    const result = await query.orderBy(desc(clientPeriodStatus.updatedAt));
 
-    logger.info('Retrieved clients by status', {
-      action: 'get_clients_by_status',
+    logger.info("Retrieved clients by status", {
+      action: "get_clients_by_status",
       filters,
       count: result.length,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get clients by status', error as Error, {
-      action: 'get_clients_by_status',
+    logger.error("Failed to get clients by status", error as Error, {
+      action: "get_clients_by_status",
       filters,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -324,7 +340,7 @@ export async function getClientsByStatus(
  */
 export async function createClientPeriodStatus(
   db: any,
-  data: CreateClientPeriodStatusInput
+  data: CreateClientPeriodStatusInput,
 ) {
   try {
     const result = await db
@@ -334,22 +350,22 @@ export async function createClientPeriodStatus(
         createdAt: new Date(),
         updatedAt: new Date(),
       })
-      .returning()
+      .returning();
 
-    logger.info('Created client period status', {
-      action: 'create_client_period_status',
+    logger.info("Created client period status", {
+      action: "create_client_period_status",
       clientId: data.clientId,
       periodType: data.periodType,
       periodYear: data.periodYear,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to create client period status', error as Error, {
-      action: 'create_client_period_status',
+    logger.error("Failed to create client period status", error as Error, {
+      action: "create_client_period_status",
       clientId: data.clientId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -363,7 +379,7 @@ export async function createClientPeriodStatus(
 export async function updateClientPeriodStatus(
   db: any,
   id: string,
-  data: UpdateClientPeriodStatusInput
+  data: UpdateClientPeriodStatusInput,
 ) {
   try {
     const result = await db
@@ -373,24 +389,24 @@ export async function updateClientPeriodStatus(
         updatedAt: new Date(),
       })
       .where(eq(clientPeriodStatus.id, id))
-      .returning()
+      .returning();
 
     if (!result[0]) {
-      return null
+      return null;
     }
 
-    logger.info('Updated client period status', {
-      action: 'update_client_period_status',
+    logger.info("Updated client period status", {
+      action: "update_client_period_status",
       id,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to update client period status', error as Error, {
-      action: 'update_client_period_status',
+    logger.error("Failed to update client period status", error as Error, {
+      action: "update_client_period_status",
       id,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -400,18 +416,15 @@ export async function updateClientPeriodStatus(
  * @param data - Status event data
  * @returns Created status event
  */
-export async function recordStatusEvent(
-  db: any,
-  data: CreateStatusEventInput
-) {
+export async function recordStatusEvent(db: any, data: CreateStatusEventInput) {
   try {
     // Get the next event sequence for this period status
     const existingEvents = await db
       .select({ maxSequence: sql<number>`max(${statusEvents.eventSequence})` })
       .from(statusEvents)
-      .where(eq(statusEvents.clientPeriodStatusId, data.clientPeriodStatusId))
+      .where(eq(statusEvents.clientPeriodStatusId, data.clientPeriodStatusId));
 
-    const nextSequence = (existingEvents[0]?.maxSequence ?? 0) + 1
+    const nextSequence = (existingEvents[0]?.maxSequence ?? 0) + 1;
 
     const result = await db
       .insert(statusEvents)
@@ -420,21 +433,21 @@ export async function recordStatusEvent(
         eventSequence: nextSequence,
         createdAt: new Date(),
       })
-      .returning()
+      .returning();
 
-    logger.info('Recorded status event', {
-      action: 'record_status_event',
+    logger.info("Recorded status event", {
+      action: "record_status_event",
       clientPeriodStatusId: data.clientPeriodStatusId,
       eventSequence: nextSequence,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to record status event', error as Error, {
-      action: 'record_status_event',
+    logger.error("Failed to record status event", error as Error, {
+      action: "record_status_event",
       clientPeriodStatusId: data.clientPeriodStatusId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -452,31 +465,31 @@ export async function getDashboardSummary(
   companyId: string,
   periodYear: number,
   periodMonth?: number,
-  periodQuarter?: number
+  periodQuarter?: number,
 ): Promise<DashboardSummary> {
   try {
     const conditions = [
       eq(products.companyId, companyId),
       eq(clientPeriodStatus.periodYear, periodYear),
-    ]
+    ];
 
     if (periodMonth !== undefined) {
-      conditions.push(eq(clientPeriodStatus.periodMonth, periodMonth))
+      conditions.push(eq(clientPeriodStatus.periodMonth, periodMonth));
     }
 
     if (periodQuarter !== undefined) {
-      conditions.push(eq(clientPeriodStatus.periodQuarter, periodQuarter))
+      conditions.push(eq(clientPeriodStatus.periodQuarter, periodQuarter));
     }
 
     // Always filter out deleted clients
-    conditions.push(isNull(clients.deletedAt))
+    conditions.push(isNull(clients.deletedAt));
 
     // Get total clients
     const totalClientsResult = await db
       .select({ count: sql<number>`count(distinct ${clients.id})` })
       .from(clients)
       .innerJoin(products, eq(clients.productId, products.id))
-      .where(and(eq(products.companyId, companyId), isNull(clients.deletedAt)))
+      .where(and(eq(products.companyId, companyId), isNull(clients.deletedAt)));
 
     // Get status counts
     const statusCountsResult = await db
@@ -488,9 +501,12 @@ export async function getDashboardSummary(
       .from(clientPeriodStatus)
       .innerJoin(clients, eq(clientPeriodStatus.clientId, clients.id))
       .innerJoin(products, eq(clients.productId, products.id))
-      .leftJoin(statusTypes, eq(clientPeriodStatus.statusTypeId, statusTypes.id))
+      .leftJoin(
+        statusTypes,
+        eq(clientPeriodStatus.statusTypeId, statusTypes.id),
+      )
       .where(and(...conditions))
-      .groupBy(clientPeriodStatus.statusTypeId, statusTypes.name)
+      .groupBy(clientPeriodStatus.statusTypeId, statusTypes.name);
 
     // Get payment count
     const paymentCountResult = await db
@@ -498,7 +514,7 @@ export async function getDashboardSummary(
       .from(clientPeriodStatus)
       .innerJoin(clients, eq(clientPeriodStatus.clientId, clients.id))
       .innerJoin(products, eq(clients.productId, products.id))
-      .where(and(...conditions, eq(clientPeriodStatus.hasPayment, true)))
+      .where(and(...conditions, eq(clientPeriodStatus.hasPayment, true)));
 
     // Get terminal count
     const terminalCountResult = await db
@@ -506,33 +522,33 @@ export async function getDashboardSummary(
       .from(clientPeriodStatus)
       .innerJoin(clients, eq(clientPeriodStatus.clientId, clients.id))
       .innerJoin(products, eq(clients.productId, products.id))
-      .where(and(...conditions, eq(clientPeriodStatus.isTerminal, true)))
+      .where(and(...conditions, eq(clientPeriodStatus.isTerminal, true)));
 
     const summary: DashboardSummary = {
       totalClients: totalClientsResult[0]?.count ?? 0,
       statusCounts: statusCountsResult,
       paymentCount: paymentCountResult[0]?.count ?? 0,
       terminalCount: terminalCountResult[0]?.count ?? 0,
-    }
+    };
 
-    logger.info('Retrieved dashboard summary', {
-      action: 'get_dashboard_summary',
+    logger.info("Retrieved dashboard summary", {
+      action: "get_dashboard_summary",
       companyId,
       periodYear,
       periodMonth,
       periodQuarter,
-    })
+    });
 
-    return summary
+    return summary;
   } catch (error) {
-    logger.error('Failed to get dashboard summary', error as Error, {
-      action: 'get_dashboard_summary',
+    logger.error("Failed to get dashboard summary", error as Error, {
+      action: "get_dashboard_summary",
       companyId,
       periodYear,
       periodMonth,
       periodQuarter,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -542,13 +558,13 @@ export async function getDashboardSummary(
  * @returns Array of available years
  */
 export function getAvailableYears(currentDate: Date = new Date()): number[] {
-  const currentMonth = currentDate.getMonth() + 1 // 1-12
-  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth() + 1; // 1-12
+  const currentYear = currentDate.getFullYear();
 
   if (currentMonth >= 9) {
     // September onwards
-    return [currentYear - 1, currentYear, currentYear + 1]
+    return [currentYear - 1, currentYear, currentYear + 1];
   } else {
-    return [currentYear - 2, currentYear - 1, currentYear]
+    return [currentYear - 2, currentYear - 1, currentYear];
   }
 }

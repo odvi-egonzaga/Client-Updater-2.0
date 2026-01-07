@@ -1,75 +1,96 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useStatusStore } from '@/features/status/stores/status-store'
-import { useDashboardSummary, useClientStatus, useUpdateStatus, useBulkUpdateStatus } from '@/features/status/hooks/use-status'
-import { useClients } from '@/features/clients/hooks/use-clients'
-import { PeriodSelector, DashboardSummary, StatusUpdateDialog, StatusBadge } from '@/features/status/components'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { useState, useEffect } from "react";
+import { useStatusStore } from "@/features/status/stores/status-store";
+import {
+  useDashboardSummary,
+  useClientStatus,
+  useUpdateStatus,
+  useBulkUpdateStatus,
+} from "@/features/status/hooks/use-status";
+import { useClients } from "@/features/clients/hooks/use-clients";
+import {
+  PeriodSelector,
+  DashboardSummary,
+  StatusUpdateDialog,
+  StatusBadge,
+} from "@/features/status/components";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
-const COMPANY_ID = 'FCASH'
+const COMPANY_ID = "FCASH";
 
 export default function FCASHDashboardPage() {
-  const currentPeriod = useStatusStore((state) => state.currentPeriod)
-  const setCurrentPeriod = useStatusStore((state) => state.setCurrentPeriod)
-  const isUpdateDialogOpen = useStatusStore((state) => state.isUpdateDialogOpen)
-  const openUpdateDialog = useStatusStore((state) => state.openUpdateDialog)
-  const closeUpdateDialog = useStatusStore((state) => state.closeUpdateDialog)
-  const isBulkUpdateMode = useStatusStore((state) => state.isBulkUpdateMode)
-  const setBulkUpdateMode = useStatusStore((state) => state.setBulkUpdateMode)
-  const selectedClientIds = useStatusStore((state) => state.selectedClientIds)
-  const toggleClientSelection = useStatusStore((state) => state.toggleClientSelection)
-  const clearClientSelection = useStatusStore((state) => state.clearClientSelection)
-  const selectedClientStatus = useStatusStore((state) => state.selectedClientStatus)
-  const setSelectedClientStatus = useStatusStore((state) => state.setSelectedClientStatus)
+  const currentPeriod = useStatusStore((state) => state.currentPeriod);
+  const setCurrentPeriod = useStatusStore((state) => state.setCurrentPeriod);
+  const isUpdateDialogOpen = useStatusStore(
+    (state) => state.isUpdateDialogOpen,
+  );
+  const openUpdateDialog = useStatusStore((state) => state.openUpdateDialog);
+  const closeUpdateDialog = useStatusStore((state) => state.closeUpdateDialog);
+  const isBulkUpdateMode = useStatusStore((state) => state.isBulkUpdateMode);
+  const setBulkUpdateMode = useStatusStore((state) => state.setBulkUpdateMode);
+  const selectedClientIds = useStatusStore((state) => state.selectedClientIds);
+  const toggleClientSelection = useStatusStore(
+    (state) => state.toggleClientSelection,
+  );
+  const clearClientSelection = useStatusStore(
+    (state) => state.clearClientSelection,
+  );
+  const selectedClientStatus = useStatusStore(
+    (state) => state.selectedClientStatus,
+  );
+  const setSelectedClientStatus = useStatusStore(
+    (state) => state.setSelectedClientStatus,
+  );
 
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null)
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
   // Initialize period to monthly for FCASH
   useEffect(() => {
     setCurrentPeriod({
-      periodType: 'monthly',
+      periodType: "monthly",
       periodYear: new Date().getFullYear(),
       periodMonth: new Date().getMonth() + 1,
       periodQuarter: null,
-    })
-  }, [setCurrentPeriod])
+    });
+  }, [setCurrentPeriod]);
 
   // Fetch dashboard summary
-  const { data: summary, isLoading: summaryLoading, error: summaryError } = useDashboardSummary(
-    COMPANY_ID,
-    currentPeriod
-  )
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    error: summaryError,
+  } = useDashboardSummary(COMPANY_ID, currentPeriod);
 
   // Fetch clients
-  const { data: clientsData, isLoading: clientsLoading, error: clientsError } = useClients(
-    1,
-    50,
-    { isActive: true }
-  )
+  const {
+    data: clientsData,
+    isLoading: clientsLoading,
+    error: clientsError,
+  } = useClients(1, 50, { isActive: true });
 
   // Fetch client status for selected client
   const { data: clientStatus } = useClientStatus(
-    selectedClientId || '',
-    currentPeriod
-  )
+    selectedClientId || "",
+    currentPeriod,
+  );
 
   // Update status mutation
-  const updateStatus = useUpdateStatus()
+  const updateStatus = useUpdateStatus();
 
   // Bulk update mutation
-  const bulkUpdateStatus = useBulkUpdateStatus()
+  const bulkUpdateStatus = useBulkUpdateStatus();
 
   const handleUpdateStatus = (clientId: string) => {
-    setSelectedClientId(clientId)
-    setSelectedClientStatus(clientStatus || null)
-    openUpdateDialog()
-  }
+    setSelectedClientId(clientId);
+    setSelectedClientStatus(clientStatus || null);
+    openUpdateDialog();
+  };
 
   const handleBulkUpdate = () => {
-    if (selectedClientIds.size === 0) return
+    if (selectedClientIds.size === 0) return;
 
     const updates = Array.from(selectedClientIds).map((clientId) => ({
       clientId,
@@ -77,27 +98,27 @@ export default function FCASHDashboardPage() {
       periodYear: currentPeriod.periodYear,
       periodMonth: currentPeriod.periodMonth,
       periodQuarter: currentPeriod.periodQuarter,
-      statusId: 'TO_FOLLOW', // Default bulk update status
+      statusId: "TO_FOLLOW", // Default bulk update status
       reasonId: null,
       remarks: null,
       hasPayment: false,
-    }))
+    }));
 
     bulkUpdateStatus.mutate(
       { updates },
       {
         onSuccess: () => {
-          clearClientSelection()
-          setBulkUpdateMode(false)
+          clearClientSelection();
+          setBulkUpdateMode(false);
         },
-      }
-    )
-  }
+      },
+    );
+  };
 
   const handleToggleBulkMode = () => {
-    setBulkUpdateMode(!isBulkUpdateMode)
-    clearClientSelection()
-  }
+    setBulkUpdateMode(!isBulkUpdateMode);
+    clearClientSelection();
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -119,16 +140,18 @@ export default function FCASHDashboardPage() {
         </div>
 
         {/* Main Content */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="space-y-6 lg:col-span-3">
           {/* Dashboard Summary */}
           <DashboardSummary
-            summary={summary || {
-              totalClients: 0,
-              statusCounts: {},
-              paymentCount: 0,
-              terminalCount: 0,
-              byPensionType: {},
-            }}
+            summary={
+              summary || {
+                totalClients: 0,
+                statusCounts: {},
+                paymentCount: 0,
+                terminalCount: 0,
+                byPensionType: {},
+              }
+            }
             loading={summaryLoading}
           />
 
@@ -139,7 +162,7 @@ export default function FCASHDashboardPage() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold">Client List</h3>
                   {isBulkUpdateMode && (
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-muted-foreground text-sm">
                       {selectedClientIds.size} selected
                     </span>
                   )}
@@ -150,14 +173,16 @@ export default function FCASHDashboardPage() {
                       onClick={handleBulkUpdate}
                       disabled={bulkUpdateStatus.isPending}
                     >
-                      {bulkUpdateStatus.isPending ? 'Updating...' : 'Bulk Update'}
+                      {bulkUpdateStatus.isPending
+                        ? "Updating..."
+                        : "Bulk Update"}
                     </Button>
                   )}
                   <Button
-                    variant={isBulkUpdateMode ? 'default' : 'outline'}
+                    variant={isBulkUpdateMode ? "default" : "outline"}
                     onClick={handleToggleBulkMode}
                   >
-                    {isBulkUpdateMode ? 'Exit Bulk Mode' : 'Bulk Update Mode'}
+                    {isBulkUpdateMode ? "Exit Bulk Mode" : "Bulk Update Mode"}
                   </Button>
                 </div>
               </div>
@@ -172,18 +197,20 @@ export default function FCASHDashboardPage() {
                   <LoadingSpinner className="size-8" />
                 </div>
               ) : clientsError ? (
-                <div className="py-12 text-center text-destructive">
-                  {clientsError instanceof Error ? clientsError.message : clientsError}
+                <div className="text-destructive py-12 text-center">
+                  {clientsError instanceof Error
+                    ? clientsError.message
+                    : clientsError}
                 </div>
               ) : !clientsData?.data || clientsData.data.length === 0 ? (
-                <div className="py-12 text-center text-muted-foreground">
+                <div className="text-muted-foreground py-12 text-center">
                   No clients found
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b bg-muted/50">
+                      <tr className="bg-muted/50 border-b">
                         {isBulkUpdateMode && (
                           <th className="w-10 px-4 py-3 text-left">
                             <input
@@ -191,16 +218,18 @@ export default function FCASHDashboardPage() {
                               checked={
                                 clientsData.data.length > 0 &&
                                 clientsData.data.every((client) =>
-                                  selectedClientIds.has(client.id)
+                                  selectedClientIds.has(client.id),
                                 )
                               }
-                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                              onChange={(
+                                e: React.ChangeEvent<HTMLInputElement>,
+                              ) => {
                                 if (e.target.checked) {
                                   clientsData.data.forEach((client) =>
-                                    toggleClientSelection(client.id)
-                                  )
+                                    toggleClientSelection(client.id),
+                                  );
                                 } else {
-                                  clearClientSelection()
+                                  clearClientSelection();
                                 }
                               }}
                               className="h-4 w-4"
@@ -231,14 +260,16 @@ export default function FCASHDashboardPage() {
                       {clientsData.data.map((client) => (
                         <tr
                           key={client.id}
-                          className="border-b transition-colors hover:bg-muted/50"
+                          className="hover:bg-muted/50 border-b transition-colors"
                         >
                           {isBulkUpdateMode && (
                             <td className="px-4 py-3">
                               <input
                                 type="checkbox"
                                 checked={selectedClientIds.has(client.id)}
-                                onChange={() => toggleClientSelection(client.id)}
+                                onChange={() =>
+                                  toggleClientSelection(client.id)
+                                }
                                 className="h-4 w-4"
                               />
                             </td>
@@ -248,10 +279,10 @@ export default function FCASHDashboardPage() {
                           </td>
                           <td className="px-4 py-3">{client.fullName}</td>
                           <td className="px-4 py-3 text-sm">
-                            {client.pensionNumber || 'N/A'}
+                            {client.pensionNumber || "N/A"}
                           </td>
                           <td className="px-4 py-3 text-sm">
-                            {client.contactNumber || 'N/A'}
+                            {client.contactNumber || "N/A"}
                           </td>
                           <td className="px-4 py-3">
                             <StatusBadge status="PENDING" size="sm" />
@@ -288,5 +319,5 @@ export default function FCASHDashboardPage() {
         />
       )}
     </div>
-  )
+  );
 }

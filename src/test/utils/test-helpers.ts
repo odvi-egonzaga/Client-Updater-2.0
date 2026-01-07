@@ -1,14 +1,14 @@
-import type { RenderOptions } from '@testing-library/react';
-import { render } from '@testing-library/react';
-import type { ReactElement } from 'react';
-import { vi, beforeEach, afterEach } from 'vitest';
+import type { RenderOptions } from "@testing-library/react";
+import { render } from "@testing-library/react";
+import type { ReactElement } from "react";
+import { vi, beforeEach, afterEach } from "vitest";
 
 /**
  * Custom render function that includes providers if needed
  */
 export function renderWithProviders(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, "wrapper">,
 ) {
   return render(ui, options);
 }
@@ -24,7 +24,9 @@ export function mockResolved<T>(value: T) {
  * Create a mock function that returns a rejected value
  */
 export function mockRejected(error: Error | string) {
-  return vi.fn().mockRejectedValue(error instanceof Error ? error : new Error(error));
+  return vi
+    .fn()
+    .mockRejectedValue(error instanceof Error ? error : new Error(error));
 }
 
 /**
@@ -39,12 +41,12 @@ export function wait(ms: number): Promise<void> {
  */
 export function createMockUser(overrides: Partial<any> = {}) {
   return {
-    id: 'user-123',
-    email: 'test@example.com',
-    firstName: 'Test',
-    lastName: 'User',
-    imageUrl: 'https://example.com/avatar.jpg',
-    clerkOrgId: 'org-123',
+    id: "user-123",
+    email: "test@example.com",
+    firstName: "Test",
+    lastName: "User",
+    imageUrl: "https://example.com/avatar.jpg",
+    clerkOrgId: "org-123",
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,
@@ -56,9 +58,9 @@ export function createMockUser(overrides: Partial<any> = {}) {
  */
 export function createMockHealthCheck(overrides: Partial<any> = {}) {
   return {
-    status: 'healthy',
+    status: "healthy",
     responseTimeMs: 100,
-    message: 'Service is healthy',
+    message: "Service is healthy",
     ...overrides,
   };
 }
@@ -68,15 +70,15 @@ export function createMockHealthCheck(overrides: Partial<any> = {}) {
  */
 export function createMockServiceHealth(overrides: Partial<any> = {}) {
   return {
-    name: 'Test Service',
-    icon: 'test-icon',
-    status: 'healthy',
+    name: "Test Service",
+    icon: "test-icon",
+    status: "healthy",
     responseTimeMs: 100,
     checks: [
       {
-        name: 'Test Check',
-        endpoint: '/test/endpoint',
-        status: 'healthy',
+        name: "Test Check",
+        endpoint: "/test/endpoint",
+        status: "healthy",
         responseTimeMs: 50,
       },
     ],
@@ -108,7 +110,7 @@ export function suppressConsoleWarnings() {
 export function createMockResponse(
   data: any,
   status: number = 200,
-  ok: boolean = true
+  ok: boolean = true,
 ) {
   return {
     ok,
@@ -151,8 +153,8 @@ export function createMockRouter() {
     replace: vi.fn(),
     prefetch: vi.fn(),
     back: vi.fn(),
-    pathname: '/',
+    pathname: "/",
     query: {},
-    asPath: '/',
+    asPath: "/",
   };
 }

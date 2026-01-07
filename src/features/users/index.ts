@@ -19,11 +19,11 @@ export type {
   SetUserTerritoriesInput,
   UserTerritories,
   ApiResponse,
-} from './types'
+} from "./types";
 
 // Store
-export { useUsersStore } from './stores/users-store'
-export type { UsersStore, PaginationState } from './stores/users-store'
+export { useUsersStore } from "./stores/users-store";
+export type { UsersStore, PaginationState } from "./stores/users-store";
 
 // Hooks
 export {
@@ -39,4 +39,4 @@ export {
   useSetUserTerritories,
   useRevokeSession,
   useRevokeAllSessions,
-} from './hooks/use-users'
+} from "./hooks/use-users";
