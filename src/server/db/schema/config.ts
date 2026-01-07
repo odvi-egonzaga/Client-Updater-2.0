@@ -143,3 +143,4 @@ export type NewConfigSetting = typeof configSettings.$inferInsert;
 export type ConfigAuditLogEntry = typeof configAuditLog.$inferSelect;
 export type ActivityLog = typeof activityLogs.$inferSelect;
 export type NewActivityLog = typeof activityLogs.$inferInsert;
+

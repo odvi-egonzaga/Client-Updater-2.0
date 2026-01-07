@@ -11,7 +11,7 @@ import {
   products,
   companies,
 } from "@/server/db/schema";
-import { eq, and, isNull, inArray } from "drizzle-orm";
+import { eq, and, isNull, inArray, not } from "drizzle-orm";
 import { logger } from "@/lib/logger";
 import type { CreateClientPeriodStatusInput } from "@/server/db/queries/status";
 
@@ -35,8 +35,8 @@ export interface Client {
   id: string;
   clientCode: string;
   fullName: string;
-  productId: string;
-  branchId: string;
+  productId: string | null;
+  branchId: string | null;
 }
 
 /**
@@ -50,18 +50,10 @@ export async function getClientsForInitialization(
   excludeTerminal: boolean = true,
 ): Promise<Client[]> {
   try {
-    let query = db
-      .select({
-        id: clients.id,
-        clientCode: clients.clientCode,
-        fullName: clients.fullName,
-        productId: clients.productId,
-        branchId: clients.branchId,
-      })
-      .from(clients)
-      .innerJoin(products, eq(clients.productId, products.id))
-      .innerJoin(companies, eq(products.companyId, companies.id))
-      .where(and(eq(companies.id, companyId), isNull(clients.deletedAt)));
+    // Build base where conditions
+    const baseConditions = [eq(companies.id, companyId), isNull(clients.deletedAt)];
+
+    let result: Client[];
 
     if (excludeTerminal) {
       // Get clients with terminal statuses from previous periods
@@ -73,19 +65,50 @@ export async function getClientsForInitialization(
       const terminalClientIds = terminalStatuses.map((s) => s.clientId);
 
       if (terminalClientIds.length > 0) {
-        query = query.where(
-          and(
-            eq(companies.id, companyId),
-            isNull(clients.deletedAt),
-            // Exclude clients with terminal statuses
-            // Note: This is a simplified approach. In production, you might want
-            // to check only the most recent status or use a more complex query
-          ),
-        );
+        // Exclude clients with terminal statuses
+        // Note: This is a simplified approach. In production, you might want
+        // to check only the most recent status or use a more complex query
+        const excludeCondition = not(inArray(clients.id, terminalClientIds));
+        result = await db
+          .select({
+            id: clients.id,
+            clientCode: clients.clientCode,
+            fullName: clients.fullName,
+            productId: clients.productId,
+            branchId: clients.branchId,
+          })
+          .from(clients)
+          .innerJoin(products, eq(clients.productId, products.id))
+          .innerJoin(companies, eq(products.companyId, companies.id))
+          .where(and(...baseConditions, excludeCondition));
+      } else {
+        result = await db
+          .select({
+            id: clients.id,
+            clientCode: clients.clientCode,
+            fullName: clients.fullName,
+            productId: clients.productId,
+            branchId: clients.branchId,
+          })
+          .from(clients)
+          .innerJoin(products, eq(clients.productId, products.id))
+          .innerJoin(companies, eq(products.companyId, companies.id))
+          .where(and(...baseConditions));
       }
+    } else {
+      result = await db
+        .select({
+          id: clients.id,
+          clientCode: clients.clientCode,
+          fullName: clients.fullName,
+          productId: clients.productId,
+          branchId: clients.branchId,
+        })
+        .from(clients)
+        .innerJoin(products, eq(clients.productId, products.id))
+        .innerJoin(companies, eq(products.companyId, companies.id))
+        .where(and(...baseConditions));
     }
-
-    const result = await query;
 
     logger.info("Retrieved clients for initialization", {
       action: "get_clients_for_initialization",
@@ -191,7 +214,7 @@ export async function initializePeriod(
     result.initialized = batchResult.processed;
     result.failed = batchResult.failed;
     result.errors = batchResult.errors.map((e) => ({
-      clientId: records[e.index].clientId,
+      clientId: records[e.index]?.clientId ?? "unknown",
       error: e.error,
     }));
 
@@ -256,16 +279,25 @@ export async function batchCreatePeriodStatuses(
 
     for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
       const batch = batches[batchIndex];
+      if (!batch) continue;
 
       for (let i = 0; i < batch.length; i++) {
         const record = batch[i];
         const globalIndex = batchIndex * batchSize + i;
 
         try {
+          // Filter out records with undefined clientId
+          if (!record || !record.clientId) {
+            result.failed++;
+            result.errors.push({
+              index: globalIndex,
+              error: record ? "Missing clientId" : "Record is undefined",
+            });
+            continue;
+          }
+
           await db.insert(clientPeriodStatus).values({
             ...record,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           });
 
           result.processed++;
@@ -281,7 +313,7 @@ export async function batchCreatePeriodStatuses(
             error as Error,
             {
               action: "batch_create_period_statuses",
-              clientId: record.clientId,
+              clientId: record?.clientId ?? "unknown",
               error: (error as Error).message,
             },
           );

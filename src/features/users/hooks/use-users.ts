@@ -16,6 +16,7 @@ import type {
   UserTerritories,
   UserSession,
   CreateUserInput,
+  CreateUserWithRoleInput,
   UpdateUserInput,
   SetUserPermissionsInput,
   SetUserTerritoriesInput,
@@ -194,13 +195,38 @@ export function useUserSessions(
 }
 
 /**
- * Mutation for creating user
+ * Mutation for creating user with role
+ */
+export function useCreateUserWithRole(
+  options?: UseMutationOptions<ApiResponse<User & { role: string }>, Error, CreateUserWithRoleInput>,
+) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: CreateUserWithRoleInput) => {
+      const response = await fetch(`${API_BASE}/create-with-role`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      return handleApiResponse<ApiResponse<User & { role: string }>>(response);
+    },
+    onSuccess: () => {
+      // Invalidate users list queries
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+    ...options,
+  });
+}
+
+/**
+ * Mutation for creating user (legacy, for backward compatibility)
  */
 export function useCreateUser(
   options?: UseMutationOptions<ApiResponse<User>, Error, CreateUserInput>,
 ) {
   const queryClient = useQueryClient();
-
+  
   return useMutation({
     mutationFn: async (data: CreateUserInput) => {
       const response = await fetch(API_BASE, {

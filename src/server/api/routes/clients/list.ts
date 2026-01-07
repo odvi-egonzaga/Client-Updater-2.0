@@ -35,8 +35,8 @@ clientListRoutes.get(
   zValidator("query", listQuerySchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const {
       page,
       pageSize,

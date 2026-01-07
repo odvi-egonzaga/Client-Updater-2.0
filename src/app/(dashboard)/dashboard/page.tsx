@@ -104,15 +104,9 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Period Selector */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-gray-700">Period:</span>
-        <div className="max-w-xs flex-1">
-          <PeriodSelector
-            periodType="monthly"
-            value={currentPeriod}
-            onChange={setCurrentPeriod}
-          />
-        </div>
+        <span className="text-sm text-gray-900">{getPeriodLabel()}</span>
       </div>
 
       {/* Progress Cards */}

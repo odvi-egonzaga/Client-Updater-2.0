@@ -26,3 +26,4 @@ describe("System Health Endpoint", () => {
     expect(data).toHaveProperty("queues");
   });
 });
+

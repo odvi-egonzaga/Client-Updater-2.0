@@ -32,3 +32,4 @@ describe("Lookup Tables Schema", () => {
     expect(columns).toContain("sortOrder");
   });
 });
+

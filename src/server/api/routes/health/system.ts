@@ -95,3 +95,4 @@ systemHealthRoute.get("/", async (c) => {
 
   return c.json(response, overallStatus === "unhealthy" ? 503 : 200);
 });
+

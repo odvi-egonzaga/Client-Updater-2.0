@@ -196,8 +196,8 @@ userTerritoriesRoutes.put(
       ]);
 
       // Remove all current territories
-      const currentAreaIds = currentAreas.map((a) => a.area.id);
-      const currentBranchIds = currentBranches.map((b) => b.branch.id);
+      const currentAreaIds = currentAreas.map((a: any) => a.area.id);
+      const currentBranchIds = currentBranches.map((b: any) => b.branch.id);
 
       await Promise.all([
         currentAreaIds.length > 0

@@ -57,3 +57,4 @@ describe("CircuitBreaker", () => {
     expect(circuit.getState()).toBe("closed");
   });
 });
+

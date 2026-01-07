@@ -136,6 +136,13 @@ export async function POST(req: Request) {
     if (eventType === "user.deleted") {
       const { id } = event.data;
 
+      if (!id) {
+        logger.warn("Missing user ID in deletion event", {
+          action: "user_deleted",
+        });
+        return new Response("Error: Missing user ID", { status: 400 });
+      }
+
       try {
         // Find user by clerkId
         const existingUser = await getUserByClerkId(id);

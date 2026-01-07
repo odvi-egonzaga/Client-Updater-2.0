@@ -42,3 +42,4 @@ describe("Logger", () => {
     expect(logged.requestId).toBe("req-1");
   });
 });
+

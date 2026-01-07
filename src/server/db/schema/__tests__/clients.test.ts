@@ -26,3 +26,4 @@ describe("Clients Schema", () => {
     expect(columns).toContain("syncSource");
   });
 });
+

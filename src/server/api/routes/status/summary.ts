@@ -28,8 +28,8 @@ statusSummaryRoutes.get(
   zValidator("query", summaryQuerySchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const { companyId, periodYear, periodMonth, periodQuarter } =
       c.req.valid("query");
 

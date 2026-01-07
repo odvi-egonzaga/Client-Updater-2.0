@@ -49,6 +49,22 @@ const envSchema = z.object({
   AWS_ACCESS_SECRET_KEY: z.string().optional(),
   AWS_REGION: z.string().optional(),
 
+  // Upstash Redis (optional)
+  UPSTASH_REDIS_URL: z.string().url().optional(),
+  UPSTASH_REDIS_TOKEN: z.string().optional(),
+
+  // Rate limiting
+  RATE_LIMIT_READ_REQUESTS: z.coerce.number().default(100),
+  RATE_LIMIT_WRITE_REQUESTS: z.coerce.number().default(50),
+  RATE_LIMIT_EXPORT_REQUESTS: z.coerce.number().default(10),
+  RATE_LIMIT_LOGIN_ATTEMPTS: z.coerce.number().default(5),
+
+  // Circuit breakers
+  CIRCUIT_SNOWFLAKE_THRESHOLD: z.coerce.number().default(5),
+  CIRCUIT_SNOWFLAKE_COOLDOWN_MS: z.coerce.number().default(60000),
+  CIRCUIT_NEXTBANK_THRESHOLD: z.coerce.number().default(5),
+  CIRCUIT_NEXTBANK_COOLDOWN_MS: z.coerce.number().default(60000),
+
   // Synology (optional)
   SYNOLOGY_HOST: z.string().url().optional(),
   SYNOLOGY_USERNAME: z.string().optional(),

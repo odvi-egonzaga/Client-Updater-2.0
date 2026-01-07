@@ -1,17 +1,30 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import { clerkClient } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
 import {
   createUser,
   updateUser,
   toggleUserStatus,
+  getUserByClerkId,
 } from "@/server/db/queries/users";
+import { permissions, userPermissions } from "@/server/db/schema/users";
 import { logger } from "@/lib/logger";
 
 export const userMutationRoutes = new Hono();
 
-// Validation schema for creating a user
+// Validation schema for creating a user with role
+const createUserWithRoleSchema = z.object({
+  email: z.string().email(),
+  firstName: z.string().min(1).max(100),
+  lastName: z.string().min(1).max(100),
+  role: z.enum(["admin", "area_manager", "branch_officer", "regular"]),
+  imageUrl: z.string().url().optional(),
+  clerkOrgId: z.string().optional(),
+});
+
+// Validation schema for creating a user (legacy, for backward compatibility)
 const createUserSchema = z.object({
   email: z.string().email(),
   firstName: z.string().min(1).max(100),
@@ -37,8 +50,112 @@ const toggleStatusSchema = z.object({
 });
 
 /**
+ * POST /api/users/create-with-role
+ * Create a new user with Clerk and assign role-based permissions
+ */
+userMutationRoutes.post(
+  "/create-with-role",
+  zValidator("json", createUserWithRoleSchema),
+  async (c) => {
+    const start = performance.now();
+    const userData = c.req.valid("json");
+
+    try {
+      // Create user in Clerk
+      const client = await clerkClient();
+      const clerkUser = await client.users.createUser({
+        emailAddress: [userData.email],
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        skipPasswordChecks: true,
+        skipPasswordRequirement: true,
+      });
+
+      // Wait for webhook to create user in local database
+      // Poll for user creation with timeout
+      let localUser = null;
+      let attempts = 0;
+      const maxAttempts = 10; // 10 seconds max wait time
+      
+      while (attempts < maxAttempts && !localUser) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+        localUser = await getUserByClerkId(clerkUser.id);
+        attempts++;
+      }
+
+      if (!localUser) {
+        logger.error("User not found in local database after Clerk creation", new Error("User creation timeout"), {
+          action: "create_user_with_role",
+          clerkUserId: clerkUser.id,
+          email: userData.email,
+        });
+        return c.json(
+          {
+            success: false,
+            error: {
+              message: "User created in Clerk but not synced to local database",
+            },
+          },
+          500,
+        );
+      }
+
+      // Get all permissions
+      const allPermissions = await db.select().from(permissions);
+      
+      // Assign permissions based on role
+      const rolePermissions = getPermissionsForRole(userData.role, allPermissions);
+      const roleScope = getScopeForRole(userData.role);
+
+      // Insert user permissions
+      if (rolePermissions.length > 0) {
+        const userPermissionsToInsert = rolePermissions.map((permission) => ({
+          userId: localUser.id,
+          permissionId: permission.id,
+          scope: roleScope as any,
+        }));
+        
+        await db.insert(userPermissions).values(userPermissionsToInsert);
+      }
+
+      logger.info("Created new user with role", {
+        action: "create_user_with_role",
+        userId: localUser.id,
+        clerkUserId: clerkUser.id,
+        email: userData.email,
+        role: userData.role,
+      });
+
+      return c.json({
+        success: true,
+        data: {
+          ...localUser,
+          role: userData.role,
+        },
+      });
+    } catch (error) {
+      logger.error("Failed to create user with role", error as Error, {
+        action: "create_user_with_role",
+        email: userData.email,
+      });
+
+      return c.json(
+        {
+          success: false,
+          error: {
+            message:
+              error instanceof Error ? error.message : "Failed to create user",
+          },
+        },
+        500,
+      );
+    }
+  },
+);
+
+/**
  * POST /api/users
- * Create a new user
+ * Create a new user (legacy, for backward compatibility)
  */
 userMutationRoutes.post(
   "/",
@@ -209,3 +326,76 @@ userMutationRoutes.patch(
     }
   },
 );
+
+/**
+ * Get permissions for a specific role
+ */
+function getPermissionsForRole(role: string, allPermissions: any[]): any[] {
+  const permissionCodes: string[] = [];
+
+  switch (role) {
+    case "admin":
+      // All permissions
+      return allPermissions;
+
+    case "area_manager":
+      permissionCodes.push(
+        "clients:read",
+        "clients:update",
+        "status:read",
+        "status:update",
+        "status:history:read",
+        "reports:read",
+        "reports:export",
+        "branches:read",
+        "areas:read",
+        "config:read",
+        "sync:read",
+      );
+      break;
+
+    case "branch_officer":
+      permissionCodes.push(
+        "clients:read",
+        "clients:update",
+        "status:read",
+        "status:update",
+        "status:history:read",
+        "reports:read",
+        "branches:read",
+      );
+      break;
+
+    case "regular":
+      permissionCodes.push(
+        "clients:read",
+        "status:read",
+        "status:history:read",
+        "reports:read",
+      );
+      break;
+
+    default:
+      return [];
+  }
+
+  return allPermissions.filter((p) => permissionCodes.includes(p.code));
+}
+
+/**
+ * Get scope for a specific role
+ */
+function getScopeForRole(role: string): string {
+  switch (role) {
+    case "admin":
+      return "all";
+    case "area_manager":
+      return "area";
+    case "branch_officer":
+      return "branch";
+    case "regular":
+      return "self";
+    default:
+      return "self";
+  }
+}

@@ -14,6 +14,7 @@ export type {
   UserSession,
   UserFilters,
   CreateUserInput,
+  CreateUserWithRoleInput,
   UpdateUserInput,
   SetUserPermissionsInput,
   SetUserTerritoriesInput,
@@ -33,6 +34,7 @@ export {
   useUserTerritories,
   useUserSessions,
   useCreateUser,
+  useCreateUserWithRole,
   useUpdateUser,
   useToggleUserStatus,
   useSetUserPermissions,
@@ -40,3 +42,6 @@ export {
   useRevokeSession,
   useRevokeAllSessions,
 } from "./hooks/use-users";
+
+// Components
+export { UserCreationForm } from "./components/user-creation-form";

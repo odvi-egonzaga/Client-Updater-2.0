@@ -41,6 +41,7 @@ export function ClientActionSheet({
     <Sheet open={open} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader className="relative">
+          <h2 className="text-lg font-semibold">Client Action Drawer</h2>
           <button
             onClick={onClose}
             className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-0 right-0 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"

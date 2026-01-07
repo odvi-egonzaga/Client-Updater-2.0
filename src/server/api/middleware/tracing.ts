@@ -31,3 +31,4 @@ export async function tracingMiddleware(c: Context, next: Next) {
     throw error;
   }
 }
+

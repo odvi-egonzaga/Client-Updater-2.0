@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1767269294126,
-      "tag": "0000_awesome_argent",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1767675274464,
-      "tag": "0001_uneven_phantom_reporter",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1767675606015,
-      "tag": "0002_striped_bushwacker",
+      "when": 1767756782915,
+      "tag": "0000_silky_jack_murdock",
       "breakpoints": true
     }
   ]

@@ -1,4 +1,4 @@
-import { Context, Next } from "hono";
+import type { Context, Next } from "hono";
 import { checkRateLimit, RateLimitType } from "@/lib/rate-limit";
 
 export function rateLimitMiddleware(type: RateLimitType = "read") {
@@ -28,3 +28,4 @@ export function rateLimitMiddleware(type: RateLimitType = "read") {
     await next();
   };
 }
+

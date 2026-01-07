@@ -13,6 +13,24 @@ userDetailRoutes.get("/:id", async (c) => {
   const start = performance.now();
   const userId = c.req.param("id");
 
+  // Validate that userId is not "new" (which is used for creating new users)
+  if (userId === "new") {
+    logger.warn("Invalid userId 'new' requested", {
+      action: "get_user_detail",
+      userId,
+    });
+
+    return c.json(
+      {
+        success: false,
+        error: {
+          message: "Invalid user ID",
+        },
+      },
+      400,
+    );
+  }
+
   try {
     const user = await getUserWithPermissions(db, userId);
 

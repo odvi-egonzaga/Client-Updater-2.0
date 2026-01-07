@@ -37,8 +37,8 @@ const jobParamSchema = z.object({
  */
 syncJobsRoutes.get("/jobs", rateLimitMiddleware("read"), async (c) => {
   const start = performance.now();
-  const userId = c.get("userId") as string;
-  const orgId = c.get("orgId") as string;
+  const userId = (c.get("userId") as any) ?? "anonymous";
+  const orgId = (c.get("orgId") as any) ?? "default";
 
   try {
     // Check permission
@@ -113,8 +113,8 @@ syncJobsRoutes.get(
   zValidator("param", jobParamSchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const { id } = c.req.valid("param");
 
     try {
@@ -213,8 +213,8 @@ syncJobsRoutes.post(
   zValidator("json", createSyncJobSchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const { type, options } = c.req.valid("json");
 
     try {
@@ -326,8 +326,8 @@ syncJobsRoutes.post(
   zValidator("json", createSyncJobSchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const { type, options } = c.req.valid("json");
 
     try {

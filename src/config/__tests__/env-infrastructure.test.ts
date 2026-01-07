@@ -20,3 +20,4 @@ describe("Infrastructure Environment Variables", () => {
     expect(env.RATE_LIMIT_WRITE_REQUESTS).toBe(30);
   });
 });
+

@@ -59,10 +59,11 @@ export function PermissionEditor({
   // Group permissions by resource
   const groupedPermissions = availablePermissions.reduce(
     (acc, permission) => {
-      if (!acc[permission.resource]) {
-        acc[permission.resource] = [];
+      const resource = permission.resource;
+      if (!acc[resource]) {
+        acc[resource] = [];
       }
-      acc[permission.resource].push(permission);
+      acc[resource]!.push(permission);
       return acc;
     },
     {} as Record<string, Permission[]>,

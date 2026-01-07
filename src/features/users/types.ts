@@ -166,7 +166,19 @@ export interface UserFilters {
 }
 
 /**
- * Input for creating user
+ * Input for creating user with role
+ */
+export interface CreateUserWithRoleInput {
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: "admin" | "area_manager" | "branch_officer" | "regular";
+  imageUrl?: string;
+  clerkOrgId?: string;
+}
+
+/**
+ * Input for creating user (legacy, for backward compatibility)
  */
 export interface CreateUserInput {
   email: string;

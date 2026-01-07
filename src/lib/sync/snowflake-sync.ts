@@ -161,8 +161,8 @@ export function transformRecord(
     pensionNumber: snowflakeRecord.PENSION_NUMBER,
     birthDate:
       snowflakeRecord.BIRTH_DATE instanceof Date
-        ? snowflakeRecord.BIRTH_DATE
-        : new Date(String(snowflakeRecord.BIRTH_DATE)),
+        ? snowflakeRecord.BIRTH_DATE.toISOString()
+        : new Date(String(snowflakeRecord.BIRTH_DATE)).toISOString(),
     contactNumber: snowflakeRecord.CONTACT_NUMBER,
     contactNumberAlt: snowflakeRecord.CONTACT_NUMBER_ALT,
     pensionTypeId: lookupCache.pensionTypes.get(
@@ -207,6 +207,7 @@ export async function syncClientsFromSnowflake(
   try {
     // Create sync job
     const job = await createSyncJob(db, "snowflake", {
+      type: "snowflake",
       parameters: {
         branchCodes: options.branchCodes,
         batchSize,

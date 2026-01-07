@@ -28,9 +28,9 @@ clientDetailRoutes.get(
   zValidator("param", clientParamSchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
-    const { id } = c.req.valid("param");
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
+    const { id } = c.req.valid("param") as any;
 
     try {
       // Check permission
@@ -153,8 +153,8 @@ clientDetailRoutes.get(
   zValidator("param", clientParamSchema),
   async (c) => {
     const start = performance.now();
-    const userId = c.get("userId") as string;
-    const orgId = c.get("orgId") as string;
+    const userId = (c.get("userId") as any) ?? "anonymous";
+    const orgId = (c.get("orgId") as any) ?? "default";
     const { id } = c.req.valid("param");
 
     try {

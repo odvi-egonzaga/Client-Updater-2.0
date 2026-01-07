@@ -10,10 +10,11 @@ import {
   useUserSessions,
   useRevokeSession,
   useRevokeAllSessions,
-} from "@/features/users/hooks/use-users";
+} from "@/features/users";
 import { UserDetail } from "@/features/users/components/user-detail";
 import { PermissionEditor } from "@/features/users/components/permission-editor";
 import { TerritoryEditor } from "@/features/users/components/territory-editor";
+import { UserCreationForm } from "@/features/users";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,20 +32,23 @@ export default function UserDetailPage({
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [isEditing, setIsEditing] = useState(false);
 
+  // Check if this is a new user creation page
+  const isNewUser = userId === "new";
+
   const {
     data: userData,
     isLoading: isUserLoading,
     error: userError,
-  } = useUser(userId);
+  } = useUser(userId, { enabled: !isNewUser });
   const { data: permissionsData, isLoading: isPermissionsLoading } =
-    useUserPermissions(userId);
+    useUserPermissions(userId, undefined, { enabled: !isNewUser });
   const { data: territoriesData, isLoading: isTerritoriesLoading } =
-    useUserTerritories(userId);
+    useUserTerritories(userId, { enabled: !isNewUser });
   const {
     data: sessionsData,
     isLoading: isSessionsLoading,
     refetch: refetchSessions,
-  } = useUserSessions(userId);
+  } = useUserSessions(userId, { enabled: !isNewUser });
 
   const revokeSessionMutation = useRevokeSession(userId, {
     onSuccess: () => {
@@ -81,6 +85,42 @@ export default function UserDetailPage({
     { id: "territories" as Tab, label: "Territories" },
     { id: "sessions" as Tab, label: "Sessions" },
   ];
+
+  // Render create user form for new users
+  if (isNewUser) {
+    return (
+      <div className="container mx-auto py-8">
+        {/* Breadcrumb */}
+        <div className="text-muted-foreground mb-6 flex items-center gap-2 text-sm">
+          <Link href="/admin/users" className="hover:text-foreground">
+            Users
+          </Link>
+          <span>/</span>
+          <span className="text-foreground">Add New User</span>
+        </div>
+
+        {/* Header */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin/users">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="size-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-semibold">Add New User</h1>
+              <p className="text-muted-foreground">
+                Create a new user account with permissions and territories
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Create User Form */}
+        <UserCreationForm />
+      </div>
+    );
+  }
 
   if (isUserLoading) {
     return (

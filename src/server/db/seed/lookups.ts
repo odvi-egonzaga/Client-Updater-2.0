@@ -13,26 +13,38 @@ import {
 export async function seedLookups() {
   console.log("Seeding lookup tables...");
 
-  // Companies
-  const [fcash, pcni] = await db
+  // Companies - use onConflictDoNothing to handle existing data
+  const insertedCompanies = await db
     .insert(companies)
     .values([
       { code: "FCASH", name: "FCASH", isSystem: true },
       { code: "PCNI", name: "PCNI", isSystem: true },
     ])
+    .onConflictDoNothing()
     .returning();
 
   console.log("  - Companies seeded");
 
+  // Get company IDs (either from insert or from existing data)
+  let fcashId = insertedCompanies.find((c) => c.code === "FCASH")?.id;
+  let pcniId = insertedCompanies.find((c) => c.code === "PCNI")?.id;
+
+  if (!fcashId || !pcniId) {
+    // Fetch existing companies if insert didn't return them
+    const existingCompanies = await db.select().from(companies);
+    fcashId = existingCompanies.find((c) => c.code === "FCASH")?.id;
+    pcniId = existingCompanies.find((c) => c.code === "PCNI")?.id;
+  }
+
   // Pension Types
   const pensionTypesData = [
-    { code: "SSS", name: "SSS", companyId: fcash.id, isSystem: true },
-    { code: "GSIS", name: "GSIS", companyId: fcash.id, isSystem: true },
-    { code: "PVAO", name: "PVAO", companyId: fcash.id, isSystem: true },
-    { code: "NON_PNP", name: "Non-PNP", companyId: pcni.id, isSystem: true },
-    { code: "PNP", name: "PNP", companyId: pcni.id, isSystem: true },
+    { code: "SSS", name: "SSS", companyId: fcashId, isSystem: true },
+    { code: "GSIS", name: "GSIS", companyId: fcashId, isSystem: true },
+    { code: "PVAO", name: "PVAO", companyId: fcashId, isSystem: true },
+    { code: "NON_PNP", name: "Non-PNP", companyId: pcniId, isSystem: true },
+    { code: "PNP", name: "PNP", companyId: pcniId, isSystem: true },
   ];
-  await db.insert(pensionTypes).values(pensionTypesData);
+  await db.insert(pensionTypes).values(pensionTypesData).onConflictDoNothing();
   console.log("  - Pension Types seeded");
 
   // Pensioner Types
@@ -42,7 +54,7 @@ export async function seedLookups() {
     { code: "RETIREE", name: "Retiree", isSystem: true },
     { code: "ITF", name: "ITF", isSystem: true },
   ];
-  await db.insert(pensionerTypes).values(pensionerTypesData);
+  await db.insert(pensionerTypes).values(pensionerTypesData).onConflictDoNothing();
   console.log("  - Pensioner Types seeded");
 
   // Account Types
@@ -52,7 +64,7 @@ export async function seedLookups() {
     { code: "BOTH", name: "Both", isSystem: true, sortOrder: 3 },
     { code: "NONE", name: "None", isSystem: true, sortOrder: 4 },
   ];
-  await db.insert(accountTypes).values(accountTypesData);
+  await db.insert(accountTypes).values(accountTypesData).onConflictDoNothing();
   console.log("  - Account Types seeded");
 
   // PAR Statuses
@@ -79,7 +91,7 @@ export async function seedLookups() {
       sortOrder: 3,
     },
   ];
-  await db.insert(parStatuses).values(parStatusesData);
+  await db.insert(parStatuses).values(parStatusesData).onConflictDoNothing();
   console.log("  - PAR Statuses seeded");
 
   // Status Types
@@ -91,7 +103,7 @@ export async function seedLookups() {
       code: "VISITED",
       name: "Visited",
       sequence: 4,
-      companyId: fcash.id,
+      companyId: fcashId,
       isSystem: true,
     },
     { code: "UPDATED", name: "Updated", sequence: 5, isSystem: true },
@@ -100,77 +112,90 @@ export async function seedLookups() {
   const insertedStatusTypes = await db
     .insert(statusTypes)
     .values(statusTypesData)
+    .onConflictDoNothing()
     .returning();
   console.log("  - Status Types seeded");
 
   // Status Reasons
-  const doneStatus = insertedStatusTypes.find((s) => s.code === "DONE")!;
-  const statusReasonsData = [
-    {
-      code: "DECEASED",
-      name: "Deceased",
-      statusTypeId: doneStatus.id,
-      isTerminal: true,
-      isSystem: true,
-    },
-    {
-      code: "FULLY_PAID",
-      name: "Fully Paid",
-      statusTypeId: doneStatus.id,
-      isTerminal: true,
-      isSystem: true,
-    },
-    {
-      code: "CONFIRMED",
-      name: "Confirmed",
-      statusTypeId: doneStatus.id,
-      isTerminal: false,
-      isSystem: true,
-    },
-    {
-      code: "NOT_REACHABLE",
-      name: "Not Reachable",
-      statusTypeId: doneStatus.id,
-      requiresRemarks: true,
-      isSystem: true,
-    },
-  ];
-  await db.insert(statusReasons).values(statusReasonsData);
-  console.log("  - Status Reasons seeded");
+  const doneStatus = insertedStatusTypes.find((s) => s.code === "DONE");
+  const doneStatusId = doneStatus?.id;
+
+  const statusReasonsData = doneStatusId
+    ? [
+        {
+          code: "DECEASED",
+          name: "Deceased",
+          statusTypeId: doneStatusId,
+          isTerminal: true,
+          isSystem: true,
+        },
+        {
+          code: "FULLY_PAID",
+          name: "Fully Paid",
+          statusTypeId: doneStatusId,
+          isTerminal: true,
+          isSystem: true,
+        },
+        {
+          code: "CONFIRMED",
+          name: "Confirmed",
+          statusTypeId: doneStatusId,
+          isTerminal: false,
+          isSystem: true,
+        },
+        {
+          code: "NOT_REACHABLE",
+          name: "Not Reachable",
+          statusTypeId: doneStatusId,
+          requiresRemarks: true,
+          isSystem: true,
+        },
+      ]
+    : [];
+
+  if (statusReasonsData.length > 0) {
+    await db.insert(statusReasons).values(statusReasonsData).onConflictDoNothing();
+    console.log("  - Status Reasons seeded");
+  }
 
   // Products
-  const productsData = [
-    {
-      code: "FCASH_SSS",
-      name: "FCASH SSS",
-      companyId: fcash.id,
-      trackingCycle: "monthly" as const,
-      isSystem: true,
-    },
-    {
-      code: "FCASH_GSIS",
-      name: "FCASH GSIS",
-      companyId: fcash.id,
-      trackingCycle: "monthly" as const,
-      isSystem: true,
-    },
-    {
-      code: "PCNI_NON_PNP",
-      name: "PCNI Non-PNP",
-      companyId: pcni.id,
-      trackingCycle: "monthly" as const,
-      isSystem: true,
-    },
-    {
-      code: "PCNI_PNP",
-      name: "PCNI PNP",
-      companyId: pcni.id,
-      trackingCycle: "quarterly" as const,
-      isSystem: true,
-    },
-  ];
-  await db.insert(products).values(productsData);
-  console.log("  - Products seeded");
+  const productsData = fcashId && pcniId
+    ? [
+        {
+          code: "FCASH_SSS",
+          name: "FCASH SSS",
+          companyId: fcashId,
+          trackingCycle: "monthly" as const,
+          isSystem: true,
+        },
+        {
+          code: "FCASH_GSIS",
+          name: "FCASH GSIS",
+          companyId: fcashId,
+          trackingCycle: "monthly" as const,
+          isSystem: true,
+        },
+        {
+          code: "PCNI_NON_PNP",
+          name: "PCNI Non-PNP",
+          companyId: pcniId,
+          trackingCycle: "monthly" as const,
+          isSystem: true,
+        },
+        {
+          code: "PCNI_PNP",
+          name: "PCNI PNP",
+          companyId: pcniId,
+          trackingCycle: "quarterly" as const,
+          isSystem: true,
+        },
+      ]
+    : [];
+
+  if (productsData.length > 0) {
+    await db.insert(products).values(productsData).onConflictDoNothing();
+    console.log("  - Products seeded");
+  }
 
   console.log("Lookup tables seeded successfully!");
 }

@@ -22,3 +22,4 @@ describe("Organization Schema", () => {
     expect(org.branchContacts._.name).toBe("branch_contacts");
   });
 });
+

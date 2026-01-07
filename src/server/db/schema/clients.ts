@@ -218,3 +218,4 @@ export type NewClientPeriodStatus = typeof clientPeriodStatus.$inferInsert;
 export type StatusEvent = typeof statusEvents.$inferSelect;
 export type NewStatusEvent = typeof statusEvents.$inferInsert;
 export type ClientSyncHistory = typeof clientSyncHistory.$inferSelect;
+

@@ -1,5 +1,6 @@
 import { db } from "@/server/db";
 import { permissions } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 const PERMISSIONS = [
   // Clients
@@ -129,3 +130,4 @@ export async function seedPermissions() {
   console.log(`  - ${PERMISSIONS.length} permissions seeded`);
   console.log("Permissions seeded successfully!");
 }
+

@@ -14,9 +14,9 @@ const STATUS_COLORS: Record<
   { bg: string; text: string; border: string }
 > = {
   PENDING: {
-    bg: "bg-gray-100 dark:bg-gray-800",
-    text: "text-gray-700 dark:text-gray-300",
-    border: "border-gray-300 dark:border-gray-600",
+    bg: "bg-yellow-100 dark:bg-yellow-900/20",
+    text: "text-yellow-700 dark:text-yellow-300",
+    border: "border-yellow-300 dark:border-yellow-700",
   },
   TO_FOLLOW: {
     bg: "bg-blue-100 dark:bg-blue-900/20",
@@ -24,9 +24,9 @@ const STATUS_COLORS: Record<
     border: "border-blue-300 dark:border-blue-700",
   },
   CALLED: {
-    bg: "bg-yellow-100 dark:bg-yellow-900/20",
-    text: "text-yellow-700 dark:text-yellow-300",
-    border: "border-yellow-300 dark:border-yellow-700",
+    bg: "bg-blue-100 dark:bg-blue-900/20",
+    text: "text-blue-700 dark:text-blue-300",
+    border: "border-blue-300 dark:border-blue-700",
   },
   VISITED: {
     bg: "bg-green-100 dark:bg-green-900/20",
@@ -60,7 +60,7 @@ const SIZE_CLASSES = {
 export function StatusBadge({ status, size = "md" }: StatusBadgeProps) {
   // Normalize status to uppercase for matching
   const normalizedStatus = status.toUpperCase();
-  const colors = STATUS_COLORS[normalizedStatus] ?? STATUS_COLORS.default;
+  const colors = STATUS_COLORS[normalizedStatus] ?? STATUS_COLORS.default!;
 
   return (
     <Badge

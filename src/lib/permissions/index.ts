@@ -161,11 +161,14 @@ export async function hasPermission(
     }
 
     // Get the highest scope permission
-    const highestScope = matchingPermissions.reduce((highest, current) => {
-      return SCOPE_HIERARCHY[current.scope] > SCOPE_HIERARCHY[highest.scope]
-        ? current
-        : highest;
-    });
+    const highestScope = matchingPermissions.reduce(
+      (highest, current) => {
+        const currentScopeValue = SCOPE_HIERARCHY[current.scope as keyof typeof SCOPE_HIERARCHY] ?? 0;
+        const highestScopeValue = SCOPE_HIERARCHY[highest.scope as keyof typeof SCOPE_HIERARCHY] ?? 0;
+        return currentScopeValue > highestScopeValue ? current : highest;
+      },
+      matchingPermissions[0]!,
+    );
 
     // If user has 'all' scope, grant permission
     if (highestScope.scope === "all") {

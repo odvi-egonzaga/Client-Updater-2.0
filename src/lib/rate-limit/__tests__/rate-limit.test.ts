@@ -44,3 +44,4 @@ describe("Rate Limiting", () => {
     expect(RATE_LIMIT_TYPES).toContain("login");
   });
 });
+
