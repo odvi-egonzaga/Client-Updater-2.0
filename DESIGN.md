@@ -1,4 +1,4 @@
-# DTT Framework - Design Document
+# Client Updater Version 2 - Design Document
 
 ## Overview
 
@@ -541,7 +541,7 @@ class NextBankClient {
       headers: {
         Authorization: 'Basic ' + btoa(`${this.username}:${this.password}`),
         'Content-Type': 'application/json',
-        'User-Agent': 'dtt-framework-health-check',
+        'User-Agent': 'client-updater-version-2-health-check',
       },
       body: JSON.stringify({
         fingerprint,
@@ -891,7 +891,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container flex h-14 items-center justify-between">
-          <Link href="/health" className="font-semibold">DTT Framework</Link>
+          <Link href="/health" className="font-semibold">Client Updater Version 2</Link>
           <UserButton afterSignOutUrl="/sign-in" />
         </div>
       </header>

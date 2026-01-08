@@ -199,3 +199,4 @@ export async function seedLookups() {
 
   console.log("Lookup tables seeded successfully!");
 }
+

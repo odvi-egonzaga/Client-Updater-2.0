@@ -5,8 +5,8 @@ import { Geist } from "next/font/google";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "DTT Framework",
-  description: "Production-ready Next.js boilerplate with integrated services",
+  title: "Client Updater Version 2",
+  description: "Client data synchronization application with integrated services",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

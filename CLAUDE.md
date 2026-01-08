@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the **DTT Framework** - an enterprise Next.js 15 boilerplate for full-stack TypeScript applications. It's designed as a modern foundation with integrated authentication, database management, API layer, health monitoring, and third-party service integrations.
+This is the **Client Updater Version 2** - an enterprise Next.js 15 boilerplate for full-stack TypeScript applications. It's designed as a modern foundation with integrated authentication, database management, API layer, health monitoring, and third-party service integrations.
 
 ## Development Commands
 
@@ -45,7 +45,7 @@ pnpm test:coverage        # Coverage report (80% threshold)
 
 ### API Layer: Hono Integration
 
-This framework uses **Hono** for the API layer instead of traditional Next.js route handlers. The API is centralized in `src/server/api/` and mounted via a catch-all route at `src/app/api/[[...route]]/route.ts`.
+This application uses **Hono** for the API layer instead of traditional Next.js route handlers. The API is centralized in `src/server/api/` and mounted via a catch-all route at `src/app/api/[[...route]]/route.ts`.
 
 **Key entry points:**
 - `src/server/api/index.ts` - Main Hono app with middleware and routes

@@ -114,3 +114,4 @@ export type JobQueueItem = typeof jobQueue.$inferSelect;
 export type NewJobQueueItem = typeof jobQueue.$inferInsert;
 export type ScheduledJob = typeof scheduledJobs.$inferSelect;
 
+

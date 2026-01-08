@@ -4,7 +4,7 @@
   "private": false,
   "type": "module",
   "bin": {
-    "dtt-framework": "./cli/dist/index.js"
+    "client-updater": "./cli/dist/index.js"
   },
   "files": [
     "src",
@@ -56,7 +56,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "publish:framework": "node scripts/publish.js",
-    "postinstall": "node -e \"console.log('DTT Framework installed successfully! Run \\\"pnpm dev\\\" to start development.')\"",
+    "postinstall": "node -e \"console.log('Client Updater Version 2 installed successfully! Run \\\"pnpm dev\\\" to start development.')\"",
     "preview": "next build && next start",
     "start": "next start",
     "test": "vitest run",

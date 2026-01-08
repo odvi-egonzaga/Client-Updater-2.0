@@ -1,8 +1,8 @@
-# DTT Framework - Monitoring and Alerting Guide
+# Client Updater Version 2 - Monitoring and Alerting Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for setting up monitoring, health checks, error tracking, performance monitoring, and uptime monitoring for the DTT Framework.
+This guide provides comprehensive instructions for setting up monitoring, health checks, error tracking, performance monitoring, and uptime monitoring for the Client Updater Version 2.
 
 ---
 
@@ -516,7 +516,7 @@ Use tools like:
 1. Click **"Add New Monitor"**
 2. Configure:
    - **Monitor Type**: HTTP(s)
-   - **Friendly Name**: DTT Framework Production
+   - **Friendly Name**: Client Updater Version 2 Production
    - **URL**: `https://your-app.com/api/health`
    - **Monitoring Interval**: 5 minutes
    - **Alert Contacts**: Add your email
@@ -541,7 +541,7 @@ Use tools like:
 
 1. Go to **Uptime** → **Add New**
 2. Configure:
-   - **Name**: DTT Framework Production
+   - **Name**: Client Updater Version 2 Production
    - **URL**: `https://your-app.com/api/health`
    - **Check Interval**: 1 minute
    - **Alerts**: Configure alert contacts

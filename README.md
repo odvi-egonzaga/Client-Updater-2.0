@@ -1,6 +1,6 @@
-# DTT Framework App
+# Client Updater Version 2 App
 
-This is a DTT Framework application created with the CLI.
+This is a Client Updater Version 2 application created with the CLI.
 
 ## Quick Start
 

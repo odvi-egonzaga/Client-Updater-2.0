@@ -1,8 +1,8 @@
-# DTT Framework - DigitalOcean Deployment Guide
+# Client Updater Version 2 - DigitalOcean Deployment Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying the DTT Framework to DigitalOcean. DigitalOcean offers two main deployment options: App Platform (PaaS) and Droplets (VPS). This guide covers both approaches.
+This guide provides comprehensive instructions for deploying the Client Updater Version 2 to DigitalOcean. DigitalOcean offers two main deployment options: App Platform (PaaS) and Droplets (VPS). This guide covers both approaches.
 
 ---
 

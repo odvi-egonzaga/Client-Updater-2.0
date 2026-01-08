@@ -1,8 +1,8 @@
-# DTT Framework - State Management
+# Client Updater Version 2 - State Management
 
 ## Overview
 
-The DTT Framework uses a dual state management approach:
+The Client Updater Version 2 uses a dual state management approach:
 
 1. **TanStack Query** for server state (data from APIs, databases)
 2. **Zustand** for client state (UI state, temporary data)

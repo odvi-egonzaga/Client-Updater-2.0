@@ -1,4 +1,4 @@
-# DTT Framework - Health Check System
+# Client Updater Version 2 - Health Check System
 
 ## Overview
 

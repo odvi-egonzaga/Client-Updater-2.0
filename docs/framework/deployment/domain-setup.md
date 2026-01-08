@@ -1,8 +1,8 @@
-# DTT Framework - Domain Setup Guide
+# Client Updater Version 2 - Domain Setup Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for configuring custom domains for your DTT Framework deployment, including DNS settings, SSL/TLS certificates, and various domain configurations for both Vercel and DigitalOcean.
+This guide provides comprehensive instructions for configuring custom domains for your Client Updater Version 2 deployment, including DNS settings, SSL/TLS certificates, and various domain configurations for both Vercel and DigitalOcean.
 
 ---
 

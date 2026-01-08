@@ -1,8 +1,8 @@
-# DTT Framework - API Layer
+# Client Updater Version 2 - API Layer
 
 ## Overview
 
-The DTT Framework uses [Hono](https://hono.dev/) as the API layer. Hono is a lightweight, fast web framework that provides an excellent developer experience with full TypeScript support.
+The Client Updater Version 2 uses [Hono](https://hono.dev/) as the API layer. Hono is a lightweight, fast web framework that provides an excellent developer experience with full TypeScript support.
 
 ### Why Hono?
 

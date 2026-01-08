@@ -1,8 +1,8 @@
-# DTT Framework - Snowflake Integration
+# Client Updater Version 2 - Snowflake Integration
 
 ## Overview
 
-The DTT Framework includes integration with [Snowflake](https://www.snowflake.com/), a cloud-based data warehousing platform. Snowflake is used for analytics, reporting, and business intelligence workloads.
+The Client Updater Version 2 includes integration with [Snowflake](https://www.snowflake.com/), a cloud-based data warehousing platform. Snowflake is used for analytics, reporting, and business intelligence workloads.
 
 ### Why Snowflake?
 

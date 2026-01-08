@@ -1,8 +1,8 @@
-# DTT Framework - Clerk Authentication
+# Client Updater Version 2 - Clerk Authentication
 
 ## Overview
 
-The DTT Framework uses [Clerk](https://clerk.com/) as the authentication and user management solution. Clerk provides a complete authentication system with built-in UI components, organization management, and webhook support for synchronizing user data with your local database.
+The Client Updater Version 2 uses [Clerk](https://clerk.com/) as the authentication and user management solution. Clerk provides a complete authentication system with built-in UI components, organization management, and webhook support for synchronizing user data with your local database.
 
 ### Why Clerk?
 
@@ -440,7 +440,7 @@ export function Navbar() {
   return (
     <header className="border-b">
       <div className="container flex h-14 items-center justify-between">
-        <Link href="/health" className="font-semibold">DTT Framework</Link>
+        <Link href="/health" className="font-semibold">Client Updater Version 2</Link>
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
     </header>

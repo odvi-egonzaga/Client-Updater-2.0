@@ -13,6 +13,10 @@ import {
   getUserByClerkId,
   recordUserLogin,
 } from "@/server/db/queries/users";
+import {
+  isEventProcessed,
+  markEventProcessed,
+} from "@/server/db/queries/webhooks";
 
 export async function POST(req: Request) {
   try {
@@ -55,12 +59,27 @@ export async function POST(req: Request) {
 
     // Handle the event
     const eventType = event.type;
+    const eventId = event.data.id;
 
     logger.info("Webhook event received", {
       action: "webhook_received",
       eventType,
-      eventId: event.data.id,
+      eventId,
     });
+
+    // Idempotency check - prevent duplicate event processing
+    const alreadyProcessed = await isEventProcessed(eventId);
+    if (alreadyProcessed) {
+      logger.info("Webhook event already processed, skipping", {
+        action: "webhook_idempotency_check",
+        eventType,
+        eventId,
+      });
+      return new Response(
+        JSON.stringify({ received: true, message: "Event already processed" }),
+        { status: 200 },
+      );
+    }
 
     if (eventType === "user.created") {
       const { id, email_addresses, first_name, last_name, image_url } =
@@ -327,6 +346,50 @@ export async function POST(req: Request) {
         });
       }
     }
+
+    if (eventType === "organizationMembership.deleted") {
+      const data = event.data as any;
+      const userId = data.public_user_data.user_id;
+
+      try {
+        // Find user by clerkId
+        const existingUser = await getUserByClerkId(userId);
+
+        if (!existingUser) {
+          logger.warn("User not found for organization membership deletion", {
+            action: "organization_membership_deleted",
+            clerkId: userId,
+          });
+          return new Response("Error: User not found", { status: 404 });
+        }
+
+        await updateUser(db, existingUser.id, {
+          clerkOrgId: null,
+        });
+
+        logger.info("Organization membership deleted via webhook", {
+          action: "organization_membership_deleted",
+          internalId: existingUser.id,
+          clerkId: userId,
+        });
+      } catch (error) {
+        logger.error(
+          "Failed to delete organization membership via webhook",
+          error as Error,
+          {
+            action: "organization_membership_deleted",
+            clerkId: userId,
+          },
+        );
+        return new Response(
+          "Error: Failed to delete organization membership",
+          { status: 500 },
+        );
+      }
+    }
+
+    // Mark event as processed
+    await markEventProcessed(eventId, eventType, payload);
 
     return new Response(JSON.stringify({ received: true }), { status: 200 });
   } catch (error) {

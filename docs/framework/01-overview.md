@@ -1,8 +1,8 @@
-# DTT Framework - Overview
+# Client Updater Version 2 - Overview
 
 ## Introduction
 
-The DTT Framework is a production-ready Next.js boilerplate designed for building enterprise applications with integrated services. It provides a comprehensive foundation for developing modern web applications with authentication, database management, storage, edge computing, data warehousing, and API integration capabilities.
+The Client Updater Version 2 is a production-ready Next.js boilerplate designed for building enterprise applications with integrated services. It provides a comprehensive foundation for developing modern web applications with authentication, database management, storage, edge computing, data warehousing, and API integration capabilities.
 
 ### Purpose
 
@@ -269,7 +269,7 @@ dtt-framework/
 
 ## Design Philosophy
 
-The DTT Framework follows these core principles:
+The Client Updater Version 2 follows these core principles:
 
 1. **Type Safety First**: Leverage TypeScript at every layer for compile-time error detection
 2. **Convention over Configuration**: Sensible defaults with easy customization

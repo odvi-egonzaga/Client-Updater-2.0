@@ -1,8 +1,8 @@
-# DTT Framework - Deployment Environment Variables
+# Client Updater Version 2 - Deployment Environment Variables
 
 ## Overview
 
-This document provides a comprehensive guide to managing environment variables for deploying the DTT Framework. It covers the complete list of required variables, platform-specific configurations, security best practices, and credential management.
+This document provides a comprehensive guide to managing environment variables for deploying the Client Updater Version 2. It covers the complete list of required variables, platform-specific configurations, security best practices, and credential management.
 
 ---
 
@@ -111,7 +111,7 @@ Vercel supports three environments:
 
 ```bash
 # ============================================
-# DTT Framework - Vercel Environment Variables
+# Client Updater Version 2 - Vercel Environment Variables
 # ============================================
 
 # Application
@@ -173,7 +173,7 @@ doctl apps spec <app-id>
 
 ```bash
 # ============================================
-# DTT Framework - DigitalOcean App Platform
+# Client Updater Version 2 - DigitalOcean App Platform
 # ============================================
 
 # Application
@@ -218,7 +218,7 @@ Add environment variables:
 
 ```bash
 # ============================================
-# DTT Framework - DigitalOcean Droplet
+# Client Updater Version 2 - DigitalOcean Droplet
 # ============================================
 
 # Application
@@ -680,7 +680,7 @@ jobs:
 
 ```bash
 # ============================================
-# DTT Framework - Development Environment
+# Client Updater Version 2 - Development Environment
 # ============================================
 
 # Application
@@ -716,7 +716,7 @@ SNOWFLAKE_ROLE=ANALYST
 
 ```bash
 # ============================================
-# DTT Framework - Staging Environment
+# Client Updater Version 2 - Staging Environment
 # ============================================
 
 # Application
@@ -752,7 +752,7 @@ SNOWFLAKE_ROLE=ANALYST
 
 ```bash
 # ============================================
-# DTT Framework - Production Environment
+# Client Updater Version 2 - Production Environment
 # ============================================
 
 # Application

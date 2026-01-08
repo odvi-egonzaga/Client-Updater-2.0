@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import { mockHeaders } from "./mocks/next";
 
 // Cleanup after each test
 afterEach(() => {

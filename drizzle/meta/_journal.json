@@ -8,6 +8,13 @@
       "when": 1767756782915,
       "tag": "0000_silky_jack_murdock",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767768275698,
+      "tag": "0001_empty_dark_beast",
+      "breakpoints": true
     }
   ]
 }

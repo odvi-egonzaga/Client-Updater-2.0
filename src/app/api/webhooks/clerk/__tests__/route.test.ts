@@ -9,10 +9,36 @@ import {
   recordUserLogin,
 } from "@/server/db/queries/users";
 import { logger } from "@/lib/logger";
+import { isEventProcessed, markEventProcessed } from "@/server/db/queries/webhooks";
 
-// Mock dependencies
+// Mock next/headers
+const mockHeadersGet = vi.fn();
+const mockHeaders = {
+  get: mockHeadersGet,
+};
+function mockHeadersFn() {
+  return Promise.resolve(mockHeaders);
+}
+
+vi.mock("next/headers", () => ({
+  headers: mockHeadersFn,
+}));
+
+// Mock Webhook class - use vi.hoisted to define before mock
+const { mockWebhookInstance, MockWebhook } = vi.hoisted(() => {
+  const mockWebhookInstance = {
+    verify: vi.fn(),
+  };
+  class MockWebhook {
+    constructor(secret: string) {
+      return mockWebhookInstance;
+    }
+  }
+  return { mockWebhookInstance, MockWebhook };
+});
+
 vi.mock("svix", () => ({
-  Webhook: vi.fn(),
+  Webhook: MockWebhook,
 }));
 
 vi.mock("@/config/env", () => ({
@@ -51,17 +77,24 @@ vi.mock("@/server/db/queries/users", () => ({
   recordUserLogin: vi.fn(),
 }));
 
-describe("Clerk Webhook Route", () => {
-  let mockWebhook: any;
+vi.mock("@/server/db/queries/webhooks", () => ({
+  isEventProcessed: vi.fn(),
+  markEventProcessed: vi.fn(),
+}));
 
+describe("Clerk Webhook Route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Setup Webhook mock
-    mockWebhook = {
-      verify: vi.fn(),
-    };
-    vi.mocked(Webhook).mockImplementation(() => mockWebhook);
+    // Setup Webhook mock - MockWebhook is already a factory function that returns mockWebhookInstance
+    mockWebhookInstance.verify.mockReturnValue({ type: "test", data: { id: "test-id" } });
+
+    // Setup headers mock to return null by default
+    mockHeadersGet.mockReturnValue(null);
+
+    // Setup webhook queries mock
+    vi.mocked(isEventProcessed).mockResolvedValue(false);
+    vi.mocked(markEventProcessed).mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -70,6 +103,9 @@ describe("Clerk Webhook Route", () => {
 
   describe("Webhook Verification", () => {
     it("should return 400 if Svix headers are missing", async () => {
+      // Configure mock headers to return null for all Svix headers
+      mockHeadersGet.mockReturnValue(null);
+
       const request = new Request("http://localhost:3000/api/webhooks/clerk", {
         method: "POST",
         body: JSON.stringify({}),
@@ -86,6 +122,16 @@ describe("Clerk Webhook Route", () => {
     });
 
     it("should return 400 if webhook signature is invalid", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const request = new Request("http://localhost:3000/api/webhooks/clerk", {
         method: "POST",
         headers: {
@@ -96,7 +142,7 @@ describe("Clerk Webhook Route", () => {
         body: JSON.stringify({}),
       });
 
-      mockWebhook.verify.mockImplementation(() => {
+      mockWebhookInstance.verify.mockImplementation(() => {
         throw new Error("Invalid signature");
       });
 
@@ -113,6 +159,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("user.created event", () => {
     it("should create user with internal UUID", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const email = "test@example.com";
       const eventData = {
@@ -136,7 +192,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.created",
         data: eventData,
       });
@@ -175,6 +231,16 @@ describe("Clerk Webhook Route", () => {
     });
 
     it("should return 500 if user creation fails", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const eventData = {
         id: clerkId,
@@ -194,7 +260,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.created",
         data: eventData,
       });
@@ -213,6 +279,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("user.updated event", () => {
     it("should update user by clerkId", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const eventData = {
@@ -236,7 +312,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.updated",
         data: eventData,
       });
@@ -282,6 +358,16 @@ describe("Clerk Webhook Route", () => {
     });
 
     it("should return 404 if user not found", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const eventData = {
         id: clerkId,
@@ -301,7 +387,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.updated",
         data: eventData,
       });
@@ -319,6 +405,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("user.deleted event", () => {
     it("should soft delete user by clerkId", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const eventData = {
@@ -338,7 +434,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.deleted",
         data: eventData,
       });
@@ -375,6 +471,16 @@ describe("Clerk Webhook Route", () => {
     });
 
     it("should return 404 if user not found", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const eventData = {
         id: clerkId,
@@ -393,7 +499,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.deleted",
         data: eventData,
       });
@@ -411,6 +517,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("session.created event", () => {
     it("should record user login", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const ipAddress = "192.168.1.1";
@@ -435,7 +551,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "session.created",
         data: eventData,
       });
@@ -476,6 +592,16 @@ describe("Clerk Webhook Route", () => {
     });
 
     it("should return 404 if user not found", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const eventData = {
         id: "session_123",
@@ -495,7 +621,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "session.created",
         data: eventData,
       });
@@ -513,6 +639,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("session.ended event", () => {
     it("should log session end", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const eventData = {
@@ -533,7 +669,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "session.ended",
         data: eventData,
       });
@@ -562,6 +698,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("organizationMembership.created event", () => {
     it("should update user with organization ID", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const orgId = "org_123";
@@ -588,7 +734,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "organizationMembership.created",
         data: eventData,
       });
@@ -631,6 +777,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("organizationMembership.updated event", () => {
     it("should update user with new organization ID", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const clerkId = "user_123";
       const internalId = "internal-uuid-123";
       const orgId = "org_456";
@@ -657,7 +813,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "organizationMembership.updated",
         data: eventData,
       });
@@ -700,6 +856,16 @@ describe("Clerk Webhook Route", () => {
 
   describe("Logging", () => {
     it("should log all webhook events received", async () => {
+      // Configure mock headers to return Svix headers
+      mockHeadersGet.mockImplementation((key: string) => {
+        const headers: Record<string, string> = {
+          "svix-id": "test-id",
+          "svix-timestamp": "test-timestamp",
+          "svix-signature": "test-signature",
+        };
+        return headers[key] || null;
+      });
+
       const eventData = {
         id: "user_123",
         email_addresses: [{ email_address: "test@example.com" }],
@@ -718,7 +884,7 @@ describe("Clerk Webhook Route", () => {
         }),
       });
 
-      mockWebhook.verify.mockReturnValue({
+      mockWebhookInstance.verify.mockReturnValue({
         type: "user.created",
         data: eventData,
       });

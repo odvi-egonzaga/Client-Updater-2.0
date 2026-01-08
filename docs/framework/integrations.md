@@ -1,6 +1,6 @@
 # Reusable Integrations
 
-The DTT Framework provides a unified interface to access all configured integrations through a single `framework` instance. This allows you to easily use third-party services in your application logic without manually managing connections or clients.
+The Client Updater Version 2 provides a unified interface to access all configured integrations through a single `framework` instance. This allows you to easily use third-party services in your application logic without manually managing connections or clients.
 
 ## Usage
 

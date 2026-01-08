@@ -7,7 +7,7 @@ export function Navbar() {
       <div className="container mx-auto flex h-14 items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="font-semibold">
-            DTT Framework
+            Client Updater Version 2
           </Link>
           <nav className="flex items-center gap-4">
             <Link

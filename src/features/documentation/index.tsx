@@ -50,7 +50,7 @@ export async function DocumentationFeature({
               <SheetContent side="left" className="pr-0">
                 <div className="px-7">
                   <Link href="/" className="font-bold">
-                    DTT Framework
+                    Client Updater Version 2
                   </Link>
                 </div>
                 <DocSidebar nodes={structure} className="mt-4 border-none" />
@@ -59,7 +59,7 @@ export async function DocumentationFeature({
             <div className="mr-4 hidden md:flex">
               <Link href="/" className="mr-6 flex items-center space-x-2">
                 <span className="hidden font-bold sm:inline-block">
-                  DTT Framework
+                  Client Updater Version 2
                 </span>
               </Link>
             </div>

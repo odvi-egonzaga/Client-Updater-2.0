@@ -1,8 +1,8 @@
-# DTT Framework - Production Deployment Checklist
+# Client Updater Version 2 - Production Deployment Checklist
 
 ## Overview
 
-This checklist provides a comprehensive guide for deploying the DTT Framework to production. Use this checklist to ensure all aspects of your deployment are properly configured and verified before going live.
+This checklist provides a comprehensive guide for deploying the Client Updater Version 2 to production. Use this checklist to ensure all aspects of your deployment are properly configured and verified before going live.
 
 ---
 

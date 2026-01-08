@@ -1,8 +1,8 @@
-# DTT Framework - Testing Guide
+# Client Updater Version 2 - Testing Guide
 
 ## Overview
 
-This guide covers the testing infrastructure and practices for DTT Framework. The framework includes a comprehensive test suite with Vitest, React Testing Library, and mocking utilities.
+This guide covers the testing infrastructure and practices for Client Updater Version 2. The framework includes a comprehensive test suite with Vitest, React Testing Library, and mocking utilities.
 
 ### Testing Philosophy
 
