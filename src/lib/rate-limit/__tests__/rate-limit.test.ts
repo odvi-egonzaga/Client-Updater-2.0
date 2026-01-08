@@ -2,17 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock Upstash
 vi.mock("@upstash/redis", () => ({
-  Redis: vi.fn().mockImplementation(() => ({})),
+  Redis: class {},
 }));
 
 vi.mock("@upstash/ratelimit", () => ({
-  Ratelimit: vi.fn().mockImplementation(() => ({
-    limit: vi.fn().mockResolvedValue({
+  Ratelimit: class {
+    limit = vi.fn().mockResolvedValue({
       success: true,
       remaining: 99,
       reset: Date.now() + 60000,
-    }),
-  })),
+    });
+  },
 }));
 
 describe("Rate Limiting", () => {

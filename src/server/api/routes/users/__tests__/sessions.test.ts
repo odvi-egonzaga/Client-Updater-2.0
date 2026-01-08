@@ -26,6 +26,7 @@ describe("User Sessions Routes", () => {
 
   describe("GET /api/users/:id/sessions", () => {
     it("should return user sessions", async () => {
+      const now = new Date().toISOString();
       const mockSessions = [
         {
           id: "1",
@@ -33,8 +34,8 @@ describe("User Sessions Routes", () => {
           sessionToken: "token_1",
           ipAddress: "192.168.1.1",
           userAgent: "Mozilla/5.0",
-          createdAt: new Date(),
-          expiresAt: new Date(),
+          createdAt: now,
+          expiresAt: now,
         },
       ];
 
@@ -69,15 +70,16 @@ describe("User Sessions Routes", () => {
 
   describe("DELETE /api/users/:id/sessions/:sessionId", () => {
     it("should revoke a single session", async () => {
+      const now = new Date().toISOString();
       const revokedSession = {
         id: "1",
         userId: "1",
         sessionToken: "token_1",
         ipAddress: "192.168.1.1",
         userAgent: "Mozilla/5.0",
-        createdAt: new Date(),
-        expiresAt: new Date(),
-        revokedAt: new Date(),
+        createdAt: now,
+        expiresAt: now,
+        revokedAt: now,
         revokedReason: "Session revoked by admin",
       };
 
@@ -120,6 +122,7 @@ describe("User Sessions Routes", () => {
 
   describe("POST /api/users/:id/sessions/revoke-all", () => {
     it("should revoke all user sessions", async () => {
+      const now = new Date().toISOString();
       const revokedSessions = [
         {
           id: "1",
@@ -127,9 +130,9 @@ describe("User Sessions Routes", () => {
           sessionToken: "token_1",
           ipAddress: "192.168.1.1",
           userAgent: "Mozilla/5.0",
-          createdAt: new Date(),
-          expiresAt: new Date(),
-          revokedAt: new Date(),
+          createdAt: now,
+          expiresAt: now,
+          revokedAt: now,
           revokedReason: "All sessions revoked by admin",
         },
       ];

@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -16,7 +16,7 @@ import { logger } from "@/lib/logger";
 import { users, clients, products, companies } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export const statusUpdateRoutes = new Hono();
+export const statusUpdateRoutes = new ApiHono();
 
 // Validation schema for status update request body
 const updateBodySchema = z.object({
@@ -41,15 +41,16 @@ statusUpdateRoutes.post(
   zValidator("json", updateBodySchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const body = c.req.valid("json");
 
     try {
       // Check permission
       const hasUpdatePermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "status",
         "update",
       );
@@ -74,7 +75,7 @@ statusUpdateRoutes.post(
       }
 
       // Get user's branch filter for territory access
-      const branchFilter = await getUserBranchFilter(userId, orgId);
+      const branchFilter = await getUserBranchFilter(userId, companyId);
 
       // Get client to verify territory access
       const client = await db
@@ -116,6 +117,7 @@ statusUpdateRoutes.post(
 
       if (
         branchFilter.scope === "territory" &&
+        client[0].branchId &&
         !branchFilter.branchIds.includes(client[0].branchId)
       ) {
         return c.json(
@@ -131,6 +133,19 @@ statusUpdateRoutes.post(
       }
 
       // Get company ID for validation
+      if (!client[0].productId) {
+        return c.json(
+          {
+            success: false,
+            error: {
+              code: "BAD_REQUEST",
+              message: "Client has no product assigned",
+            },
+          },
+          400,
+        );
+      }
+
       const product = await db
         .select({ companyId: products.companyId })
         .from(products)
@@ -150,7 +165,7 @@ statusUpdateRoutes.post(
         );
       }
 
-      const companyId = product[0].companyId;
+      const productCompanyId = product[0].companyId;
 
       // Get current status
       const currentStatus = await getClientCurrentStatus(
@@ -158,18 +173,18 @@ statusUpdateRoutes.post(
         body.clientId,
         body.periodType,
         body.periodYear,
-        body.periodMonth,
-        body.periodQuarter,
+        body.periodMonth ?? undefined,
+        body.periodQuarter ?? undefined,
       );
 
       // Validate status update
       const validationResult = await validateStatusUpdate({
         clientPeriodStatusId: currentStatus?.id || "",
-        fromStatusId: currentStatus?.statusTypeId,
+        fromStatusId: currentStatus?.statusTypeId ?? undefined,
         toStatusId: body.statusId,
-        reasonId: body.reasonId,
-        remarks: body.remarks,
-        companyId,
+        reasonId: body.reasonId ?? undefined,
+        remarks: body.remarks ?? undefined,
+        companyId: productCompanyId ?? companyId,
         updatedBy: userId,
       });
 
@@ -194,8 +209,8 @@ statusUpdateRoutes.post(
         // Update existing status
         const updated = await updateClientPeriodStatus(db, currentStatus.id, {
           statusTypeId: body.statusId,
-          reasonId: body.reasonId,
-          remarks: body.remarks,
+          reasonId: body.reasonId ?? undefined,
+          remarks: body.remarks ?? undefined,
           hasPayment: body.hasPayment,
           updateCount: (currentStatus.updateCount || 0) + 1,
           isTerminal: await isTerminalStatus(body.statusId),
@@ -222,11 +237,11 @@ statusUpdateRoutes.post(
           clientId: body.clientId,
           periodType: body.periodType,
           periodYear: body.periodYear,
-          periodMonth: body.periodMonth,
-          periodQuarter: body.periodQuarter,
+          periodMonth: body.periodMonth ?? undefined,
+          periodQuarter: body.periodQuarter ?? undefined,
           statusTypeId: body.statusId,
-          reasonId: body.reasonId,
-          remarks: body.remarks,
+          reasonId: body.reasonId ?? undefined,
+          remarks: body.remarks ?? undefined,
           hasPayment: body.hasPayment,
           updateCount: 1,
           isTerminal: await isTerminalStatus(body.statusId),
@@ -240,8 +255,8 @@ statusUpdateRoutes.post(
       const event = await recordStatusEvent(db, {
         clientPeriodStatusId,
         statusTypeId: body.statusId,
-        reasonId: body.reasonId,
-        remarks: body.remarks,
+        reasonId: body.reasonId ?? undefined,
+        remarks: body.remarks ?? undefined,
         hasPayment: body.hasPayment,
         createdBy: userId,
       });

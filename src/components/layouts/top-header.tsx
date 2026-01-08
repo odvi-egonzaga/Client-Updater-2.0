@@ -1,11 +1,11 @@
 "use client";
 
 import { Bell, Check, Activity } from "lucide-react";
-import { UserButton, useAuth } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 
 export function TopHeader() {
-  const { user } = useAuth();
+  const { user } = useUser();
 
   // Check if user has developer role
   const isDeveloper = user?.publicMetadata?.role === "developer";

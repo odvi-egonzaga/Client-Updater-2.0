@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -12,7 +12,7 @@ import { hasPermission } from "@/lib/permissions";
 import { rateLimitMiddleware } from "@/server/api/middleware/rate-limit";
 import { logger } from "@/lib/logger";
 
-export const syncJobsRoutes = new Hono();
+export const syncJobsRoutes = new ApiHono();
 
 // Validation schema for sync job creation
 const createSyncJobSchema = z.object({
@@ -37,14 +37,15 @@ const jobParamSchema = z.object({
  */
 syncJobsRoutes.get("/jobs", rateLimitMiddleware("read"), async (c) => {
   const start = performance.now();
-  const userId = (c.get("userId") as any) ?? "anonymous";
-  const orgId = (c.get("orgId") as any) ?? "default";
+  const userId = c.get("userId");
+  const orgId = c.get("orgId");
+  const companyId = orgId ?? "default";
 
   try {
     // Check permission
     const hasReadPermission = await hasPermission(
       userId,
-      orgId,
+      companyId,
       "sync",
       "execute",
     );

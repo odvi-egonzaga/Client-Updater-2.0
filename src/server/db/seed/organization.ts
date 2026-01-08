@@ -69,9 +69,9 @@ export async function seedOrganization() {
     // Create branches without area association when no areas exist
     const cities = ["Manila", "Quezon City", "Cebu", "Davao", "Iloilo", "Cagayan de Oro", "Angeles City"];
     const numBranches = getRandomInt(SEED_CONFIG.branchesPerArea.min, SEED_CONFIG.branchesPerArea.max);
-    
+
     for (let i = 0; i < numBranches; i++) {
-      const cityName = cities[i % cities.length];
+      const cityName = cities[i % cities.length] ?? "Unknown";
       const branchCode = `GEN-${cityName.substring(0, 3).toUpperCase()}-${i + 1}`;
       const branchName = `${cityName} Branch`;
 

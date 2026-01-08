@@ -3,13 +3,13 @@ import { describe, it, expect } from "vitest";
 describe("siteConfig", () => {
   it("should have a name property", () => {
     const { siteConfig } = require("../site.ts");
-    expect(siteConfig.name).toBe("DTT Framework");
+    expect(siteConfig.name).toBe("Client Updater Version 2");
   });
 
   it("should have a description property", () => {
     const { siteConfig } = require("../site.ts");
     expect(siteConfig.description).toBe(
-      "Production-ready Next.js boilerplate with integrated services",
+      "Client data synchronization application with integrated services",
     );
   });
 

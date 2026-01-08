@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -7,9 +7,9 @@ import { hasPermission } from "@/lib/permissions";
 import { rateLimitMiddleware } from "@/server/api/middleware/rate-limit";
 import { logger } from "@/lib/logger";
 import { users } from "@/server/db/schema/users";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
-export const statusHistoryRoutes = new Hono();
+export const statusHistoryRoutes = new ApiHono();
 
 /**
  * GET /api/status/history/:id
@@ -21,15 +21,16 @@ statusHistoryRoutes.get(
   zValidator("param", z.object({ id: z.string() })),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const { id } = c.req.valid("param");
 
     try {
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "status",
         "read",
       );
@@ -92,9 +93,7 @@ statusHistoryRoutes.get(
         const user = await db
           .select({
             id: users.id,
-            name: db.raw(
-              `COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email}) as name`,
-            ),
+            name: sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`.as("name"),
           })
           .from(users)
           .where(eq(users.id, event[0].createdBy))
@@ -103,7 +102,7 @@ statusHistoryRoutes.get(
         if (user[0]) {
           createdBy = {
             id: user[0].id,
-            name: user[0].name,
+            name: user[0].name as string,
           };
         }
       }

@@ -2,12 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock Upstash Redis
 vi.mock("@upstash/redis", () => ({
-  Redis: vi.fn().mockImplementation(() => ({
-    get: vi.fn(),
-    set: vi.fn(),
-    del: vi.fn(),
-    keys: vi.fn().mockResolvedValue([]),
-  })),
+  Redis: class {
+    get = vi.fn();
+    set = vi.fn();
+    del = vi.fn();
+    keys = vi.fn().mockResolvedValue([]);
+  },
 }));
 
 describe("Cache Service", () => {

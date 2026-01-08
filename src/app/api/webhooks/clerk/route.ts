@@ -59,7 +59,8 @@ export async function POST(req: Request) {
 
     // Handle the event
     const eventType = event.type;
-    const eventId = event.data.id;
+    // Some events may not have data.id, generate a fallback ID
+    const eventId = event.data.id ?? `${eventType}_${Date.now()}_${crypto.randomUUID()}`;
 
     logger.info("Webhook event received", {
       action: "webhook_received",

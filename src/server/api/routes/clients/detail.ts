@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -11,7 +11,7 @@ import { hasPermission } from "@/lib/permissions";
 import { rateLimitMiddleware } from "@/server/api/middleware/rate-limit";
 import { logger } from "@/lib/logger";
 
-export const clientDetailRoutes = new Hono();
+export const clientDetailRoutes = new ApiHono();
 
 // Validation schema for client ID parameter
 const clientParamSchema = z.object({
@@ -28,15 +28,16 @@ clientDetailRoutes.get(
   zValidator("param", clientParamSchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
-    const { id } = c.req.valid("param") as any;
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
+    const { id } = c.req.valid("param");
 
     try {
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "clients",
         "read",
       );
@@ -85,7 +86,7 @@ clientDetailRoutes.get(
 
       // Check branch access
       if (client.branchId) {
-        const canAccess = await canAccessBranch(userId, orgId, client.branchId);
+        const canAccess = await canAccessBranch(userId, companyId, client.branchId);
         if (!canAccess) {
           logger.warn("User does not have access to client branch", {
             action: "get_client",
@@ -153,15 +154,16 @@ clientDetailRoutes.get(
   zValidator("param", clientParamSchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const { id } = c.req.valid("param");
 
     try {
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "clients",
         "read",
       );
@@ -169,7 +171,7 @@ clientDetailRoutes.get(
         logger.warn("User does not have clients:read permission", {
           action: "get_client_sync_history",
           userId,
-          orgId,
+          companyId,
           clientId: id,
         });
 
@@ -210,7 +212,7 @@ clientDetailRoutes.get(
 
       // Check branch access
       if (client.branchId) {
-        const canAccess = await canAccessBranch(userId, orgId, client.branchId);
+        const canAccess = await canAccessBranch(userId, companyId, client.branchId);
         if (!canAccess) {
           logger.warn("User does not have access to client branch", {
             action: "get_client_sync_history",

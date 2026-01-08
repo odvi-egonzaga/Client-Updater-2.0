@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -16,7 +16,7 @@ import { logger } from "@/lib/logger";
 import { users, clients, products } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
 
-export const statusBulkUpdateRoutes = new Hono();
+export const statusBulkUpdateRoutes = new ApiHono();
 
 // Validation schema for single status update
 const singleUpdateSchema = z.object({
@@ -49,15 +49,16 @@ statusBulkUpdateRoutes.post(
   zValidator("json", bulkUpdateBodySchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const { updates } = c.req.valid("json");
 
     try {
       // Check permission
       const hasBulkUpdatePermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "status",
         "bulk_update",
       );
@@ -65,7 +66,7 @@ statusBulkUpdateRoutes.post(
         logger.warn("User does not have status:bulk_update permission", {
           action: "bulk_update_status",
           userId,
-          orgId,
+          companyId,
         });
 
         return c.json(
@@ -82,7 +83,7 @@ statusBulkUpdateRoutes.post(
       }
 
       // Get user's branch filter for territory access
-      const branchFilter = await getUserBranchFilter(userId, orgId);
+      const branchFilter = await getUserBranchFilter(userId, companyId);
 
       // If user has no access, return all failed
       if (branchFilter.scope === "none") {
@@ -133,6 +134,7 @@ statusBulkUpdateRoutes.post(
           // Check if user can access this client's branch
           if (
             branchFilter.scope === "territory" &&
+            client[0].branchId &&
             !branchFilter.branchIds.includes(client[0].branchId)
           ) {
             results.push({
@@ -145,6 +147,16 @@ statusBulkUpdateRoutes.post(
           }
 
           // Get company ID for validation
+          if (!client[0].productId) {
+            results.push({
+              clientId: update.clientId,
+              success: false,
+              error: "Client has no product assigned",
+            });
+            failed++;
+            continue;
+          }
+
           const product = await db
             .select({ companyId: products.companyId })
             .from(products)
@@ -161,7 +173,7 @@ statusBulkUpdateRoutes.post(
             continue;
           }
 
-          const companyId = product[0].companyId;
+          const productCompanyId = product[0].companyId;
 
           // Get current status
           const currentStatus = await getClientCurrentStatus(
@@ -169,18 +181,18 @@ statusBulkUpdateRoutes.post(
             update.clientId,
             update.periodType,
             update.periodYear,
-            update.periodMonth,
-            update.periodQuarter,
+            update.periodMonth ?? undefined,
+            update.periodQuarter ?? undefined,
           );
 
           // Validate status update
           const validationResult = await validateStatusUpdate({
             clientPeriodStatusId: currentStatus?.id || "",
-            fromStatusId: currentStatus?.statusTypeId,
+            fromStatusId: currentStatus?.statusTypeId ?? undefined,
             toStatusId: update.statusId,
-            reasonId: update.reasonId,
-            remarks: update.remarks,
-            companyId,
+            reasonId: update.reasonId ?? undefined,
+            remarks: update.remarks ?? undefined,
+            companyId: productCompanyId ?? companyId,
             updatedBy: userId,
           });
 
@@ -204,8 +216,8 @@ statusBulkUpdateRoutes.post(
               currentStatus.id,
               {
                 statusTypeId: update.statusId,
-                reasonId: update.reasonId,
-                remarks: update.remarks,
+                reasonId: update.reasonId ?? undefined,
+                remarks: update.remarks ?? undefined,
                 hasPayment: update.hasPayment,
                 updateCount: (currentStatus.updateCount || 0) + 1,
                 isTerminal: await isTerminalStatus(update.statusId),
@@ -230,11 +242,11 @@ statusBulkUpdateRoutes.post(
               clientId: update.clientId,
               periodType: update.periodType,
               periodYear: update.periodYear,
-              periodMonth: update.periodMonth,
-              periodQuarter: update.periodQuarter,
+              periodMonth: update.periodMonth ?? undefined,
+              periodQuarter: update.periodQuarter ?? undefined,
               statusTypeId: update.statusId,
-              reasonId: update.reasonId,
-              remarks: update.remarks,
+              reasonId: update.reasonId ?? undefined,
+              remarks: update.remarks ?? undefined,
               hasPayment: update.hasPayment,
               updateCount: 1,
               isTerminal: await isTerminalStatus(update.statusId),
@@ -248,8 +260,8 @@ statusBulkUpdateRoutes.post(
           await recordStatusEvent(db, {
             clientPeriodStatusId,
             statusTypeId: update.statusId,
-            reasonId: update.reasonId,
-            remarks: update.remarks,
+            reasonId: update.reasonId ?? undefined,
+            remarks: update.remarks ?? undefined,
             hasPayment: update.hasPayment,
             createdBy: userId,
           });

@@ -41,6 +41,7 @@ export interface CreateClientPeriodStatusInput {
   hasPayment?: boolean;
   isTerminal?: boolean;
   updatedBy?: string;
+  updateCount?: number;
 }
 
 export interface UpdateClientPeriodStatusInput {

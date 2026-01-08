@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -8,7 +8,7 @@ import { hasPermission } from "@/lib/permissions";
 import { rateLimitMiddleware } from "@/server/api/middleware/rate-limit";
 import { logger } from "@/lib/logger";
 
-export const clientListRoutes = new Hono();
+export const clientListRoutes = new ApiHono();
 
 // Validation schema for query parameters
 const listQuerySchema = z.object({
@@ -35,8 +35,9 @@ clientListRoutes.get(
   zValidator("query", listQuerySchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const {
       page,
       pageSize,
@@ -55,7 +56,7 @@ clientListRoutes.get(
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "clients",
         "read",
       );
@@ -63,7 +64,7 @@ clientListRoutes.get(
         logger.warn("User does not have clients:read permission", {
           action: "list_clients",
           userId,
-          orgId,
+          companyId,
         });
 
         return c.json(
@@ -79,7 +80,7 @@ clientListRoutes.get(
       }
 
       // Get user's branch filter for territory access
-      const branchFilter = await getUserBranchFilter(userId, orgId);
+      const branchFilter = await getUserBranchFilter(userId, companyId);
 
       // If user has no access, return empty result
       if (branchFilter.scope === "none") {

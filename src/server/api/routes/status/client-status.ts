@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { ApiHono } from "@/server/api/types";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "@/server/db";
@@ -11,9 +11,9 @@ import { hasPermission } from "@/lib/permissions";
 import { rateLimitMiddleware } from "@/server/api/middleware/rate-limit";
 import { logger } from "@/lib/logger";
 import { users } from "@/server/db/schema/users";
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 
-export const clientStatusRoutes = new Hono();
+export const clientStatusRoutes = new ApiHono();
 
 // Validation schema for client status query parameters
 const clientStatusQuerySchema = z.object({
@@ -39,8 +39,9 @@ clientStatusRoutes.get(
   zValidator("query", clientStatusQuerySchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const { clientId } = c.req.valid("param");
     const { periodType, periodYear, periodMonth, periodQuarter } =
       c.req.valid("query");
@@ -49,7 +50,7 @@ clientStatusRoutes.get(
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "status",
         "read",
       );
@@ -102,9 +103,7 @@ clientStatusRoutes.get(
         const user = await db
           .select({
             id: users.id,
-            name: db.raw(
-              `COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email}) as name`,
-            ),
+            name: sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`.as("name"),
           })
           .from(users)
           .where(eq(users.id, status.updatedBy))
@@ -113,7 +112,7 @@ clientStatusRoutes.get(
         if (user[0]) {
           updatedBy = {
             id: user[0].id,
-            name: user[0].name,
+            name: user[0].name as string,
           };
         }
       }
@@ -200,8 +199,9 @@ clientStatusRoutes.get(
   zValidator("query", historyQuerySchema),
   async (c) => {
     const start = performance.now();
-    const userId = (c.get("userId") as any) ?? "anonymous";
-    const orgId = (c.get("orgId") as any) ?? "default";
+    const userId = c.get("userId");
+    const orgId = c.get("orgId");
+    const companyId = orgId ?? "default";
     const { clientId } = c.req.valid("param");
     const { limit } = c.req.valid("query");
 
@@ -209,7 +209,7 @@ clientStatusRoutes.get(
       // Check permission
       const hasReadPermission = await hasPermission(
         userId,
-        orgId,
+        companyId,
         "status",
         "read",
       );
@@ -217,7 +217,7 @@ clientStatusRoutes.get(
         logger.warn("User does not have status:read permission", {
           action: "get_client_status_history",
           userId,
-          orgId,
+          companyId,
           clientId,
         });
 
@@ -239,28 +239,26 @@ clientStatusRoutes.get(
 
       // Get user info for createdBy
       const userIds = [
-        ...new Set(history.map((h) => h.createdBy).filter(Boolean)),
-      ];
+        ...new Set(history.map((h: any) => h.createdBy).filter(Boolean)),
+      ] as string[];
       const usersMap = new Map<string, { id: string; name: string }>();
 
       if (userIds.length > 0) {
         const usersData = await db
           .select({
             id: users.id,
-            name: db.raw(
-              `COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email}) as name`,
-            ),
+            name: sql`COALESCE(${users.firstName} || ' ' || ${users.lastName}, ${users.email})`.as("name"),
           })
           .from(users)
           .where(inArray(users.id, userIds));
 
         usersData.forEach((user) => {
-          usersMap.set(user.id, { id: user.id, name: user.name });
+          usersMap.set(user.id, { id: user.id, name: user.name as string });
         });
       }
 
       // Build response
-      const response = history.map((event) => ({
+      const response = history.map((event: any) => ({
         id: event.id,
         eventSequence: event.eventSequence,
         status: {
