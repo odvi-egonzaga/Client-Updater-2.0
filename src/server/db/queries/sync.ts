@@ -2,11 +2,11 @@
  * Sync job queries for Phase 3 Client Management
  */
 
-import { db } from '../index'
-import { syncJobs } from '../schema/jobs'
-import { eq, desc, and } from 'drizzle-orm'
-import { logger } from '@/lib/logger'
-import type { SyncJobOptions } from '@/lib/sync/types'
+import { db } from "../index";
+import { syncJobs } from "../schema/jobs";
+import { eq, desc, and } from "drizzle-orm";
+import { logger } from "@/lib/logger";
+import type { SyncJobOptions } from "@/lib/sync/types";
 
 /**
  * Create a new sync job
@@ -17,40 +17,40 @@ import type { SyncJobOptions } from '@/lib/sync/types'
  */
 export async function createSyncJob(
   db: any,
-  type: 'snowflake' | 'nextbank',
-  options?: SyncJobOptions
+  type: "snowflake" | "nextbank",
+  options?: SyncJobOptions,
 ) {
   try {
     const jobData: any = {
       type,
-      status: 'pending',
+      status: "pending",
       parameters: options?.parameters || {},
       recordsProcessed: 0,
       recordsCreated: 0,
       recordsUpdated: 0,
-    }
+    };
 
     if (options?.createdBy) {
-      jobData.createdBy = options.createdBy
+      jobData.createdBy = options.createdBy;
     }
 
-    const result = await db.insert(syncJobs).values(jobData).returning()
+    const result = await db.insert(syncJobs).values(jobData).returning();
 
-    logger.info('Created sync job', {
-      action: 'create_sync_job',
+    logger.info("Created sync job", {
+      action: "create_sync_job",
       jobId: result[0].id,
       type,
       createdBy: options?.createdBy,
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to create sync job', error as Error, {
-      action: 'create_sync_job',
+    logger.error("Failed to create sync job", error as Error, {
+      action: "create_sync_job",
       type,
       options,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -65,44 +65,44 @@ export async function updateSyncJob(
   db: any,
   jobId: string,
   updates: Partial<{
-    status: 'pending' | 'processing' | 'completed' | 'failed' | 'dead'
-    recordsProcessed: number
-    recordsCreated: number
-    recordsUpdated: number
-    startedAt: Date
-    completedAt: Date
-    error: string | null
-  }>
+    status: "pending" | "processing" | "completed" | "failed" | "dead";
+    recordsProcessed: number;
+    recordsCreated: number;
+    recordsUpdated: number;
+    startedAt: Date;
+    completedAt: Date;
+    error: string | null;
+  }>,
 ) {
   try {
     const result = await db
       .update(syncJobs)
       .set(updates)
       .where(eq(syncJobs.id, jobId))
-      .returning()
+      .returning();
 
     if (!result[0]) {
-      logger.warn('Sync job not found for update', {
-        action: 'update_sync_job',
+      logger.warn("Sync job not found for update", {
+        action: "update_sync_job",
         jobId,
-      })
-      return null
+      });
+      return null;
     }
 
-    logger.info('Updated sync job', {
-      action: 'update_sync_job',
+    logger.info("Updated sync job", {
+      action: "update_sync_job",
       jobId,
       updates: Object.keys(updates),
-    })
+    });
 
-    return result[0]
+    return result[0];
   } catch (error) {
-    logger.error('Failed to update sync job', error as Error, {
-      action: 'update_sync_job',
+    logger.error("Failed to update sync job", error as Error, {
+      action: "update_sync_job",
       jobId,
       updates,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -114,14 +114,18 @@ export async function updateSyncJob(
  */
 export async function getSyncJob(db: any, jobId: string) {
   try {
-    const result = await db.select().from(syncJobs).where(eq(syncJobs.id, jobId)).limit(1)
-    return result[0] ?? null
+    const result = await db
+      .select()
+      .from(syncJobs)
+      .where(eq(syncJobs.id, jobId))
+      .limit(1);
+    return result[0] ?? null;
   } catch (error) {
-    logger.error('Failed to get sync job', error as Error, {
-      action: 'get_sync_job',
+    logger.error("Failed to get sync job", error as Error, {
+      action: "get_sync_job",
       jobId,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -137,21 +141,21 @@ export async function getRecentSyncJobs(db: any, limit: number = 10) {
       .select()
       .from(syncJobs)
       .orderBy(desc(syncJobs.createdAt))
-      .limit(limit)
+      .limit(limit);
 
-    logger.info('Retrieved recent sync jobs', {
-      action: 'get_recent_sync_jobs',
+    logger.info("Retrieved recent sync jobs", {
+      action: "get_recent_sync_jobs",
       count: result.length,
       limit,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get recent sync jobs', error as Error, {
-      action: 'get_recent_sync_jobs',
+    logger.error("Failed to get recent sync jobs", error as Error, {
+      action: "get_recent_sync_jobs",
       limit,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -164,8 +168,8 @@ export async function getRecentSyncJobs(db: any, limit: number = 10) {
  */
 export async function getSyncJobsByStatus(
   db: any,
-  status: 'pending' | 'processing' | 'completed' | 'failed' | 'dead',
-  limit: number = 10
+  status: "pending" | "processing" | "completed" | "failed" | "dead",
+  limit: number = 10,
 ) {
   try {
     const result = await db
@@ -173,23 +177,23 @@ export async function getSyncJobsByStatus(
       .from(syncJobs)
       .where(eq(syncJobs.status, status))
       .orderBy(desc(syncJobs.createdAt))
-      .limit(limit)
+      .limit(limit);
 
-    logger.info('Retrieved sync jobs by status', {
-      action: 'get_sync_jobs_by_status',
+    logger.info("Retrieved sync jobs by status", {
+      action: "get_sync_jobs_by_status",
       status,
       count: result.length,
       limit,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get sync jobs by status', error as Error, {
-      action: 'get_sync_jobs_by_status',
+    logger.error("Failed to get sync jobs by status", error as Error, {
+      action: "get_sync_jobs_by_status",
       status,
       limit,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -203,36 +207,38 @@ export async function getSyncJobsByStatus(
  */
 export async function getSyncJobsByType(
   db: any,
-  type: 'snowflake' | 'nextbank',
-  status?: 'pending' | 'processing' | 'completed' | 'failed' | 'dead',
-  limit: number = 10
+  type: "snowflake" | "nextbank",
+  status?: "pending" | "processing" | "completed" | "failed" | "dead",
+  limit: number = 10,
 ) {
   try {
-    let query = db.select().from(syncJobs).where(eq(syncJobs.type, type))
+    let query = db.select().from(syncJobs).where(eq(syncJobs.type, type));
 
     if (status) {
-      query = query.where(and(eq(syncJobs.type, type), eq(syncJobs.status, status)))
+      query = query.where(
+        and(eq(syncJobs.type, type), eq(syncJobs.status, status)),
+      );
     }
 
-    const result = await query.orderBy(desc(syncJobs.createdAt)).limit(limit)
+    const result = await query.orderBy(desc(syncJobs.createdAt)).limit(limit);
 
-    logger.info('Retrieved sync jobs by type', {
-      action: 'get_sync_jobs_by_type',
+    logger.info("Retrieved sync jobs by type", {
+      action: "get_sync_jobs_by_type",
       type,
       status,
       count: result.length,
       limit,
-    })
+    });
 
-    return result
+    return result;
   } catch (error) {
-    logger.error('Failed to get sync jobs by type', error as Error, {
-      action: 'get_sync_jobs_by_type',
+    logger.error("Failed to get sync jobs by type", error as Error, {
+      action: "get_sync_jobs_by_type",
       type,
       status,
       limit,
-    })
-    throw error
+    });
+    throw error;
   }
 }
 
@@ -244,9 +250,9 @@ export async function getSyncJobsByType(
  */
 export async function startSyncJob(db: any, jobId: string) {
   return updateSyncJob(db, jobId, {
-    status: 'processing',
+    status: "processing",
     startedAt: new Date(),
-  })
+  });
 }
 
 /**
@@ -263,15 +269,15 @@ export async function completeSyncJob(
   jobId: string,
   recordsProcessed: number,
   recordsCreated: number,
-  recordsUpdated: number
+  recordsUpdated: number,
 ) {
   return updateSyncJob(db, jobId, {
-    status: 'completed',
+    status: "completed",
     recordsProcessed,
     recordsCreated,
     recordsUpdated,
     completedAt: new Date(),
-  })
+  });
 }
 
 /**
@@ -283,8 +289,8 @@ export async function completeSyncJob(
  */
 export async function failSyncJob(db: any, jobId: string, error: string) {
   return updateSyncJob(db, jobId, {
-    status: 'failed',
+    status: "failed",
     completedAt: new Date(),
     error,
-  })
+  });
 }

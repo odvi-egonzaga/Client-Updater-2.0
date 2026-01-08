@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 import {
   useDashboardSummary,
   useClientStatus,
@@ -10,10 +10,10 @@ import {
   useUpdateStatus,
   useBulkUpdateStatus,
   useAvailableYears,
-} from '../hooks/use-status'
+} from "../hooks/use-status";
 
 // Mock fetch globally
-global.fetch = vi.fn()
+global.fetch = vi.fn();
 
 // Helper function to create a wrapper with QueryClient
 function createWrapper() {
@@ -26,22 +26,26 @@ function createWrapper() {
         retry: false,
       },
     },
-  })
+  });
 
   return function Wrapper({ children }: { children: ReactNode }) {
-    return React.createElement(QueryClientProvider, { client: queryClient }, children)
-  }
+    return React.createElement(
+      QueryClientProvider,
+      { client: queryClient },
+      children,
+    );
+  };
 }
 
 // Import React for createElement
-import React from 'react'
+import React from "react";
 
-describe('useDashboardSummary hook', () => {
+describe("useDashboardSummary hook", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should fetch dashboard summary successfully', async () => {
+  it("should fetch dashboard summary successfully", async () => {
     const mockSummary = {
       totalClients: 100,
       statusCounts: {
@@ -56,75 +60,81 @@ describe('useDashboardSummary hook', () => {
         GSIS: 30,
         PAGIBIG: 20,
       },
-    }
+    };
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: mockSummary,
       }),
-    } as Response)
+    } as Response);
 
     const periodFilter = {
-      periodType: 'monthly' as const,
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-    }
+    };
 
-    const { result } = renderHook(() => useDashboardSummary('company123', periodFilter), {
-      wrapper: createWrapper(),
-    })
+    const { result } = renderHook(
+      () => useDashboardSummary("company123", periodFilter),
+      {
+        wrapper: createWrapper(),
+      },
+    );
 
     await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true)
-    })
+      expect(result.current.isSuccess).toBe(true);
+    });
 
-    expect(result.current.data).toEqual(mockSummary)
-  })
+    expect(result.current.data).toEqual(mockSummary);
+  });
 
-  it('should handle fetch errors', async () => {
+  it("should handle fetch errors", async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       json: async () => ({}),
-    } as Response)
+    } as Response);
 
     const periodFilter = {
-      periodType: 'monthly' as const,
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-    }
+    };
 
-    const { result } = renderHook(() => useDashboardSummary('company123', periodFilter), {
-      wrapper: createWrapper(),
-    })
+    const { result } = renderHook(
+      () => useDashboardSummary("company123", periodFilter),
+      {
+        wrapper: createWrapper(),
+      },
+    );
 
     await waitFor(() => {
-      expect(result.current.isError).toBe(true)
-    })
+      expect(result.current.isError).toBe(true);
+    });
 
-    expect(result.current.error).toBeInstanceOf(Error)
-  })
-})
+    expect(result.current.error).toBeInstanceOf(Error);
+  });
+});
 
-describe('useClientStatus hook', () => {
+describe("useClientStatus hook", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should fetch client status successfully', async () => {
+  it("should fetch client status successfully", async () => {
     const mockClientStatus = {
-      id: '123',
-      clientId: '456',
-      periodType: 'monthly' as const,
+      id: "123",
+      clientId: "456",
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
       status: {
-        id: '789',
-        name: 'Active',
-        code: 'ACTIVE',
+        id: "789",
+        name: "Active",
+        code: "ACTIVE",
         requiresRemarks: false,
         isTerminal: false,
         workflowOrder: 1,
@@ -135,67 +145,70 @@ describe('useClientStatus hook', () => {
       updateCount: 5,
       isTerminal: false,
       updatedBy: {
-        id: '012',
-        name: 'John Doe',
+        id: "012",
+        name: "John Doe",
       },
-      updatedAt: '2024-01-01T00:00:00Z',
-    }
+      updatedAt: "2024-01-01T00:00:00Z",
+    };
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: mockClientStatus,
       }),
-    } as Response)
+    } as Response);
 
     const periodFilter = {
-      periodType: 'monthly' as const,
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-    }
+    };
 
-    const { result } = renderHook(() => useClientStatus('client123', periodFilter), {
-      wrapper: createWrapper(),
-    })
+    const { result } = renderHook(
+      () => useClientStatus("client123", periodFilter),
+      {
+        wrapper: createWrapper(),
+      },
+    );
 
     await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true)
-    })
+      expect(result.current.isSuccess).toBe(true);
+    });
 
-    expect(result.current.data).toEqual(mockClientStatus)
-  })
+    expect(result.current.data).toEqual(mockClientStatus);
+  });
 
-  it('should not fetch when clientId is not provided', () => {
+  it("should not fetch when clientId is not provided", () => {
     const periodFilter = {
-      periodType: 'monthly' as const,
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-    }
+    };
 
-    const { result } = renderHook(() => useClientStatus('', periodFilter), {
+    const { result } = renderHook(() => useClientStatus("", periodFilter), {
       wrapper: createWrapper(),
-    })
+    });
 
-    expect(result.current.fetchStatus).toBe('idle')
-  })
-})
+    expect(result.current.fetchStatus).toBe("idle");
+  });
+});
 
-describe('useClientStatusHistory hook', () => {
+describe("useClientStatusHistory hook", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should fetch client status history successfully', async () => {
+  it("should fetch client status history successfully", async () => {
     const mockHistory = [
       {
-        id: '123',
+        id: "123",
         eventSequence: 1,
         status: {
-          id: '789',
-          name: 'Active',
-          code: 'ACTIVE',
+          id: "789",
+          name: "Active",
+          code: "ACTIVE",
           requiresRemarks: false,
           isTerminal: false,
           workflowOrder: 1,
@@ -204,53 +217,56 @@ describe('useClientStatusHistory hook', () => {
         remarks: null,
         hasPayment: true,
         createdBy: {
-          id: '012',
-          name: 'John Doe',
+          id: "012",
+          name: "John Doe",
         },
-        createdAt: '2024-01-01T00:00:00Z',
+        createdAt: "2024-01-01T00:00:00Z",
       },
-    ]
+    ];
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: mockHistory,
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useClientStatusHistory('client123', 50), {
-      wrapper: createWrapper(),
-    })
+    const { result } = renderHook(
+      () => useClientStatusHistory("client123", 50),
+      {
+        wrapper: createWrapper(),
+      },
+    );
 
     await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true)
-    })
+      expect(result.current.isSuccess).toBe(true);
+    });
 
-    expect(result.current.data).toEqual(mockHistory)
-  })
+    expect(result.current.data).toEqual(mockHistory);
+  });
 
-  it('should not fetch when clientId is not provided', () => {
-    const { result } = renderHook(() => useClientStatusHistory('', 50), {
+  it("should not fetch when clientId is not provided", () => {
+    const { result } = renderHook(() => useClientStatusHistory("", 50), {
       wrapper: createWrapper(),
-    })
+    });
 
-    expect(result.current.fetchStatus).toBe('idle')
-  })
-})
+    expect(result.current.fetchStatus).toBe("idle");
+  });
+});
 
-describe('useStatusEvent hook', () => {
+describe("useStatusEvent hook", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should fetch status event successfully', async () => {
+  it("should fetch status event successfully", async () => {
     const mockEvent = {
-      id: '123',
+      id: "123",
       eventSequence: 1,
       status: {
-        id: '789',
-        name: 'Active',
-        code: 'ACTIVE',
+        id: "789",
+        name: "Active",
+        code: "ACTIVE",
         requiresRemarks: false,
         isTerminal: false,
         workflowOrder: 1,
@@ -259,249 +275,261 @@ describe('useStatusEvent hook', () => {
       remarks: null,
       hasPayment: true,
       createdBy: {
-        id: '012',
-        name: 'John Doe',
+        id: "012",
+        name: "John Doe",
       },
-      createdAt: '2024-01-01T00:00:00Z',
-    }
+      createdAt: "2024-01-01T00:00:00Z",
+    };
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: mockEvent,
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useStatusEvent('event123'), {
+    const { result } = renderHook(() => useStatusEvent("event123"), {
       wrapper: createWrapper(),
-    })
+    });
 
     await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true)
-    })
+      expect(result.current.isSuccess).toBe(true);
+    });
 
-    expect(result.current.data).toEqual(mockEvent)
-  })
+    expect(result.current.data).toEqual(mockEvent);
+  });
 
-  it('should not fetch when eventId is not provided', () => {
-    const { result } = renderHook(() => useStatusEvent(''), {
+  it("should not fetch when eventId is not provided", () => {
+    const { result } = renderHook(() => useStatusEvent(""), {
       wrapper: createWrapper(),
-    })
+    });
 
-    expect(result.current.fetchStatus).toBe('idle')
-  })
-})
+    expect(result.current.fetchStatus).toBe("idle");
+  });
+});
 
-describe('useUpdateStatus mutation', () => {
+describe("useUpdateStatus mutation", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should update status successfully', async () => {
+  it("should update status successfully", async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: { success: true },
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useUpdateStatus(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useUpdateStatus(), {
+      wrapper: createWrapper(),
+    });
 
     const input = {
-      clientId: 'client123',
-      periodType: 'monthly' as const,
+      clientId: "client123",
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-      statusId: 'status123',
+      statusId: "status123",
       reasonId: null,
       remarks: null,
       hasPayment: true,
-    }
+    };
 
-    await result.current.mutateAsync(input)
+    await result.current.mutateAsync(input);
 
-    expect(fetch).toHaveBeenCalledWith('/api/status/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    expect(fetch).toHaveBeenCalledWith("/api/status/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    })
-  })
+    });
+  });
 
-  it('should handle update errors', async () => {
+  it("should handle update errors", async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       json: async () => ({
         error: {
-          message: 'Failed to update status',
+          message: "Failed to update status",
         },
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useUpdateStatus(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useUpdateStatus(), {
+      wrapper: createWrapper(),
+    });
 
     const input = {
-      clientId: 'client123',
-      periodType: 'monthly' as const,
+      clientId: "client123",
+      periodType: "monthly" as const,
       periodYear: 2024,
       periodMonth: 1,
       periodQuarter: null,
-      statusId: 'status123',
+      statusId: "status123",
       reasonId: null,
       remarks: null,
       hasPayment: true,
-    }
+    };
 
-    await expect(result.current.mutateAsync(input)).rejects.toThrow('Failed to update status')
-  })
-})
+    await expect(result.current.mutateAsync(input)).rejects.toThrow(
+      "Failed to update status",
+    );
+  });
+});
 
-describe('useBulkUpdateStatus mutation', () => {
+describe("useBulkUpdateStatus mutation", () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('should bulk update status successfully', async () => {
+  it("should bulk update status successfully", async () => {
     const mockResult = {
       successful: 8,
       failed: 2,
       results: [
         {
-          clientId: 'client1',
+          clientId: "client1",
           success: true,
           error: null,
         },
         {
-          clientId: 'client2',
+          clientId: "client2",
           success: false,
-          error: 'Invalid status',
+          error: "Invalid status",
         },
       ],
-    }
+    };
 
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         data: mockResult,
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useBulkUpdateStatus(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useBulkUpdateStatus(), {
+      wrapper: createWrapper(),
+    });
 
     const input = {
       updates: [
         {
-          clientId: 'client1',
-          periodType: 'monthly' as const,
+          clientId: "client1",
+          periodType: "monthly" as const,
           periodYear: 2024,
           periodMonth: 1,
           periodQuarter: null,
-          statusId: 'status123',
+          statusId: "status123",
           reasonId: null,
           remarks: null,
           hasPayment: true,
         },
         {
-          clientId: 'client2',
-          periodType: 'monthly' as const,
+          clientId: "client2",
+          periodType: "monthly" as const,
           periodYear: 2024,
           periodMonth: 1,
           periodQuarter: null,
-          statusId: 'status123',
+          statusId: "status123",
           reasonId: null,
           remarks: null,
           hasPayment: false,
         },
       ],
-    }
+    };
 
-    const response = await result.current.mutateAsync(input)
+    const response = await result.current.mutateAsync(input);
 
-    expect(fetch).toHaveBeenCalledWith('/api/status/bulk-update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    expect(fetch).toHaveBeenCalledWith("/api/status/bulk-update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
-    })
+    });
 
-    expect(response).toEqual(mockResult)
-  })
+    expect(response).toEqual(mockResult);
+  });
 
-  it('should handle bulk update errors', async () => {
+  it("should handle bulk update errors", async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       ok: false,
       json: async () => ({
         error: {
-          message: 'Failed to bulk update status',
+          message: "Failed to bulk update status",
         },
       }),
-    } as Response)
+    } as Response);
 
-    const { result } = renderHook(() => useBulkUpdateStatus(), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useBulkUpdateStatus(), {
+      wrapper: createWrapper(),
+    });
 
     const input = {
       updates: [
         {
-          clientId: 'client1',
-          periodType: 'monthly' as const,
+          clientId: "client1",
+          periodType: "monthly" as const,
           periodYear: 2024,
           periodMonth: 1,
           periodQuarter: null,
-          statusId: 'status123',
+          statusId: "status123",
           reasonId: null,
           remarks: null,
           hasPayment: true,
         },
       ],
-    }
+    };
 
-    await expect(result.current.mutateAsync(input)).rejects.toThrow('Failed to bulk update status')
-  })
-})
+    await expect(result.current.mutateAsync(input)).rejects.toThrow(
+      "Failed to bulk update status",
+    );
+  });
+});
 
-describe('useAvailableYears hook', () => {
-  it('should return available years for September onwards', () => {
+describe("useAvailableYears hook", () => {
+  it("should return available years for September onwards", () => {
     // Mock current date to be September 2024
-    const originalDate = Date
+    const originalDate = Date;
     const mockDate = class extends Date {
       constructor(...args: any[]) {
         if (args.length === 0) {
-          super(2024, 8, 1) // September 2024 (month is 0-indexed)
+          super(2024, 8, 1); // September 2024 (month is 0-indexed)
         } else {
           // @ts-ignore
-          super(...args)
+          super(...args);
         }
       }
-    }
-    global.Date = mockDate as any
+    };
+    global.Date = mockDate as any;
 
-    const { result } = renderHook(() => useAvailableYears())
+    const { result } = renderHook(() => useAvailableYears());
 
-    expect(result.current).toEqual([2023, 2024, 2025])
+    expect(result.current).toEqual([2023, 2024, 2025]);
 
     // Restore original Date
-    global.Date = originalDate
-  })
+    global.Date = originalDate;
+  });
 
-  it('should return available years for before September', () => {
+  it("should return available years for before September", () => {
     // Mock current date to be January 2024
-    const originalDate = Date
+    const originalDate = Date;
     const mockDate = class extends Date {
       constructor(...args: any[]) {
         if (args.length === 0) {
-          super(2024, 0, 1) // January 2024 (month is 0-indexed)
+          super(2024, 0, 1); // January 2024 (month is 0-indexed)
         } else {
           // @ts-ignore
-          super(...args)
+          super(...args);
         }
       }
-    }
-    global.Date = mockDate as any
+    };
+    global.Date = mockDate as any;
 
-    const { result } = renderHook(() => useAvailableYears())
+    const { result } = renderHook(() => useAvailableYears());
 
-    expect(result.current).toEqual([2022, 2023, 2024])
+    expect(result.current).toEqual([2022, 2023, 2024]);
 
     // Restore original Date
-    global.Date = originalDate
-  })
-})
+    global.Date = originalDate;
+  });
+});

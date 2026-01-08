@@ -1,8 +1,8 @@
-# DTT Framework - Implementation Guide
+# Client Updater Version 2 - Implementation Guide
 
 ## Overview
 
-This document explains how the DTT Framework was implemented, including key design decisions, architecture patterns, and code organization principles. Understanding these decisions will help you maintain and extend the framework.
+This document explains how the Client Updater Version 2 was implemented, including key design decisions, architecture patterns, and code organization principles. Understanding these decisions will help you maintain and extend the framework.
 
 ---
 

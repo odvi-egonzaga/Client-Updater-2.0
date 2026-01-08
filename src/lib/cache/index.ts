@@ -1,8 +1,4 @@
-export { cache, cacheKeys, CACHE_TTL } from './redis'
-
-
-
-
+export { cache, cacheKeys, CACHE_TTL } from "./redis";
 
 
 

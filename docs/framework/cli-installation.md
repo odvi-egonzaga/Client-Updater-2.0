@@ -1,8 +1,8 @@
-# DTT Framework - CLI Installation
+# Client Updater Version 2 - CLI Installation
 
 ## Overview
 
-The DTT Framework can be quickly scaffolded using the CLI command. This guide covers installation, updating, and available commands.
+The Client Updater Version 2 can be quickly scaffolded using the CLI command. This guide covers installation, updating, and available commands.
 
 ---
 
@@ -491,7 +491,7 @@ Always initialize Git after installation:
 ```bash
 git init
 git add .
-git commit -m "Initial commit from DTT Framework"
+git commit -m "Initial commit from Client Updater Version 2"
 ```
 
 ### 2. Environment Management

@@ -1,8 +1,8 @@
-# DTT Framework - What Did I Miss
+# Client Updater Version 2 - What Did I Miss
 
 ## Overview
 
-This document outlines potential improvements, features not included, and considerations for production use. While the DTT Framework provides a solid foundation, there are always areas for enhancement.
+This document outlines potential improvements, features not included, and considerations for production use. While the Client Updater Version 2 provides a solid foundation, there are always areas for enhancement.
 
 ---
 

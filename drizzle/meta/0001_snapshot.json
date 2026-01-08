@@ -1,6 +1,6 @@
 {
-  "id": "45f62c30-5fe0-4767-8439-01d90f612781",
-  "prevId": "6a26b98e-4d63-4f45-b16c-0ffd5a4d0c0e",
+  "id": "9a61a70d-3a65-4c69-8171-89a246c1b37f",
+  "prevId": "15b622ed-93d6-480b-a575-498bf1bbbe03",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -717,8 +717,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "client_period_status_client_id_period_type_period_month_period_quarter_period_year_unique": {
-          "name": "client_period_status_client_id_period_type_period_month_period_quarter_period_year_unique",
+        "client_period_status_period_unique": {
+          "name": "client_period_status_period_unique",
           "nullsNotDistinct": false,
           "columns": [
             "client_id",
@@ -1519,8 +1519,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pensioner_types_code_unique": {
-          "name": "pensioner_types_code_unique",
+        "account_types_code_unique": {
+          "name": "account_types_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -1599,7 +1599,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "companies_code_unique": {
+          "name": "companies_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1680,8 +1688,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pensioner_types_code_unique": {
-          "name": "pensioner_types_code_unique",
+        "par_statuses_code_unique": {
+          "name": "par_statuses_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -1780,7 +1788,15 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "pension_types_code_unique": {
+          "name": "pension_types_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1983,8 +1999,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pensioner_types_code_unique": {
-          "name": "pensioner_types_code_unique",
+        "products_code_unique": {
+          "name": "products_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -2098,8 +2114,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pensioner_types_code_unique": {
-          "name": "pensioner_types_code_unique",
+        "status_reasons_code_unique": {
+          "name": "status_reasons_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -2206,8 +2222,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "pensioner_types_code_unique": {
-          "name": "pensioner_types_code_unique",
+        "status_types_code_unique": {
+          "name": "status_types_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -3110,6 +3126,59 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.webhook_events": {
+      "name": "webhook_events",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "event_id": {
+          "name": "event_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "event_type": {
+          "name": "event_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "processed_at": {
+          "name": "processed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "payload": {
+          "name": "payload",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "webhook_events_event_id_unique": {
+          "name": "webhook_events_event_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "event_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

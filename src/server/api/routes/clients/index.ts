@@ -1,11 +1,11 @@
-import { Hono } from 'hono'
-import { clientListRoutes } from './list'
-import { clientDetailRoutes } from './detail'
-import { clientSearchRoutes } from './search'
+import { Hono } from "hono";
+import { clientListRoutes } from "./list";
+import { clientDetailRoutes } from "./detail";
+import { clientSearchRoutes } from "./search";
 
-export const clientsRoutes = new Hono()
+export const clientsRoutes = new Hono();
 
 // Register all client route modules
-clientsRoutes.route('/', clientListRoutes)
-clientsRoutes.route('/', clientDetailRoutes)
-clientsRoutes.route('/', clientSearchRoutes)
+clientsRoutes.route("/", clientListRoutes);
+clientsRoutes.route("/", clientDetailRoutes);
+clientsRoutes.route("/", clientSearchRoutes);

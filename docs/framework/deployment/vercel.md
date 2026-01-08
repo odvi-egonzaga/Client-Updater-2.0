@@ -1,8 +1,8 @@
-# DTT Framework - Vercel Deployment Guide
+# Client Updater Version 2 - Vercel Deployment Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for deploying the DTT Framework to Vercel. Vercel is the recommended deployment platform for Next.js applications, offering seamless integration, automatic scaling, and excellent developer experience.
+This guide provides comprehensive instructions for deploying the Client Updater Version 2 to Vercel. Vercel is the recommended deployment platform for Next.js applications, offering seamless integration, automatic scaling, and excellent developer experience.
 
 ---
 

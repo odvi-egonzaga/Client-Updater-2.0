@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { vi } from "vitest";
 
 // Mock Snowflake connection
 export const mockSnowflakeConnection = {
@@ -14,7 +14,7 @@ export const mockSnowflakeConnection = {
     callback(null);
   }),
   isUp: vi.fn(() => true),
-  getId: vi.fn(() => 'test-connection-id'),
+  getId: vi.fn(() => "test-connection-id"),
 };
 
 // Mock Snowflake SDK
@@ -23,6 +23,6 @@ export const mockSnowflakeSDK = {
   createConnector: vi.fn(),
 };
 
-vi.mock('snowflake-sdk', () => mockSnowflakeSDK);
+vi.mock("snowflake-sdk", () => mockSnowflakeSDK);
 
 export default mockSnowflakeConnection;

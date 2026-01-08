@@ -1,11 +1,11 @@
-import { db } from '@/server/db'
-import { healthCheckTests } from '@/server/db/schema'
-import { eq } from 'drizzle-orm'
-import type { DatabaseHealthResult, DatabaseCheckConfig } from './types'
-import { DatabaseHealthError } from './types'
-import { logger } from './logger'
+import { db } from "@/server/db";
+import { healthCheckTests } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
+import type { DatabaseHealthResult, DatabaseCheckConfig } from "./types";
+import { DatabaseHealthError } from "./types";
+import { logger } from "./logger";
 
-const DEFAULT_TEST_KEY = 'health-check-test'
+const DEFAULT_TEST_KEY = "health-check-test";
 
 /**
  * Write a test row to the database
@@ -16,17 +16,19 @@ const DEFAULT_TEST_KEY = 'health-check-test'
  * @throws DatabaseHealthError if write operation fails
  */
 export async function writeTestRow(
-  config: DatabaseCheckConfig = {}
+  config: DatabaseCheckConfig = {},
 ): Promise<DatabaseHealthResult> {
-  const start = performance.now()
-  const testKey = config.testKey || DEFAULT_TEST_KEY
-  const testValue = config.testValue || `test-${Date.now()}`
+  const start = performance.now();
+  const testKey = config.testKey || DEFAULT_TEST_KEY;
+  const testValue = config.testValue || `test-${Date.now()}`;
 
-  logger.info(`Writing test row to database: ${testKey}`)
+  logger.info(`Writing test row to database: ${testKey}`);
 
   try {
     // Delete any existing test row first to ensure clean state
-    await db.delete(healthCheckTests).where(eq(healthCheckTests.testKey, testKey))
+    await db
+      .delete(healthCheckTests)
+      .where(eq(healthCheckTests.testKey, testKey));
 
     // Insert new test row
     const [result] = await db
@@ -35,45 +37,48 @@ export async function writeTestRow(
         testKey,
         testValue,
       })
-      .returning()
+      .returning();
 
     if (!result) {
       throw new DatabaseHealthError(
-        'Insert returned no result',
-        'write',
-        'health_check_tests'
-      )
+        "Insert returned no result",
+        "write",
+        "health_check_tests",
+      );
     }
 
-    const responseTimeMs = Math.round(performance.now() - start)
+    const responseTimeMs = Math.round(performance.now() - start);
 
-    logger.success(`Database write successful: ${testKey} (${responseTimeMs}ms)`)
+    logger.success(
+      `Database write successful: ${testKey} (${responseTimeMs}ms)`,
+    );
 
     return {
-      type: 'database',
-      status: 'healthy',
+      type: "database",
+      status: "healthy",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'write',
-      table: 'health_check_tests',
+      operation: "write",
+      table: "health_check_tests",
       recordId: result.id,
       details: { testKey, testValue },
-    }
+    };
   } catch (error) {
-    const responseTimeMs = Math.round(performance.now() - start)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const responseTimeMs = Math.round(performance.now() - start);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
-    logger.error(`Database write failed: ${testKey}`, { error: errorMessage })
+    logger.error(`Database write failed: ${testKey}`, { error: errorMessage });
 
     return {
-      type: 'database',
-      status: 'error',
+      type: "database",
+      status: "error",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'write',
-      table: 'health_check_tests',
+      operation: "write",
+      table: "health_check_tests",
       error: errorMessage,
-    }
+    };
   }
 }
 
@@ -86,45 +91,47 @@ export async function writeTestRow(
  * @throws DatabaseHealthError if read operation fails
  */
 export async function readTestRow(
-  config: DatabaseCheckConfig = {}
+  config: DatabaseCheckConfig = {},
 ): Promise<DatabaseHealthResult> {
-  const start = performance.now()
-  const testKey = config.testKey || DEFAULT_TEST_KEY
+  const start = performance.now();
+  const testKey = config.testKey || DEFAULT_TEST_KEY;
 
-  logger.info(`Reading test row from database: ${testKey}`)
+  logger.info(`Reading test row from database: ${testKey}`);
 
   try {
     const [result] = await db
       .select()
       .from(healthCheckTests)
       .where(eq(healthCheckTests.testKey, testKey))
-      .limit(1)
+      .limit(1);
 
-    const responseTimeMs = Math.round(performance.now() - start)
+    const responseTimeMs = Math.round(performance.now() - start);
 
     if (!result) {
-      logger.warn(`No test row found in database: ${testKey}`)
+      logger.warn(`No test row found in database: ${testKey}`);
 
       return {
-        type: 'database',
-        status: 'healthy',
+        type: "database",
+        status: "healthy",
         responseTimeMs,
         timestamp: new Date().toISOString(),
-        operation: 'read',
-        table: 'health_check_tests',
+        operation: "read",
+        table: "health_check_tests",
         details: { found: false, testKey },
-      }
+      };
     }
 
-    logger.success(`Database read successful: ${testKey} (${responseTimeMs}ms)`)
+    logger.success(
+      `Database read successful: ${testKey} (${responseTimeMs}ms)`,
+    );
 
     return {
-      type: 'database',
-      status: 'healthy',
+      type: "database",
+      status: "healthy",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'read',
-      table: 'health_check_tests',
+      operation: "read",
+      table: "health_check_tests",
       recordId: result.id,
       details: {
         found: true,
@@ -132,22 +139,23 @@ export async function readTestRow(
         testValue: result.testValue,
         createdAt: result.createdAt,
       },
-    }
+    };
   } catch (error) {
-    const responseTimeMs = Math.round(performance.now() - start)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const responseTimeMs = Math.round(performance.now() - start);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
-    logger.error(`Database read failed: ${testKey}`, { error: errorMessage })
+    logger.error(`Database read failed: ${testKey}`, { error: errorMessage });
 
     return {
-      type: 'database',
-      status: 'error',
+      type: "database",
+      status: "error",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'read',
-      table: 'health_check_tests',
+      operation: "read",
+      table: "health_check_tests",
       error: errorMessage,
-    }
+    };
   }
 }
 
@@ -160,12 +168,12 @@ export async function readTestRow(
  * @throws DatabaseHealthError if delete operation fails
  */
 export async function deleteTestRow(
-  config: DatabaseCheckConfig = {}
+  config: DatabaseCheckConfig = {},
 ): Promise<DatabaseHealthResult> {
-  const start = performance.now()
-  const testKey = config.testKey || DEFAULT_TEST_KEY
+  const start = performance.now();
+  const testKey = config.testKey || DEFAULT_TEST_KEY;
 
-  logger.info(`Deleting test row from database: ${testKey}`)
+  logger.info(`Deleting test row from database: ${testKey}`);
 
   try {
     // Check if row exists first
@@ -173,56 +181,61 @@ export async function deleteTestRow(
       .select()
       .from(healthCheckTests)
       .where(eq(healthCheckTests.testKey, testKey))
-      .limit(1)
+      .limit(1);
 
     if (!existing) {
-      const responseTimeMs = Math.round(performance.now() - start)
+      const responseTimeMs = Math.round(performance.now() - start);
 
-      logger.warn(`No test row to delete in database: ${testKey}`)
+      logger.warn(`No test row to delete in database: ${testKey}`);
 
       return {
-        type: 'database',
-        status: 'healthy',
+        type: "database",
+        status: "healthy",
         responseTimeMs,
         timestamp: new Date().toISOString(),
-        operation: 'delete',
-        table: 'health_check_tests',
+        operation: "delete",
+        table: "health_check_tests",
         details: { deleted: false, testKey },
-      }
+      };
     }
 
     // Delete the row
-    await db.delete(healthCheckTests).where(eq(healthCheckTests.testKey, testKey))
+    await db
+      .delete(healthCheckTests)
+      .where(eq(healthCheckTests.testKey, testKey));
 
-    const responseTimeMs = Math.round(performance.now() - start)
+    const responseTimeMs = Math.round(performance.now() - start);
 
-    logger.success(`Database delete successful: ${testKey} (${responseTimeMs}ms)`)
+    logger.success(
+      `Database delete successful: ${testKey} (${responseTimeMs}ms)`,
+    );
 
     return {
-      type: 'database',
-      status: 'healthy',
+      type: "database",
+      status: "healthy",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'delete',
-      table: 'health_check_tests',
+      operation: "delete",
+      table: "health_check_tests",
       recordId: existing.id,
       details: { deleted: true, testKey },
-    }
+    };
   } catch (error) {
-    const responseTimeMs = Math.round(performance.now() - start)
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const responseTimeMs = Math.round(performance.now() - start);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
 
-    logger.error(`Database delete failed: ${testKey}`, { error: errorMessage })
+    logger.error(`Database delete failed: ${testKey}`, { error: errorMessage });
 
     return {
-      type: 'database',
-      status: 'error',
+      type: "database",
+      status: "error",
       responseTimeMs,
       timestamp: new Date().toISOString(),
-      operation: 'delete',
-      table: 'health_check_tests',
+      operation: "delete",
+      table: "health_check_tests",
       error: errorMessage,
-    }
+    };
   }
 }
 
@@ -233,26 +246,26 @@ export async function deleteTestRow(
  * @returns Promise<DatabaseHealthResult[]>
  */
 export async function runDatabaseHealthChecks(
-  config: DatabaseCheckConfig = {}
+  config: DatabaseCheckConfig = {},
 ): Promise<DatabaseHealthResult[]> {
-  logger.info('Running database health checks (CRUD)')
+  logger.info("Running database health checks (CRUD)");
 
-  const results: DatabaseHealthResult[] = []
+  const results: DatabaseHealthResult[] = [];
 
   // Write test row
-  const writeResult = await writeTestRow(config)
-  results.push(writeResult)
+  const writeResult = await writeTestRow(config);
+  results.push(writeResult);
 
   // Only proceed with read and delete if write succeeded
-  if (writeResult.status === 'healthy') {
+  if (writeResult.status === "healthy") {
     // Read test row
-    const readResult = await readTestRow(config)
-    results.push(readResult)
+    const readResult = await readTestRow(config);
+    results.push(readResult);
 
     // Delete test row
-    const deleteResult = await deleteTestRow(config)
-    results.push(deleteResult)
+    const deleteResult = await deleteTestRow(config);
+    results.push(deleteResult);
   }
 
-  return results
+  return results;
 }

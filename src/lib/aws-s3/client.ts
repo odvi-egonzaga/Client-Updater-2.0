@@ -1,44 +1,44 @@
-import { 
-  S3Client, 
-  ListBucketsCommand, 
-  PutObjectCommand, 
-  GetObjectCommand, 
+import {
+  S3Client,
+  ListBucketsCommand,
+  PutObjectCommand,
+  GetObjectCommand,
   DeleteObjectCommand,
-  ListObjectsV2Command
-} from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { env } from '@/config/env'
+  ListObjectsV2Command,
+} from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { env } from "@/config/env";
 
 export class S3IntegrationClient {
-  private client: S3Client
-  private region: string
+  private client: S3Client;
+  private region: string;
 
   constructor() {
-    this.region = env.AWS_REGION ?? 'us-east-1'
-    
+    this.region = env.AWS_REGION ?? "us-east-1";
+
     // Initialize with credentials from env
     this.client = new S3Client({
       region: this.region,
       credentials: {
-        accessKeyId: env.AWS_ACCESS_KEY_ID ?? '',
-        secretAccessKey: env.AWS_ACCESS_SECRET_KEY ?? '',
+        accessKeyId: env.AWS_ACCESS_KEY_ID ?? "",
+        secretAccessKey: env.AWS_ACCESS_SECRET_KEY ?? "",
       },
-    })
+    });
   }
 
   /**
    * Get the underlying S3 Client
    */
   getClient(): S3Client {
-    return this.client
+    return this.client;
   }
 
   /**
    * List all buckets
    */
   async listBuckets() {
-    const command = new ListBucketsCommand({})
-    return this.client.send(command)
+    const command = new ListBucketsCommand({});
+    return this.client.send(command);
   }
 
   /**
@@ -48,21 +48,26 @@ export class S3IntegrationClient {
     const command = new ListObjectsV2Command({
       Bucket: bucket,
       Prefix: prefix,
-    })
-    return this.client.send(command)
+    });
+    return this.client.send(command);
   }
 
   /**
    * Upload a file to S3
    */
-  async uploadFile(bucket: string, key: string, body: Buffer | Uint8Array | Blob | string, contentType?: string) {
+  async uploadFile(
+    bucket: string,
+    key: string,
+    body: Buffer | Uint8Array | Blob | string,
+    contentType?: string,
+  ) {
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: key,
       Body: body,
       ContentType: contentType,
-    })
-    return this.client.send(command)
+    });
+    return this.client.send(command);
   }
 
   /**
@@ -72,8 +77,8 @@ export class S3IntegrationClient {
     const command = new GetObjectCommand({
       Bucket: bucket,
       Key: key,
-    })
-    return this.client.send(command)
+    });
+    return this.client.send(command);
   }
 
   /**
@@ -83,8 +88,8 @@ export class S3IntegrationClient {
     const command = new GetObjectCommand({
       Bucket: bucket,
       Key: key,
-    })
-    return getSignedUrl(this.client, command, { expiresIn })
+    });
+    return getSignedUrl(this.client, command, { expiresIn });
   }
 
   /**
@@ -94,10 +99,9 @@ export class S3IntegrationClient {
     const command = new DeleteObjectCommand({
       Bucket: bucket,
       Key: key,
-    })
-    return this.client.send(command)
+    });
+    return this.client.send(command);
   }
 }
 
-export const s3Client = new S3IntegrationClient()
-
+export const s3Client = new S3IntegrationClient();

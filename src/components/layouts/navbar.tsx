@@ -1,17 +1,25 @@
-import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
+import Link from "next/link";
+import { UserButton } from "@clerk/nextjs";
 
 export function Navbar() {
   return (
     <header className="border-b">
       <div className="container mx-auto flex h-14 items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/" className="font-semibold">DTT Framework</Link>
+          <Link href="/" className="font-semibold">
+            Client Updater Version 2
+          </Link>
           <nav className="flex items-center gap-4">
-            <Link href="/dashboard/fcash" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/dashboard/fcash"
+              className="hover:text-primary text-sm font-medium transition-colors"
+            >
               FCASH Dashboard
             </Link>
-            <Link href="/dashboard/pcni" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link
+              href="/dashboard/pcni"
+              className="hover:text-primary text-sm font-medium transition-colors"
+            >
               PCNI Dashboard
             </Link>
             <div className="h-6 w-px bg-border mx-2" />
@@ -36,5 +44,5 @@ export function Navbar() {
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
     </header>
-  )
+  );
 }

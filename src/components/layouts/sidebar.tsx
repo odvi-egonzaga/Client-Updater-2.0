@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { cn } from "~/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "~/lib/utils";
 import {
   Home,
   Folder,
@@ -11,56 +11,57 @@ import {
   FileText,
   Settings,
   Menu,
-  X
-} from "lucide-react"
-import { useState } from "react"
+  X,
+  Check,
+} from "lucide-react";
+import { useState } from "react";
 
 const navigationItems = [
   {
     name: "Dashboard",
     href: "/dashboard",
-    icon: Home
+    icon: Home,
   },
   {
     name: "FCASH Workspace",
-    href: "/dashboard/fcash",
-    icon: Folder
+    href: "/fcash",
+    icon: Folder,
   },
   {
     name: "PCNI Workspace",
-    href: "/dashboard/pcni",
-    icon: Folder
+    href: "/pcni",
+    icon: Folder,
   },
   {
     name: "Client Master",
-    href: "/dashboard/clients",
-    icon: Users
+    href: "/clients",
+    icon: Users,
   },
   {
     name: "Performance",
-    href: "/dashboard/performance",
-    icon: TrendingUp
+    href: "/performance",
+    icon: TrendingUp,
   },
   {
     name: "Reports",
-    href: "/dashboard/reports",
-    icon: FileText
+    href: "/reports",
+    icon: FileText,
   },
   {
     name: "Admin",
-    href: "/dashboard/admin",
-    icon: Settings
-  }
-]
+    href: "/admin",
+    icon: Settings,
+  },
+];
 
 export function Sidebar() {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <>
       {/* Mobile menu button */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b p-4">
+      <div className="fixed top-0 right-0 left-0 z-50 border-b border-gray-200 bg-gray-100 p-4 lg:hidden">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="flex items-center gap-2 text-gray-700 hover:text-gray-900"
@@ -73,14 +74,17 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-40 h-screen w-64 bg-white border-r transition-transform duration-300 ease-in-out lg:translate-x-0",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed top-0 left-0 z-40 h-screen w-64 border-r border-gray-200 bg-gray-100 transition-transform duration-300 ease-in-out lg:translate-x-0",
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex h-full flex-col">
           {/* Logo/Brand */}
-          <div className="h-14 flex items-center px-6 border-b">
-            <Link href="/" className="font-semibold text-lg">
+          <div className="flex h-14 items-center gap-3 border-b border-gray-200 px-6">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500">
+              <Check size={18} className="text-white" />
+            </div>
+            <Link href="/" className="text-lg font-semibold text-gray-900">
               Client Updater v2
             </Link>
           </div>
@@ -89,8 +93,10 @@ export function Sidebar() {
           <nav className="flex-1 overflow-y-auto py-4">
             <ul className="space-y-1 px-3">
               {navigationItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
-                const Icon = item.icon
+                const isActive =
+                  pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
+                const Icon = item.icon;
 
                 return (
                   <li key={item.name}>
@@ -98,23 +104,28 @@ export function Sidebar() {
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
+                        "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
                         isActive
-                          ? "bg-blue-50 text-blue-600"
-                          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                          ? "bg-gray-200 text-gray-900"
+                          : "text-gray-700 hover:bg-gray-200 hover:text-gray-900",
                       )}
                     >
-                      <Icon size={20} className={cn(isActive ? "text-blue-600" : "text-gray-500")} />
+                      <Icon
+                        size={20}
+                        className={cn(
+                          isActive ? "text-gray-900" : "text-gray-600",
+                        )}
+                      />
                       {item.name}
                     </Link>
                   </li>
-                )
+                );
               })}
             </ul>
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t">
+          <div className="border-t border-gray-200 p-4">
             <div className="text-xs text-gray-500">
               © 2026 Client Updater v2
             </div>
@@ -130,5 +141,5 @@ export function Sidebar() {
         />
       )}
     </>
-  )
+  );
 }

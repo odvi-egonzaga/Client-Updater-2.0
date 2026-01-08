@@ -1,20 +1,26 @@
-'use client'
+"use client";
 
-import { Calendar, Lock, Shield, MapPin, Activity } from 'lucide-react'
-import type { UserWithDetails, UserSession } from '../types'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardHeader, CardTitle, CardContent, CardAction } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { LoadingSpinner } from '@/components/shared/loading-spinner'
+import { Calendar, Lock, Shield, MapPin, Activity } from "lucide-react";
+import type { UserWithDetails, UserSession } from "../types";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardAction,
+} from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
 interface UserDetailProps {
-  user: UserWithDetails | null
-  isLoading?: boolean
-  error?: string | null
-  onEdit?: () => void
-  onRevokeSession?: (sessionId: string) => void
-  isRevokingSession?: boolean
+  user: UserWithDetails | null;
+  isLoading?: boolean;
+  error?: string | null;
+  onEdit?: () => void;
+  onRevokeSession?: (sessionId: string) => void;
+  isRevokingSession?: boolean;
 }
 
 export function UserDetail({
@@ -32,32 +38,33 @@ export function UserDetail({
           <LoadingSpinner className="size-8" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-destructive">{error}</p>
+          <p className="text-destructive text-center">{error}</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (!user) {
     return (
       <Card>
         <CardContent className="py-12">
-          <p className="text-center text-muted-foreground">User not found</p>
+          <p className="text-muted-foreground text-center">User not found</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
-  const fullName = user.firstName && user.lastName
-    ? `${user.firstName} ${user.lastName}`
-    : 'N/A'
+  const fullName =
+    user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : "N/A";
 
   return (
     <div className="space-y-6">
@@ -72,16 +79,16 @@ export function UserDetail({
                 className="size-16 rounded-full object-cover"
               />
             ) : (
-              <div className="flex size-16 items-center justify-center rounded-full bg-primary/10 text-primary text-2xl font-semibold">
-                {user.firstName?.[0] || (user.email?.[0] || '').toUpperCase()}
+              <div className="bg-primary/10 text-primary flex size-16 items-center justify-center rounded-full text-2xl font-semibold">
+                {user.firstName?.[0] || (user.email?.[0] || "").toUpperCase()}
               </div>
             )}
             <div className="flex-1">
               <CardTitle>{fullName}</CardTitle>
               <p className="text-muted-foreground">{user.email}</p>
               <div className="mt-2 flex items-center gap-2">
-                <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                  {user.isActive ? 'Active' : 'Inactive'}
+                <Badge variant={user.isActive ? "default" : "secondary"}>
+                  {user.isActive ? "Active" : "Inactive"}
                 </Badge>
                 {user.mustChangePassword && (
                   <Badge variant="destructive">
@@ -92,51 +99,57 @@ export function UserDetail({
               </div>
             </div>
             <CardAction>
-              {onEdit && (
-                <Button onClick={onEdit}>Edit User</Button>
-              )}
+              {onEdit && <Button onClick={onEdit}>Edit User</Button>}
             </CardAction>
           </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Member Since</p>
+              <p className="text-muted-foreground text-sm font-medium">
+                Member Since
+              </p>
               <p className="flex items-center gap-2">
-                <Calendar className="size-4 text-muted-foreground" />
-                {new Date(user.createdAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
+                <Calendar className="text-muted-foreground size-4" />
+                {new Date(user.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Last Login</p>
+              <p className="text-muted-foreground text-sm font-medium">
+                Last Login
+              </p>
               <p className="flex items-center gap-2">
-                <Activity className="size-4 text-muted-foreground" />
+                <Activity className="text-muted-foreground size-4" />
                 {user.lastLoginAt
-                  ? new Date(user.lastLoginAt).toLocaleString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
+                  ? new Date(user.lastLoginAt).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })
-                  : 'Never'}
+                  : "Never"}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Total Logins</p>
+              <p className="text-muted-foreground text-sm font-medium">
+                Total Logins
+              </p>
               <p className="flex items-center gap-2">
-                <Activity className="size-4 text-muted-foreground" />
+                <Activity className="text-muted-foreground size-4" />
                 {user.loginCount}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-muted-foreground">Failed Attempts</p>
+              <p className="text-muted-foreground text-sm font-medium">
+                Failed Attempts
+              </p>
               <p className="flex items-center gap-2">
-                <Lock className="size-4 text-muted-foreground" />
+                <Lock className="text-muted-foreground size-4" />
                 {user.failedLoginCount}
               </p>
             </div>
@@ -164,15 +177,17 @@ export function UserDetail({
                     className="flex items-center justify-between rounded-lg border p-3"
                   >
                     <div>
-                      <p className="font-medium">{userPermission.permission.resource}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="font-medium">
+                        {userPermission.permission.resource}
+                      </p>
+                      <p className="text-muted-foreground text-sm">
                         {userPermission.permission.action}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline">{userPermission.scope}</Badge>
                       {userPermission.company && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           {userPermission.company.name}
                         </span>
                       )}
@@ -199,7 +214,9 @@ export function UserDetail({
             <div>
               <h4 className="mb-3 font-medium">Areas</h4>
               {user.areas.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No areas assigned</p>
+                <p className="text-muted-foreground text-sm">
+                  No areas assigned
+                </p>
               ) : (
                 <div className="space-y-2">
                   {user.areas.map((userArea) => (
@@ -209,12 +226,12 @@ export function UserDetail({
                     >
                       <div>
                         <p className="font-medium">{userArea.area.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {userArea.area.code}
                         </p>
                       </div>
                       {userArea.area.company && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           {userArea.area.company.name}
                         </span>
                       )}
@@ -228,7 +245,9 @@ export function UserDetail({
             <div>
               <h4 className="mb-3 font-medium">Branches</h4>
               {user.branches.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No branches assigned</p>
+                <p className="text-muted-foreground text-sm">
+                  No branches assigned
+                </p>
               ) : (
                 <div className="space-y-2">
                   {user.branches.map((userBranch) => (
@@ -238,12 +257,12 @@ export function UserDetail({
                     >
                       <div>
                         <p className="font-medium">{userBranch.branch.name}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                           {userBranch.branch.code}
                         </p>
                       </div>
                       {userBranch.branch.location && (
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           {userBranch.branch.location}
                         </span>
                       )}
@@ -256,5 +275,5 @@ export function UserDetail({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

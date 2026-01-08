@@ -15,11 +15,11 @@ export type {
   PaginatedResponse,
   ApiResponse,
   TriggerSyncInput,
-} from './types'
+} from "./types";
 
 // Store
-export { useClientsStore } from './stores/clients-store'
-export type { ClientsStore, PaginationState } from './stores/clients-store'
+export { useClientsStore } from "./stores/clients-store";
+export type { ClientsStore, PaginationState } from "./stores/clients-store";
 
 // Hooks
 export {
@@ -31,7 +31,7 @@ export {
   useSyncJob,
   useTriggerSync,
   usePreviewSync,
-} from './hooks/use-clients'
+} from "./hooks/use-clients";
 
 // Components
 export {
@@ -39,4 +39,4 @@ export {
   ClientTable,
   ClientDetail,
   SyncStatus,
-} from './components'
+} from "./components";

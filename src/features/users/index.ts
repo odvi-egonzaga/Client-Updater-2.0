@@ -14,16 +14,17 @@ export type {
   UserSession,
   UserFilters,
   CreateUserInput,
+  CreateUserWithRoleInput,
   UpdateUserInput,
   SetUserPermissionsInput,
   SetUserTerritoriesInput,
   UserTerritories,
   ApiResponse,
-} from './types'
+} from "./types";
 
 // Store
-export { useUsersStore } from './stores/users-store'
-export type { UsersStore, PaginationState } from './stores/users-store'
+export { useUsersStore } from "./stores/users-store";
+export type { UsersStore, PaginationState } from "./stores/users-store";
 
 // Hooks
 export {
@@ -33,10 +34,14 @@ export {
   useUserTerritories,
   useUserSessions,
   useCreateUser,
+  useCreateUserWithRole,
   useUpdateUser,
   useToggleUserStatus,
   useSetUserPermissions,
   useSetUserTerritories,
   useRevokeSession,
   useRevokeAllSessions,
-} from './hooks/use-users'
+} from "./hooks/use-users";
+
+// Components
+export { UserCreationForm } from "./components/user-creation-form";

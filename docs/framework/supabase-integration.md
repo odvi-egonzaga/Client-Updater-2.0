@@ -1,8 +1,8 @@
-# DTT Framework - Supabase Integration
+# Client Updater Version 2 - Supabase Integration
 
 ## Overview
 
-The DTT Framework uses [Supabase](https://supabase.com/) as the primary database and storage solution. Supabase provides a PostgreSQL database, file storage, and edge functions, all managed through a single platform.
+The Client Updater Version 2 uses [Supabase](https://supabase.com/) as the primary database and storage solution. Supabase provides a PostgreSQL database, file storage, and edge functions, all managed through a single platform.
 
 ### Why Supabase?
 

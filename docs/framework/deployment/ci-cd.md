@@ -1,8 +1,8 @@
-# DTT Framework - CI/CD Setup Guide
+# Client Updater Version 2 - CI/CD Setup Guide
 
 ## Overview
 
-This guide provides comprehensive instructions for setting up Continuous Integration and Continuous Deployment (CI/CD) for the DTT Framework using GitHub Actions. It covers automated testing, deployment, preview deployments, and branch protection rules.
+This guide provides comprehensive instructions for setting up Continuous Integration and Continuous Deployment (CI/CD) for the Client Updater Version 2 using GitHub Actions. It covers automated testing, deployment, preview deployments, and branch protection rules.
 
 ---
 

@@ -1,76 +1,30 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { SignOutButton, useAuth } from '@clerk/nextjs'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { siteConfig } from '@/config/site'
-
-const navLinks = [
-  { href: '/dashboard', label: 'Dashboard', description: 'View your main dashboard and analytics' },
-  { href: '/admin/users', label: 'Users', description: 'Manage user accounts and permissions' },
-  { href: '/clients', label: 'Clients', description: 'Access and manage client information' },
-  { href: '/admin/sync', label: 'Sync Status', description: 'Monitor data synchronization status' },
-  { href: '/health', label: 'Health Check', description: 'View system health and status' },
-]
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { LoadingSpinner } from "@/components/shared/loading-spinner";
 
 export default function HomePage() {
-  const { userId } = useAuth()
+  const { userId, isLoaded } = useAuth();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    if (userId) {
+      // User is authenticated, redirect to dashboard
+      router.replace("/dashboard");
+    } else {
+      // User is not authenticated, redirect to sign-in
+      router.replace("/sign-in");
+    }
+  }, [userId, isLoaded, router]);
+
+  // Show loading spinner while checking auth status
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        {/* Header */}
-        <div className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
-              {siteConfig.name}
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Welcome back! Here's your navigation hub.
-            </p>
-          </div>
-          {userId && (
-            <SignOutButton>
-              <Button variant="outline" size="sm">
-                Sign Out
-              </Button>
-            </SignOutButton>
-          )}
-        </div>
-
-        {/* Navigation Grid */}
-        <div className="grid gap-4 md:gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <Card className="h-full transition-all hover:shadow-md hover:border-primary/50 cursor-pointer">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg">{link.label}</CardTitle>
-                    <Badge variant="secondary">Go</Badge>
-                  </div>
-                  <CardDescription className="mt-2">
-                    {link.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <span>
-                      Access {link.label.toLowerCase()} →
-                    </span>
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-12 text-center text-sm text-muted-foreground">
-          <p>Need help? Check the documentation or contact support.</p>
-        </div>
-      </div>
+    <div className="flex min-h-screen items-center justify-center">
+      <LoadingSpinner className="size-8" />
     </div>
-  )
+  );
 }

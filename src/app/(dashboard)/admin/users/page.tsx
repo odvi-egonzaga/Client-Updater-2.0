@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
-import { Plus } from 'lucide-react'
-import Link from 'next/link'
-import { useUsers } from '@/features/users/hooks/use-users'
-import { UserTable } from '@/features/users/components/user-table'
-import { Button } from '@/components/ui/button'
+import { useEffect } from "react";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import { useUsers } from "@/features/users/hooks/use-users";
+import { UserTable } from "@/features/users/components/user-table";
+import { Button } from "@/components/ui/button";
 
 export default function UsersPage() {
-  const { data, isLoading, error } = useUsers()
+  const { data, isLoading, error } = useUsers();
 
   return (
     <div className="container mx-auto py-8">
@@ -33,5 +33,5 @@ export default function UsersPage() {
         error={error?.message}
       />
     </div>
-  )
+  );
 }

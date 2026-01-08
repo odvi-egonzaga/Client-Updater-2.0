@@ -1,57 +1,47 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { XIcon } from 'lucide-react'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from '@/components/ui/tabs'
+import * as React from "react";
+import { XIcon } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export interface ClientActionSheetProps {
-  open: boolean
-  onClose: () => void
-  clientName: string
-  activeTab?: string
-  onTabChange?: (value: string) => void
-  children?: React.ReactNode
+  open: boolean;
+  onClose: () => void;
+  clientName: string;
+  activeTab?: string;
+  onTabChange?: (value: string) => void;
+  children?: React.ReactNode;
 }
 
 export function ClientActionSheet({
   open,
   onClose,
   clientName,
-  activeTab = 'update-status',
+  activeTab = "update-status",
   onTabChange,
   children,
 }: ClientActionSheetProps) {
-  const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab)
+  const [internalActiveTab, setInternalActiveTab] = React.useState(activeTab);
 
   const handleTabChange = React.useCallback(
     (value: string) => {
-      setInternalActiveTab(value)
-      onTabChange?.(value)
+      setInternalActiveTab(value);
+      onTabChange?.(value);
     },
-    [onTabChange]
-  )
+    [onTabChange],
+  );
 
   // Sync internal state with prop changes
   React.useEffect(() => {
-    setInternalActiveTab(activeTab)
-  }, [activeTab])
+    setInternalActiveTab(activeTab);
+  }, [activeTab]);
 
   return (
     <Sheet open={open} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+      <SheetContent side="right" className="w-full overflow-y-auto sm:max-w-md">
         <SheetHeader className="relative">
-          <SheetTitle>Client Action Drawer</SheetTitle>
+          <h2 className="text-lg font-semibold">Client Action Drawer</h2>
           <button
             onClick={onClose}
             className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-0 right-0 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none"
@@ -96,13 +86,17 @@ export function ClientActionSheet({
             {children}
           </TabsContent>
           <TabsContent value="client-info" className="mt-4">
-            {children}
+            <div className="text-sm text-gray-500">
+              Client information will be displayed here.
+            </div>
           </TabsContent>
           <TabsContent value="history" className="mt-4">
-            {children}
+            <div className="text-sm text-gray-500">
+              Status history will be displayed here.
+            </div>
           </TabsContent>
         </Tabs>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

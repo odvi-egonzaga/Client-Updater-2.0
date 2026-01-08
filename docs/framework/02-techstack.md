@@ -1,8 +1,8 @@
-# DTT Framework - Tech Stack
+# Client Updater Version 2 - Tech Stack
 
 ## Complete Technology Stack
 
-The DTT Framework uses a carefully curated set of modern technologies to provide a robust, type-safe, and developer-friendly foundation for building enterprise applications.
+The Client Updater Version 2 uses a carefully curated set of modern technologies to provide a robust, type-safe, and developer-friendly foundation for building enterprise applications.
 
 ### Technology Stack Overview
 

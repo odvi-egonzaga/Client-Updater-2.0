@@ -5,8 +5,8 @@ import { Geist } from "next/font/google";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "Client Updater v2",
-  description: "Client update management system for tracking and managing client updates",
+  title: "Client Updater Version 2",
+  description: "Client data synchronization application with integrated services",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

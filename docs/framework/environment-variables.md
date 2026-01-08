@@ -1,8 +1,8 @@
-# DTT Framework - Environment Variables
+# Client Updater Version 2 - Environment Variables
 
 ## Overview
 
-Environment variables are used to configure the DTT Framework. This document provides a complete reference for all available environment variables, their purposes, and how to configure them.
+Environment variables are used to configure the Client Updater Version 2. This document provides a complete reference for all available environment variables, their purposes, and how to configure them.
 
 ---
 
@@ -10,7 +10,7 @@ Environment variables are used to configure the DTT Framework. This document pro
 
 ```bash
 # ============================================
-# DTT Framework Environment Variables
+# Client Updater Version 2 Environment Variables
 # ============================================
 # Copy this file to .env and fill in your values
 # Never commit .env to version control

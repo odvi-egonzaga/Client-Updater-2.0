@@ -1,18 +1,18 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
-import PCNIDashboardPage from '../page'
+import { describe, it, expect, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
+import PCNIDashboardPage from "../page";
 
 // Mock the useSearchParams hook
-vi.mock('next/navigation', () => ({
-  useSearchParams: vi.fn(() => new URLSearchParams('')),
-}))
+vi.mock("next/navigation", () => ({
+  useSearchParams: vi.fn(() => new URLSearchParams("")),
+}));
 
 // Mock useStatusStore
-vi.mock('@/features/status/stores/status-store', () => ({
+vi.mock("@/features/status/stores/status-store", () => ({
   useStatusStore: vi.fn((selector) => {
     const state = {
       currentPeriod: {
-        periodType: 'monthly',
+        periodType: "monthly",
         periodYear: 2024,
         periodMonth: 1,
         periodQuarter: null,
@@ -28,13 +28,13 @@ vi.mock('@/features/status/stores/status-store', () => ({
       clearClientSelection: vi.fn(),
       selectedClientStatus: null,
       setSelectedClientStatus: vi.fn(),
-    }
-    return selector(state)
+    };
+    return selector(state);
   }),
-}))
+}));
 
 // Mock status hooks
-vi.mock('@/features/status/hooks/use-status', () => ({
+vi.mock("@/features/status/hooks/use-status", () => ({
   useDashboardSummary: vi.fn(() => ({
     data: {
       totalClients: 10,
@@ -46,8 +46,8 @@ vi.mock('@/features/status/hooks/use-status', () => ({
       paymentCount: 2,
       terminalCount: 0,
       byPensionType: {
-        'SSS': 5,
-        'GSIS': 5,
+        SSS: 5,
+        GSIS: 5,
       },
     },
     isLoading: false,
@@ -64,27 +64,27 @@ vi.mock('@/features/status/hooks/use-status', () => ({
     mutate: vi.fn(),
     isPending: false,
   })),
-}))
+}));
 
 // Mock clients hook
-vi.mock('@/features/clients/hooks/use-clients', () => ({
+vi.mock("@/features/clients/hooks/use-clients", () => ({
   useClients: vi.fn(() => ({
     data: {
       data: [
         {
-          id: '1',
-          clientCode: 'PC001',
-          fullName: 'John Doe',
-          pensionNumber: '123456',
-          contactNumber: '123-456-7890',
+          id: "1",
+          clientCode: "PC001",
+          fullName: "John Doe",
+          pensionNumber: "123456",
+          contactNumber: "123-456-7890",
           isActive: true,
         },
         {
-          id: '2',
-          clientCode: 'PC002',
-          fullName: 'Jane Smith',
-          pensionNumber: '234567',
-          contactNumber: '234-567-8901',
+          id: "2",
+          clientCode: "PC002",
+          fullName: "Jane Smith",
+          pensionNumber: "234567",
+          contactNumber: "234-567-8901",
           isActive: true,
         },
       ],
@@ -98,16 +98,18 @@ vi.mock('@/features/clients/hooks/use-clients', () => ({
     isLoading: false,
     error: null,
   })),
-}))
+}));
 
 // Mock status components
-vi.mock('@/features/status/components', () => ({
+vi.mock("@/features/status/components", () => ({
   PeriodSelector: vi.fn(({ value, onChange }) => (
     <div data-testid="period-selector">
       <select
         data-testid="period-select"
-        value={value.periodMonth || ''}
-        onChange={(e) => onChange({ ...value, periodMonth: Number(e.target.value) })}
+        value={value.periodMonth || ""}
+        onChange={(e) =>
+          onChange({ ...value, periodMonth: Number(e.target.value) })
+        }
       >
         <option value="1">January</option>
         <option value="2">February</option>
@@ -132,63 +134,65 @@ vi.mock('@/features/status/components', () => ({
   StatusBadge: vi.fn(({ status }) => (
     <span data-testid="status-badge">{status}</span>
   )),
-}))
+}));
 
-describe('PCNIDashboardPage', () => {
-  it('renders page header', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByText('PCNI Dashboard')).toBeInTheDocument()
-    expect(screen.getByText('Track and manage client status for PCNI company.')).toBeInTheDocument()
-  })
+describe("PCNIDashboardPage", () => {
+  it("renders page header", () => {
+    render(<PCNIDashboardPage />);
 
-  it('renders period selector', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByTestId('period-selector')).toBeInTheDocument()
-  })
+    expect(screen.getByText("PCNI Dashboard")).toBeInTheDocument();
+    expect(
+      screen.getByText("Track and manage client status for PCNI company."),
+    ).toBeInTheDocument();
+  });
 
-  it('renders dashboard summary', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByTestId('dashboard-summary')).toBeInTheDocument()
-    expect(screen.getByTestId('total-clients')).toHaveTextContent('10')
-  })
+  it("renders period selector", () => {
+    render(<PCNIDashboardPage />);
 
-  it('renders client list header', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByText('Client List')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("period-selector")).toBeInTheDocument();
+  });
 
-  it('renders bulk update mode button', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByText('Bulk Update Mode')).toBeInTheDocument()
-  })
+  it("renders dashboard summary", () => {
+    render(<PCNIDashboardPage />);
 
-  it('renders client table with data', () => {
-    render(<PCNIDashboardPage />)
-    
-    expect(screen.getByText('PC001')).toBeInTheDocument()
-    expect(screen.getByText('John Doe')).toBeInTheDocument()
-    expect(screen.getByText('123456')).toBeInTheDocument()
-    expect(screen.getByText('123-456-7890')).toBeInTheDocument()
-    expect(screen.getByText('PC002')).toBeInTheDocument()
-    expect(screen.getByText('Jane Smith')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("dashboard-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("total-clients")).toHaveTextContent("10");
+  });
 
-  it('renders update status buttons for each client', () => {
-    render(<PCNIDashboardPage />)
-    
-    const updateButtons = screen.getAllByText('Update Status')
-    expect(updateButtons).toHaveLength(2)
-  })
+  it("renders client list header", () => {
+    render(<PCNIDashboardPage />);
 
-  it('renders status badges for each client', () => {
-    render(<PCNIDashboardPage />)
-    
-    const statusBadges = screen.getAllByTestId('status-badge')
-    expect(statusBadges).toHaveLength(2)
-  })
-})
+    expect(screen.getByText("Client List")).toBeInTheDocument();
+  });
+
+  it("renders bulk update mode button", () => {
+    render(<PCNIDashboardPage />);
+
+    expect(screen.getByText("Bulk Update Mode")).toBeInTheDocument();
+  });
+
+  it("renders client table with data", () => {
+    render(<PCNIDashboardPage />);
+
+    expect(screen.getByText("PC001")).toBeInTheDocument();
+    expect(screen.getByText("John Doe")).toBeInTheDocument();
+    expect(screen.getByText("123456")).toBeInTheDocument();
+    expect(screen.getByText("123-456-7890")).toBeInTheDocument();
+    expect(screen.getByText("PC002")).toBeInTheDocument();
+    expect(screen.getByText("Jane Smith")).toBeInTheDocument();
+  });
+
+  it("renders update status buttons for each client", () => {
+    render(<PCNIDashboardPage />);
+
+    const updateButtons = screen.getAllByText("Update Status");
+    expect(updateButtons).toHaveLength(2);
+  });
+
+  it("renders status badges for each client", () => {
+    render(<PCNIDashboardPage />);
+
+    const statusBadges = screen.getAllByTestId("status-badge");
+    expect(statusBadges).toHaveLength(2);
+  });
+});

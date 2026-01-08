@@ -1,12 +1,12 @@
-import { create } from 'zustand'
-import type { StatusStoreState, PeriodFilter } from '../types'
+import { create } from "zustand";
+import type { StatusStoreState, PeriodFilter } from "../types";
 
 /**
  * Initial state for the status store
  */
 const initialState = {
   currentPeriod: {
-    periodType: 'monthly' as const,
+    periodType: "monthly" as const,
     periodYear: new Date().getFullYear(),
     periodMonth: new Date().getMonth() + 1,
     periodQuarter: null,
@@ -15,7 +15,7 @@ const initialState = {
   isUpdateDialogOpen: false,
   isBulkUpdateMode: false,
   selectedClientIds: new Set<string>(),
-}
+};
 
 /**
  * Status store using Zustand
@@ -35,16 +35,16 @@ export const useStatusStore = create<StatusStoreState>((set) => ({
 
   toggleClientSelection: (clientId) =>
     set((state) => {
-      const newSelected = new Set(state.selectedClientIds)
+      const newSelected = new Set(state.selectedClientIds);
       if (newSelected.has(clientId)) {
-        newSelected.delete(clientId)
+        newSelected.delete(clientId);
       } else {
-        newSelected.add(clientId)
+        newSelected.add(clientId);
       }
-      return { selectedClientIds: newSelected }
+      return { selectedClientIds: newSelected };
     }),
 
   clearClientSelection: () => set({ selectedClientIds: new Set() }),
 
   reset: () => set(initialState),
-}))
+}));
